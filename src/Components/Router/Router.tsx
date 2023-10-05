@@ -10,10 +10,10 @@ const Router: FC<RouterProps> = () => {
     return (
         <>
         <Routes>
-                <Route path='/' element={<SignIn />} />
+                <Route path='/signIn' element={<SignIn />} />
                 <Route path='/signUp' element={<SignUp />} />
                 <Route path='*' element={<>Page Note Found!</>} />
-                <Route path='/home' element={<Home />}/>
+                <Route path='/' element={<Home />}/>
             </Routes>
         </>
     );
