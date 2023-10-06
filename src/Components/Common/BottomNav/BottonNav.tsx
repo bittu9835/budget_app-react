@@ -1,13 +1,13 @@
 import type { FC } from 'react';
 
-interface TopNavProps {}
+interface BottonNavProps { }
 
-const TopNav: FC<TopNavProps> = () => {
+const BottonNav: FC<BottonNavProps> = () => {
     return (
         <div className='w-full h-full bg-black'>
-                 
+
         </div>
     );
 }
 
-export default TopNav;
+export default BottonNav;

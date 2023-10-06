@@ -1,26 +1,28 @@
 import { useState, type FC } from 'react';
 import bg from '../../../Assets/Login.jpg'
-import btc from '../../../Assets/icon.png'
+import icon from '../../../Assets/favicon1.png'
 import bg2 from '../../../Assets/bitcoin-6219345_1280.jpg'
 import { ErrorMessage, Field, Form, Formik } from 'formik';
 import { FaEye, FaEyeSlash } from 'react-icons/fa';
 import * as Yup from 'yup';
+import { useNavigate } from 'react-router-dom';
 
 interface SignUpProps { }
 
 const SignUp: FC<SignUpProps> = () => {
     const [togglePassIcon, setTogglePassIcon] = useState(true)
+    const navigate = useNavigate()
 
     const initialValues = {
         name: '',
-        email:'',
+        email: '',
         password: ''
     }
 
     const validationSchema = Yup.object().shape({
-        name:Yup.string().min(3,'Name must be short').required('Name is required'),
-        email: Yup.string().email('Invalid email').required('Email is required'),
-        password: Yup.string().required('Password is required')
+        name: Yup.string().min(3, 'Name must be short').required('Name is required!'),
+        email: Yup.string().email('Invalid email').required('Email is required!'),
+        password: Yup.string().required('Password is required!')
             .min(8, 'Password must be 8 characters long')
             .matches(/[0-9]/, 'Password requires a number')
             .matches(/[a-z]/, 'Password requires a lowercase letter')
@@ -32,19 +34,20 @@ const SignUp: FC<SignUpProps> = () => {
 
     }
     return (
-        <div className='w-screen h-screen'>
+        <div className='w-screen h-screen relative'>
+            <p className='absolute bottom-2 right-2 z-10  text-white'>Already have Account ? <span onClick={() => navigate('/')} className='text-violet-800 font-bold cursor-pointer ml-1'> SignIn</span> </p>
             <div className='w-full h-full relative md:bg-transparent bg-black'>
                 <img className='md:block hidden w-full h-full' src={bg} alt="" />
-                <img className='block md:hidden w-full h-1/2' src={bg2} alt="" />
-                <div className='md:w-[40%] w-full absolute top-40 right-0 px-10 md:px-4 md:mr-2'>
+                <img className='block md:hidden w-full h-1/2 animate-pulse' src={bg2} alt="" />
+                <div className='md:w-[40%] w-full absolute top-20 right-0 px-10 md:px-4 md:mr-2'>
+
                     <Formik
                         initialValues={initialValues}
                         onSubmit={handleSignUp}
                         validationSchema={validationSchema}
                     >
-
-                        <Form className='w-full flex  flex-col items-center'>
-                        <img  className="w-10 h-10 animate-bounce rounded-sm" src={btc} alt=''/>
+                        <Form className='w-full flex  flex-col items-center '>
+                            <img className='w-20 h-20 rounded-full mb-3' src={icon} alt="" />
                             <div className='text-white text-3xl font-bold mb-5'>SignUp</div>
                             <div className='w-full flex justify-center flex-col gap-10'>
                                 <div className='w-full'>
@@ -61,8 +64,8 @@ const SignUp: FC<SignUpProps> = () => {
                                     <span className="text-yellow-400 text-sm"><ErrorMessage name="password" /></span>
                                 </div>
                             </div>
-                            <div className=' w-full h-[2.25rem] mt-7 rounded-md shadow-md border'>
-                                <button type='submit' className='bg-green-600 text-white rounded-md w-full h-full font-extrabold'>SignUp</button>
+                            <div className=' w-full h-[2.25rem] mt-7 rounded-md shadow-md'>
+                                <button type='submit' className='bg-green-600 text-white focus:animate-ping rounded-md w-full h-full font-extrabold'>SignUp</button>
                             </div>
                         </Form>
                     </Formik>
