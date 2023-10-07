@@ -29,7 +29,7 @@ const options = {
     width: 900, // Set the desired width of the chart
 };
 
-const labels = ['January', 'February', 'March', 'April', 'May', 'June', 'July'];
+const labels = ['January', 'February', 'March', 'April', 'May', 'June', 'July','august'];
 
 // Replace faker data with static data
 const dataset1Data = [300, 450, 600, 200, 700, 800, 350];

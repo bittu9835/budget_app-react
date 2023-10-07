@@ -22,20 +22,20 @@ const Home: FC<HomeProps> = () => {
 
     return (
         <div className='w-screen h-screen bg-white flex transition-all duration-300 relative scrollbar-thumb-slate-800'>
-            <div className='w-[20rem] h-full hidden md:block'>
+            <div className='w-[20rem] h-full hidden lg:block'>
                 <SideNav />
             </div>
             <div className='w-full h-full'>
                 <div className='w-full h-[8vh]'>
                     <TopNav />
                 </div>
-                <div className='h-[85vh] md:h-[92vh]  w-full sm:scrollbar-thin'>
-                    <div title='Add Transactions' className='absolute sm:right-12 right-4 sm:bottom-12 bottom-20 '>
+                <div className='h-[85vh] lg:h-[92vh]  w-full scrollbar-thin'>
+                    <div title='Add Transactions' className='absolute lg:right-12 right-4 lg:bottom-12 bottom-20 '>
                         <img className='cursor-pointer w-14 h-14 rounded-lg' src={pluse} alt="" />
                     </div>
                     <Outlet />
                 </div>
-                <div className='block md:hidden w-full h-[7vh] absolute bottom-0'>
+                <div className='block lg:hidden w-full h-[7vh] absolute bottom-0'>
                     <BottonNav />
                 </div>
             </div>
