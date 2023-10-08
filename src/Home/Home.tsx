@@ -30,7 +30,7 @@ const Home: FC<HomeProps> = () => {
                     <TopNav />
                 </div>
                 <div className='h-[85vh] lg:h-[92vh]  w-full scrollbar-thin'>
-                    <div title='Add Transactions' className='absolute lg:right-12 right-4 lg:bottom-12 bottom-20 '>
+                    <div title='Add Transactions' className='absolute lg:right-12 z-30 right-4 lg:bottom-12 bottom-20 '>
                         <img className='cursor-pointer w-14 h-14 rounded-lg' src={pluse} alt="" />
                     </div>
                     <Outlet />

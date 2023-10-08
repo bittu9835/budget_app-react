@@ -29,7 +29,7 @@ const Dashboard: FC<DashboardProps> = () => {
     return (
         <div className='w-full h-full flex gap-2  py-2 px-2 bg-gray-100'>
             <div className='grid grid-cols-1  gap-3 w-full overflow-y-scroll scrollbar-none'>
-                <div className='w-full grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-2  '>
+                <div className='w-full grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-2  '>
                     <div className="h-36 bg-blue-200 rounded-md">
                         <motion.div
                             initial="initial"
@@ -69,6 +69,19 @@ const Dashboard: FC<DashboardProps> = () => {
                             />
                         </motion.div>
                     </div>
+                    <div className="h-36 bg-orange-200 rounded-md">
+                        <motion.div
+                            initial="initial"
+                            animate={cardControls}
+                            variants={animationVariants}
+                        >
+                            <Card
+                                title="Income-Expence"
+                                amount={val}
+                                indicator="1.5%"
+                            />
+                        </motion.div>
+                    </div>
                 </div>
                 <div className='w-full shadow-md h-[400px] bg-white rounded-lg p-2 font-sans'>
                     <BarChart />
@@ -86,10 +99,7 @@ const Dashboard: FC<DashboardProps> = () => {
                 </div>
             </div>
             <div onClick={change} className='hidden lg:block w-[30rem] max-w-[30rem] h-full bg-white rounded-md font-sans p-1'>
-                <div className='h-[7%] pt-2'>
-                    <p className='text-gray-500 font-semibold '>Latest Transactions</p>
-                </div>
-                <div className='w-full h-[93%] rounded-lg'><Table/></div>
+                <div className='w-full h-full rounded-lg'><Table/></div>
             </div>
         </div>
     );

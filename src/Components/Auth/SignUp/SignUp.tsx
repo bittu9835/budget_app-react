@@ -6,6 +6,8 @@ import { ErrorMessage, Field, Form, Formik } from 'formik';
 import { FaEye, FaEyeSlash } from 'react-icons/fa';
 import * as Yup from 'yup';
 import { useNavigate } from 'react-router-dom';
+import http from '../../../http/http';
+import axios from 'axios';
 
 interface SignUpProps { }
 
@@ -30,8 +32,39 @@ const SignUp: FC<SignUpProps> = () => {
             .matches(/[^\w]/, 'Password requires a symbol'),
     });
 
-    const handleSignUp = () => {
-
+    const handleSignUp = async (values:any) => {
+        console.log(values)
+        axios.post(`http://localhost:4000/api/user/addUser`, values)
+            .then((response) => {
+                // toast.success(response.data.message)
+                navigate('/')
+                // setToggleRegister(false)
+            })
+            .catch((error) => {
+                // toast.error(error.response.data.message)
+                console.log("Error occurred:", error);
+            });
+        // try {
+        //     const response: any = await http({
+        //         url: `user/addUser`,
+        //         method: 'post',
+        //         data: values
+        //     });
+        //     if (response?.data?.code === 'SUCCESS_200') {
+        //         // toast.success(response?.data?.message);
+        //         setTimeout(() => {
+        //             navigate('/login');
+        //         }, 1000);
+        //     } else {
+        //         // toast.error(response?.data?.message);
+        //     }
+        // } catch (error: any) {
+        //     if (error.response && error.response.data && error.response.data.message) {
+        //         // toast.error(error?.response?.data?.message);
+        //     } else {
+        //         // toast.error('Error fetching Asset Monitoring.');
+        //     }
+        // }
     }
     return (
         <div className='w-screen h-screen relative'>
@@ -65,7 +98,7 @@ const SignUp: FC<SignUpProps> = () => {
                                 </div>
                             </div>
                             <div className=' w-full h-[2.25rem] mt-7 rounded-md shadow-md'>
-                                <button type='submit' className='bg-green-600 text-white focus:animate-ping rounded-md w-full h-full font-extrabold'>SignUp</button>
+                                <button type='submit' className='bg-green-600 text-white rounded-md w-full h-full font-extrabold'>SignUp</button>
                             </div>
                         </Form>
                     </Formik>
@@ -76,3 +109,5 @@ const SignUp: FC<SignUpProps> = () => {
 }
 
 export default SignUp;
+
+
