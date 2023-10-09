@@ -6,8 +6,8 @@ import { ErrorMessage, Field, Form, Formik } from 'formik';
 import { FaEye, FaEyeSlash } from 'react-icons/fa';
 import * as Yup from 'yup';
 import { useNavigate } from 'react-router-dom';
-import http from '../../../http/http';
-import axios from 'axios';
+import http from '../../../Services/http/http';
+import { toast } from 'react-toastify';
 
 interface SignUpProps { }
 
@@ -33,38 +33,34 @@ const SignUp: FC<SignUpProps> = () => {
     });
 
     const handleSignUp = async (values:any) => {
-        console.log(values)
-        axios.post(`http://localhost:4000/api/user/addUser`, values)
-            .then((response) => {
-                // toast.success(response.data.message)
-                navigate('/')
-                // setToggleRegister(false)
-            })
-            .catch((error) => {
-                // toast.error(error.response.data.message)
-                console.log("Error occurred:", error);
-            });
-        // try {
-        //     const response: any = await http({
-        //         url: `user/addUser`,
-        //         method: 'post',
-        //         data: values
+        // axios.post(`http://localhost:4000/api/user/addUser`, values)
+        //     .then((response) => {
+        //         // toast.success(response.data.message)
+        //         navigate('/')
+        //         // setToggleRegister(false)
+        //     })
+        //     .catch((error) => {
+        //         // toast.error(error.response.data.message)
+        //         console.log("Error occurred:", error);
         //     });
-        //     if (response?.data?.code === 'SUCCESS_200') {
-        //         // toast.success(response?.data?.message);
-        //         setTimeout(() => {
-        //             navigate('/login');
-        //         }, 1000);
-        //     } else {
-        //         // toast.error(response?.data?.message);
-        //     }
-        // } catch (error: any) {
-        //     if (error.response && error.response.data && error.response.data.message) {
-        //         // toast.error(error?.response?.data?.message);
-        //     } else {
-        //         // toast.error('Error fetching Asset Monitoring.');
-        //     }
-        // }
+
+        try {
+            const response: any = await http({
+                url: `/user/addUser`,
+                method: 'post',
+                data: values
+            });
+            if (response?.data?.code === 'SUCCESS_200') {
+                toast.success(response?.data?.message);
+                setTimeout(() => {
+                    navigate('/');
+                }, 1000);
+            } else {
+                toast.error(response?.data?.message);
+            }
+        } catch (error: any | unknown) {
+            toast.error(error?.message);
+        }
     }
     return (
         <div className='w-screen h-screen relative'>
@@ -73,7 +69,6 @@ const SignUp: FC<SignUpProps> = () => {
                 <img className='md:block hidden w-full h-full' src={bg} alt="" />
                 <img className='block md:hidden w-full h-1/2 animate-pulse' src={bg2} alt="" />
                 <div className='md:w-[40%] w-full absolute top-20 right-0 px-10 md:px-4 md:mr-2'>
-
                     <Formik
                         initialValues={initialValues}
                         onSubmit={handleSignUp}
