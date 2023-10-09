@@ -10,7 +10,6 @@ import Settings from '../Pages/Settings/Settings';
 import PageNoteFound from '../Common/PageNoteFound/PageNoteFound';
 import Transactions from '../Pages/Transactions/Transactions';
 import Calculator from '../Pages/Calculator/Calculator';
-import AddTransactions from '../Pages/AddTransactions/AddTransactions';
 
 interface RouterProps { }
 
@@ -28,7 +27,6 @@ const Router: FC<RouterProps> = () => {
                     <Route path='bankAccounts' element={<BankAccounts />} />
                     <Route path='calculator' element={<Calculator />} />
                     <Route path='settings' element={<Settings />} />
-                    <Route path='add' element={<AddTransactions />} />
                 </Route>
             </Routes>
         </>
