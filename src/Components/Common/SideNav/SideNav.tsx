@@ -3,7 +3,6 @@ import {FaChartLine} from 'react-icons/fa'
 import {RxDashboard} from 'react-icons/rx'
 import {CiBank} from 'react-icons/ci'
 import {AiOutlineFileDone} from 'react-icons/ai'
-import {IoSettingsOutline} from 'react-icons/io5'
 import {LiaCreditCardSolid} from 'react-icons/lia'
 import { NavLink } from 'react-router-dom';
 import { SlCalculator } from 'react-icons/sl';
@@ -31,9 +30,6 @@ const SideNav: FC<SideNavProps> = () => {
             </NavLink>
             <NavLink to='calculator' className=' hover:translate-x-3 transition-all duration-300'>
                 <span className='flex items-center gap-3'><SlCalculator className='text-2xl'/> Calculator</span>
-            </NavLink>
-            <NavLink to='settings' className=' hover:translate-x-3 transition-all duration-300'>
-                <span className='flex items-center gap-3'><IoSettingsOutline className='text-2xl'/> SETTINGS</span>
             </NavLink>
             </div>
             </div>

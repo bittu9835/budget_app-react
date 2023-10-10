@@ -1,9 +1,9 @@
 import type { FC } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
-import { IoMdAdd } from 'react-icons/io'
 import { SlCalculator } from 'react-icons/sl'
 import { IoMdNotificationsOutline } from 'react-icons/io'
 import avtar from '../../../Assets/avtar.png'
+import { IoSettingsOutline } from 'react-icons/io5';
 
 interface TopNavProps { }
 
@@ -16,7 +16,7 @@ const TopNav: FC<TopNavProps> = () => {
         <div className='w-full h-full bg-gray-50 flex items-center justify-between sm:px-4 p-2'>
             <p className='text-2xl font-extrabold transition-all duration-300 text-gray-500 cursor-default'>{pageTitle}</p>
             <div className='flex items-center gap-2 h-full py-2'>
-                <div onClick={() => navigate('add')} title='Add Transactions' className='sm:block hidden '><div className='w-6 h-6 rounded-full cursor-pointer bg-[#5200bb] flex justify-center items-center'><IoMdAdd className='text-white' /></div></div>
+                <div onClick={() => navigate('settings')} title='Setting' className='sm:block hidden '><div className='w-6 h-6 rounded-full cursor-pointer bg-[#5200bb] flex justify-center items-center'><IoSettingsOutline className='text-white' /></div></div>
                 <div title='Notifications' className='w-6 h-6 rounded-full cursor-pointer border border-[#5200bb] flex justify-center items-center text-[#5200bb] relative'>
                     <IoMdNotificationsOutline />
                     <p className='absolute w-2 h-2 bg-red-600 rounded-full top-0 -right-1 animate-pulse'></p>
