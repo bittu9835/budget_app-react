@@ -1,0 +1,9 @@
+.theme2{
+    --color-text-base: pink;
+    --color-text-muted: #c7d2fe;
+    --color-text-inverted: #4f46e5;
+    --color-fill: orange;
+    --color-button-accent: #ffffff;
+    --color-button-accent-hover: #eef2ff;
+    --color-button-muted: #6366f1;
+}

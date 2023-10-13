@@ -2,9 +2,9 @@
 @tailwind components;
 @tailwind utilities;
 
-@layer base{
-    :root {
-   --color-text-base: #ffffff;
-  --color-text-muted: 
-    };
+@layer base {
+    @import url('./Components/Common/Themes/Defaults.css');
+    @import url('./Components/Common/Themes/Theme1.css');
+    @import url('./Components/Common/Themes/Theme2.css');
+    @import url('./Components/Common/Themes/Theme3.css');
 }

@@ -33,12 +33,14 @@ const SignIn: FC<SignInProps> = () => {
     });
 
     const handleLogin = async (values: any) => {
+
         try {
             const response: any = await http({
                 url: `/auth/login`,
                 method: 'post',
                 data: values
             });
+            console.log(response)
             if (response?.data?.code === 'SUCCESS_200') {
                 sessionStorage.setItem('token', response.data.data.token);
                 sessionStorage.setItem('userDetails', JSON.stringify(response.data.data.userDetail))
@@ -50,6 +52,7 @@ const SignIn: FC<SignInProps> = () => {
                 toast.error(response?.data?.message);
             }
         } catch (error: any | unknown) {
+            console.log(error)
             toast.error(error?.message);
         }
     }

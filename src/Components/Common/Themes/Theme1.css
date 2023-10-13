@@ -1,0 +1,9 @@
+.theme1{
+    --color-text-base: #000000;
+    --color-text-muted: #c7d2fe;
+    --color-text-inverted: #4f46e5;
+    --color-fill: #ffffff;
+    --color-button-accent: #ffffff;
+    --color-button-accent-hover: #eef2ff;
+    --color-button-muted: #6366f1;
+}

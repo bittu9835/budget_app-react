@@ -12,6 +12,7 @@ interface HomeProps { }
 const Home: FC<HomeProps> = () => {
     const navigate = useNavigate();
     const [openFotm,setOpenForm]=useState(false)
+    const [theme,setTheme]=useState('')
     let login = sessionStorage.getItem('token');
     useEffect(() => {
         if (!login) {
@@ -23,11 +24,11 @@ const Home: FC<HomeProps> = () => {
     return (
         <div className='w-screen h-screen bg-white flex transition-all duration-300 relative scrollbar-thumb-slate-800'>
             <div className='w-[20rem] h-full hidden lg:block'>
-                <SideNav />
+                <SideNav theme={theme}/>
             </div>
             <div className='w-full h-full'>
                 <div className='w-full h-[8vh]'>
-                    <TopNav />
+                    <TopNav setTheme={setTheme}/>
                 </div>
                 <div className='h-[85vh] lg:h-[92vh]  w-full scrollbar-thin'>
                     <div onClick={()=>setOpenForm(true)} title='Add Transactions' className='absolute lg:right-12 z-30 right-4 lg:bottom-12 bottom-20 '>
@@ -39,7 +40,7 @@ const Home: FC<HomeProps> = () => {
                     <BottonNav />
                 </div>
             </div>
-            {/* <AddTransactions openFotm={openFotm} setOpenForm={setOpenForm}/> */}
+            <AddTransactions openFotm={openFotm} setOpenForm={setOpenForm}/>
         </div>
     );
 }

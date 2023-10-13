@@ -36,7 +36,7 @@ const AddTransactions: FC<AddTransactionsProps> = ({ openFotm, setOpenForm }) =>
                     <div className='w-full h-full flex flex-col items-center gap-8 justify-center'>
                         <p className='bg-blue-200 rounded-md p-2 text-blue-600 cursor-default font-bold flex justify-between md:w-[25rem] w-full items-center'>
                             <span>Add Your Transactions Here!</span>
-                            <span title='Exit' onClick={() => setOpenForm(false)} className='text-lg cursor-pointer'><RxCross2 /></span></p>
+                            <span title='Exit' onClick={() => setOpenForm(!openFotm)} className='text-lg cursor-pointer'><RxCross2 /></span></p>
                         <div className={`md:w-[25rem] w-full flex flex-col justify-around md:h-[20rem] h-full rounded-md ${action === 'earning' ? 'bg-green-200' : action === 'expense' ? 'bg-red-200' : 'bg-white'} p-2 pt-4`}>
 
                             <div title='Chose on of these' className='w-full flex justify-between px-2'>
