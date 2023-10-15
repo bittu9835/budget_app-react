@@ -12,7 +12,6 @@ const Transactions: FC<TransactionsProps> = () => {
         animate={{ opacity: 1, scale: 1 }} // Animation state (visible and full size)
         transition={{ duration: 1 }} // Animation duration in seconds
       >
-        
             <Table/>
       </motion.div>
     );

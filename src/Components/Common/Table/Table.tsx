@@ -24,7 +24,7 @@ const Table: FC<TableProps> = () => {
                             Amount
                         </th>
                         <th scope="col" className="px-1 py-3">
-                            On
+                            By
                         </th>
                     </tr>
                 </thead>
