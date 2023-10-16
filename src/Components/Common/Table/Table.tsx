@@ -1,9 +1,10 @@
 import { useEffect, type FC, useContext, useState } from 'react';
-import { BsCalendar, BsCash, BsCashCoin } from 'react-icons/bs'
+import { BsCashCoin, BsCreditCard2Back } from 'react-icons/bs'
 import { DataContext } from '../../../Context/DataProvider';
 import http from '../../../Services/http/http';
 import { toast } from 'react-toastify';
 import moment from 'moment';
+import { MdAccountBalance } from 'react-icons/md'
 
 
 interface TableProps { }
@@ -41,37 +42,43 @@ const Table: FC<TableProps> = () => {
                 <p className='text-gray-500 font-semibold truncate'>Latest Transactions</p>
                 <input className='w-40 h-6 focus:outline-none text-sm text-gray-800 font-semibold px-2 py-1 border rounded-md placeholder:text-sm placeholder:font-semibold' placeholder='search..' type="search" />
             </div>
-            <table className="w-full text-sm text-left text-gray-500 relative px-1">
-                <thead className="text-xs text-gray-700 uppercase bg-gray-50 sticky top-0 ">
-                    <tr>
-                        <th scope="col" className="px-1 py-3">
-                            Name
+            <table className="w-full text-sm text-lef relative px-1">
+                <thead className="border-l-white bg-skin-fill-table-head px-6 text-skin-base-table-head-text sticky z-20 top-0">
+                    <tr className=''>
+                        <th scope="col" className="px-6 py-4 font-medium truncate">
+                            S.No.
                         </th>
-                        <th scope="col" className="px-1 py-3">
+                        <th scope="col" className="sticky left-0 bg-skin-fill-table-head px-4 py-4 font-medium truncate">
+                            Discription
+                        </th>
+                        <th scope="col" className="px-4 py-4 font-medium truncate">
                             Date
                         </th>
-                        <th scope="col" className="px-1 py-3">
+                        <th scope="col" className="px-4 py-4 font-medium truncate">
                             Amount
                         </th>
-                        <th scope="col" className="px-1 py-3">
+                        <th scope="col" className="px-4 py-4 font-medium truncate">
                             From
                         </th>
                     </tr>
                 </thead>
                 <tbody>
-                    {transactionData?.map((item: any) =>
-                        <tr key={item._id} className="bg-white border-b cursor-default">
-                            <th title={item?.description} className="max-w-[100px] px-1 py-4 truncate">
+                    {transactionData?.map((item: any, index: number) =>
+                        <tr key={item._id} className="bg-skin-fill-table hover:text-skin-base-table-hover hover:bg-skin-fill-hover border-l-4 border-transparent text-skin-base-table-body-text hover:border-l-skin-table-color group">
+                            <td className="py-[14px] px-6">
+                                {index + 1}
+                            </td>
+                            <td title={item?.description} className="sticky left-0 max-w-[100px] group group-hover:bg-skin-fill-hover bg-skin-fill-table px-4 py-[14px] truncate">
                                 {item?.description}
-                            </th>
-                            <td title={item?.created_at} className="px-1 py-4">
+                            </td>
+                            <td title={item?.created_at} className="px-4 py-[14px] truncate">
                                 {moment(item?.created_at).format('MMM DD, YYYY')}
                             </td>
-                            <td title={item?.amount} className={`px-1 font-bold py-4 ${item.DrCr === 'earning' ? 'text-green-500' : item.DrCr === 'expense' ? 'text-red-500' : ''} `}>
+                            <td title={item?.amount} className={`px-4 py-[14px] font-bold  truncate ${item.DrCr === 'earning' ? 'text-green-500' : item.DrCr === 'expense' ? 'text-red-500' : ''} `}>
                                 {item.DrCr === 'earning' ? '+' : item.DrCr === 'expense' ? '-' : ''}{item?.amount}
                             </td>
-                            <td title={item?.paymentMethod} className="px-3 py-4 flex items-center gap-1">
-                                {item?.paymentMethod === 'Cash' ? <BsCashCoin /> : item?.paymentMethod === 'Account' ? <BsCash/> : item?.paymentMethod === 'Card' ? <BsCalendar/> : 'NaN'}{item?.from}
+                            <td title={item?.paymentMethod} className="px-4 py-[14px] flex items-center gap-1 truncate">
+                                {item?.paymentMethod === 'Cash' ? <BsCashCoin /> : item?.paymentMethod === 'Account' ? <MdAccountBalance /> : item?.paymentMethod === 'Card' ? <BsCreditCard2Back /> : 'NaN'}{item?.from}
                             </td>
                         </tr>
                     )}
