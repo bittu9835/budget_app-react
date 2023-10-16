@@ -11,11 +11,6 @@ interface DashboardProps { }
 
 const Dashboard: FC<DashboardProps> = () => {
     const cardControls = useAnimation();
-    const [val, setval] = useState(5000)
-
-    const change = () => {
-        setval(val + 1)
-    }
 
     // Define the animation properties (e.g., scale and opacity)
     const animationVariants = {
@@ -38,7 +33,7 @@ const Dashboard: FC<DashboardProps> = () => {
                         >
                             <Card
                                 title="Current Balance"
-                                amount={val}
+                                amount={4345}
                                 indicator="1.5%"
                             />
                         </motion.div>
@@ -51,7 +46,7 @@ const Dashboard: FC<DashboardProps> = () => {
                         >
                             <Card
                                 title="Total Income"
-                                amount={val}
+                                amount={343453}
                                 indicator="0.4%"
                             />
                         </motion.div>
@@ -64,7 +59,7 @@ const Dashboard: FC<DashboardProps> = () => {
                         >
                             <Card
                                 title="Total Expence"
-                                amount={val}
+                                amount={435346}
                                 indicator="2.4%"
                             />
                         </motion.div>
@@ -77,7 +72,7 @@ const Dashboard: FC<DashboardProps> = () => {
                         >
                             <Card
                                 title="Income-Expence"
-                                amount={val}
+                                amount={45646}
                                 indicator="1.5%"
                             />
                         </motion.div>
@@ -98,7 +93,7 @@ const Dashboard: FC<DashboardProps> = () => {
                     <AreaChart />
                 </div>
             </div>
-            <div onClick={change} className='hidden lg:block w-[30rem] max-w-[30rem] h-full bg-white rounded-md font-sans p-1'>
+            <div className='hidden lg:block w-[30rem] max-w-[30rem] h-full bg-white rounded-md font-sans p-1'>
                 <div className='w-full h-full rounded-lg'><Table/></div>
             </div>
         </div>

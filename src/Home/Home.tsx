@@ -40,7 +40,7 @@ const Home: FC<HomeProps> = () => {
                     <BottonNav />
                 </div>
             </div>
-            <AddTransactions openFotm={openFotm} setOpenForm={setOpenForm}/>
+            {openFotm && <AddTransactions openFotm={openFotm} setOpenForm={setOpenForm}/>}
         </div>
     );
 }

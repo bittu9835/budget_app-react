@@ -1,7 +1,10 @@
 import { ErrorMessage, Field, Form, Formik } from 'formik';
-import { useState, FC } from 'react';
+import { useState, FC, useContext } from 'react';
 import * as Yup from 'yup';
 import { RxCross2 } from 'react-icons/rx';
+import http from '../../../Services/http/http';
+import { toast } from 'react-toastify';
+import { DataContext } from '../../../Context/DataProvider';
 
 interface AddTransactionsProps {
     openFotm: boolean;
@@ -9,6 +12,7 @@ interface AddTransactionsProps {
 }
 
 const AddTransactions: FC<AddTransactionsProps> = ({ openFotm, setOpenForm }) => {
+    const { render, setRender }:any = useContext(DataContext);
     const paymentMethods = [
         {
             id: 1,
@@ -26,29 +30,29 @@ const AddTransactions: FC<AddTransactionsProps> = ({ openFotm, setOpenForm }) =>
     const accounts = [
         {
             id: 1,
-            name: 'ac1',
+            name: '**4545',
         },
         {
             id: 2,
-            name: 'ac2',
+            name: '**5642',
         },
         {
             id: 3,
-            name: 'ac3',
+            name: '**5643',
         },
     ];
     const cards = [
         {
             id: 1,
-            name: 'c1',
+            name: '**2361',
         },
         {
             id: 2,
-            name: 'c2',
+            name: '**2362',
         },
         {
             id: 3,
-            name: 'c3',
+            name: '**2363',
         },
     ];
     const [action, setAction] = useState('');
@@ -60,18 +64,35 @@ const AddTransactions: FC<AddTransactionsProps> = ({ openFotm, setOpenForm }) =>
     };
 
     const validationSchema = Yup.object().shape({
-        amount: Yup.number().required(),
-        description: Yup.string(),
+        amount: Yup.number().required('Enter Amount'),
+        description: Yup.string().required('Add Description'),
         paymentMethod: Yup.string().required(),
         from: Yup.string().required(),
     });
 
-    const handleSubmit = (values: any) => {
-        values['drcr'] = action
+    const handleSubmit = async (values: any, { resetForm }: any) => {
+        values['DrCr'] = action
         if (values.paymentMethod === 'Cash') {
             values['from'] = 'Cash';
         }
-        console.log(values);
+        
+        try {
+            const response: any = await http({
+                url: `/transaction/addTransaction`,
+                method: 'post',
+                data: values
+            });
+            if (response?.data?.code === 'SUCCESS_200') {
+                toast.success(response?.data?.message);
+                setOpenForm(false)
+                setRender(!render)
+                resetForm();
+            } else {
+                toast.error(response?.data?.message);
+            }
+        } catch (error: any | unknown) {
+            toast.error(error?.message);
+        }
     };
 
     return (

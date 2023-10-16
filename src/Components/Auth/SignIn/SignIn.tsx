@@ -40,7 +40,6 @@ const SignIn: FC<SignInProps> = () => {
                 method: 'post',
                 data: values
             });
-            console.log(response)
             if (response?.data?.code === 'SUCCESS_200') {
                 sessionStorage.setItem('token', response.data.data.token);
                 sessionStorage.setItem('userDetails', JSON.stringify(response.data.data.userDetail))
@@ -53,7 +52,7 @@ const SignIn: FC<SignInProps> = () => {
             }
         } catch (error: any | unknown) {
             console.log(error)
-            toast.error(error?.message);
+            toast.error(error?.response?.data?.message);
         }
     }
 
