@@ -1,9 +1,32 @@
 :root {
-    --color-text-base: #ffffff;
-    --color-text-muted: #c7d2fe;
-    --color-text-inverted: #4f46e5;
-    --color-fill: #4338ca;
-    --color-button-accent: #ffffff;
-    --color-button-accent-hover: #eef2ff;
-    --color-button-muted: #6366f1;
+    /* general  */
+    --color-bg-color: hsl(245, 58%, 51%);
+    --color-text: hsl(245, 58%, 51%);
+    --color-border: hsl(245, 58%, 51%);
+    --color-bg-outlet: hsl(245, 58%, 51%);
+    /* side nav  */
+    --color-bg-sideNav: hsl(245, 58%, 51%);
+    --color-sideNav-text: hsl(0, 0%, 100%);
+    --color-active-nav-text: #000000;
+    /* top nav  */
+    --color-bg-topNav: hsl(245, 58%, 51%);
+    --color-topNav-text: hsl(0, 0%, 100%);
+    --color-topNav-secondery-text: hsl(0, 0%, 100%);
+    /* profile  */
+    --color-bg-profile: hsl(245, 58%, 51%);
+    --color-profile-text: hsl(0, 0%, 100%);
+    --color-profile-text-hover: hsl(0, 0%, 100%);
+    --color-profile-secondery-text: hsl(0, 0%, 100%);
+    /* table  */
+    --color-table-head-bg: #7f95ff;
+    --color-table-head-text: #030a26;
+    --color-table-body-text: #081654;
+    --color-table-hover: #110083;
+    --color-table: #c5cae9;
+    --color-table-border: #2206c1;
+    /* button  */
+    --color-button-bg: #7f95ff;
+    --color-button-text: #ffffff;
+    --color-button-hover: #3d40ed;
+    --color-button-muted: #5c5ea8;
 }
