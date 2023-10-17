@@ -4,19 +4,23 @@ import { CiBank } from 'react-icons/ci'
 import { AiOutlineFileDone } from 'react-icons/ai'
 import { IoSettingsOutline } from 'react-icons/io5'
 import { LiaCreditCardSolid } from 'react-icons/lia'
-import { useNavigate } from 'react-router-dom';
+import { NavLink } from 'react-router-dom';
 interface BottonNavProps { }
 
 const BottonNav: FC<BottonNavProps> = () => {
-    const navigate=useNavigate()
     return (
-        <div className='w-full h-full bg-gray-100 flex items-center justify-between px-5 text-gray-700'>
-            <div onClick={()=>navigate('bankAccounts')} className='cursor-pointer text-3xl'><CiBank /></div>
-            <div onClick={()=>navigate('cards')} className='cursor-pointer text-3xl'><LiaCreditCardSolid /></div>
+        <div className='w-full h-full bg-skin-bg-sideNav flex items-center justify-between px-5'>
+            <NavLink to='bankAccounts' className={({ isActive, }) => `${isActive ? 'text-skin-active-nav-text' : 'text-skin-sideNav-text'} cursor-pointer text-3xl `}><CiBank />
+            </NavLink>
+            <NavLink to='cards' className={({ isActive, }) => `${isActive ? 'text-skin-active-nav-text' : 'text-skin-sideNav-text'} cursor-pointer text-3xl `}><LiaCreditCardSolid />
+            </NavLink >
             <div className='text-4xl invisible'><RxDashboard /></div>
-            <div onClick={()=>navigate('dashBoard')} className='cursor-pointer text-4xl w-12 h-12 bg-white rounded-md flex justify-center items-center absolute -top-4 left-1/2 transform -translate-x-1/2 '><RxDashboard /></div>
-            <div onClick={()=>navigate('settings')} className='cursor-pointer text-3xl'><IoSettingsOutline /></div>
-            <div onClick={()=>navigate('transactions')} className='cursor-pointer text-3xl'><AiOutlineFileDone /></div>
+            <NavLink to='dashBoard' className={({ isActive, }) => `${isActive ? 'text-skin-active-nav-text' : 'text-skin-text'} cursor-pointer text-4xl w-12 h-12 bg-skin-bg-outlet rounded-md flex justify-center items-center absolute -top-4 left-1/2 transform -translate-x-1/2 `}><RxDashboard />
+            </NavLink>
+            <NavLink to='settings' className={({ isActive, }) => `${isActive ? 'text-skin-active-nav-text' : 'text-skin-sideNav-text'} cursor-pointer text-3xl `}><IoSettingsOutline />
+            </NavLink>
+            <NavLink to='transactions' className={({ isActive, }) => `${isActive ? 'text-skin-active-nav-text' : 'text-skin-sideNav-text'} cursor-pointer text-3xl `}><AiOutlineFileDone />
+            </NavLink>
         </div>
     );
 }

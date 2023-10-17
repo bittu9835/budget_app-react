@@ -1,9 +1,12 @@
 .theme2{
       /* general  */
+      --color-logo: hsl(245, 58%, 51%);
       --color-bg-color: hsl(245, 58%, 51%);
       --color-text: hsl(245, 58%, 51%);
       --color-border: hsl(245, 58%, 51%);
       --color-bg-outlet: hsl(245, 58%, 51%);
+      --color-bg-dashboard: hsl(0, 0%, 100%);
+      --color-text-dashboard: hsl(0, 0%, 15%);
       /* side nav  */
       --color-bg-sideNav: hsl(245, 58%, 51%);
       --color-sideNav-text: hsl(0, 0%, 100%);
@@ -16,6 +19,8 @@
       --color-bg-profile: hsl(245, 58%, 51%);
       --color-profile-text: hsl(0, 0%, 100%);
       --color-profile-text-hover: hsl(0, 0%, 100%);
+      --color-profile-border-hover: hsl(0, 0%, 100%);
+      --color-profile-border: hsl(255, 85%, 48%);
       --color-profile-secondery-text: hsl(0, 0%, 100%);
       /* table  */
       --color-table-head-bg: #7f95ff;

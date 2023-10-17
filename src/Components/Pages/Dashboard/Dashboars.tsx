@@ -4,12 +4,10 @@ import { PieChart } from '../../Common/Charts/PiaChart';
 import { DoughnutChart } from '../../Common/Charts/DoughNutChart';
 import { AreaChart } from '../../Common/Charts/AreaChart';
 import { motion, useAnimation } from 'framer-motion';
-import Table from '../../Common/Table/Table';
 import { DataContext } from '../../../Context/DataProvider';
 import http from '../../../Services/http/http';
 import { toast } from 'react-toastify';
 import { BiRupee } from 'react-icons/bi';
-import { FiArrowUpRight } from 'react-icons/fi';
 
 interface DashboardProps { }
 interface Transaction {
@@ -79,100 +77,73 @@ const Dashboard: FC<DashboardProps> = () => {
         cardControls.start('animate');
     }, [cardControls]);
     return (
-        <div className='w-full h-full flex gap-2  py-2 px-2 bg-gray-100'>
-            <div className='grid grid-cols-1  gap-3 w-full overflow-y-scroll scrollbar-none'>
-                <div className='w-full grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-2  '>
+        <div className='w-full h-full flex flex-col gap-2 sm:gap-5 sm:p-5 p-2 overflow-y-scroll scrollbar-none'>
+            <div className='w-full grid grid-cols-2 sm:grid-cols-2 lg:grid-cols-4 gap-5  '>
 
-                    <div className="h-36 bg-blue-200 rounded-md">
-                        <motion.div
-                            initial="initial"
-                            animate={cardControls}
-                            variants={animationVariants}
-                        >
-                            <div className='w-full h-full flex flex-col gap-2 bg-transparent rounded-xl p-2'>
-                                <p className='cursor-default text-lg font-semibold text-gray-800'>Total Balance</p>
-                                <div className='cursor-default flex items-center font-bold gap-1 text-3xl text-gray-900'>
-                                    <span><BiRupee /></span>
-                                    <span className={`${earningAmount - expenseAmount < 0 ? 'text-red-500' : ''}`}>{earningAmount - expenseAmount}</span>
-                                </div>
-                                <div className='cursor-default text-green-500 flex items-center gap-2'>
-                                    <span className='p-[2px] rounded-full text-white bg-green-500'><FiArrowUpRight /></span>
-                                    <span className='text-sm font-bold'>2%</span>
-                                </div>
-                            </div>
-                        </motion.div>
+                <motion.div
+                    initial="initial"
+                    animate={cardControls}
+                    variants={animationVariants}
+                    className=' w-full h-24 bg-skin-bg-dashboard flex flex-col items-center justify-center gap-2 shadow-md rounded-md'>
+                    <div className='cursor-default flex items-center font-sans gap-1 text-md font-medium sm:text-2xl text-[#793bcb]'>
+                        <span><BiRupee /></span>
+                        <span className={`${earningAmount - expenseAmount < 0 ? 'text-red-500' : ''}`}>{earningAmount - expenseAmount}</span>
                     </div>
-                    <div className="h-36 bg-green-200 rounded-md">
-                        <motion.div
-                            initial="initial"
-                            animate={cardControls}
-                            variants={animationVariants}
-                        >
-                            <div className='w-full h-full flex flex-col gap-2 bg-transparent rounded-xl p-2'>
-                                <p className='cursor-default text-lg font-semibold text-gray-800'>Income</p>
-                                <div className='cursor-default flex items-center font-bold gap-1 text-3xl text-gray-900'>
-                                    <span><BiRupee /></span>
-                                    <span className='text-green-500'>+{earningAmount}</span>
-                                </div>
-                                <div className='cursor-default text-green-500 flex items-center gap-2'>
-                                    <span className='p-[2px] rounded-full text-white bg-green-500'><FiArrowUpRight /></span>
-                                    <span className='text-sm font-bold'>2%</span>
-                                </div>
-                            </div>
-                        </motion.div>
+                    <p className='cursor-default text-sm text-skin-text-dashboard'>Total Balance</p>
+                </motion.div>
+
+                <motion.div
+                    initial="initial"
+                    animate={cardControls}
+                    variants={animationVariants}
+                    className=' w-full h-24 bg-skin-bg-dashboard flex flex-col items-center justify-center gap-2 shadow-md rounded-md'>
+                    <div className='cursor-default flex items-center font-sans gap-1 text-md font-medium sm:text-2xl text-green-500'>
+                        <span><BiRupee /></span>
+                        <span>{earningAmount}</span>
                     </div>
-                    <div className="h-36 bg-red-200 rounded-md">
-                        <motion.div
-                            initial="initial"
-                            animate={cardControls}
-                            variants={animationVariants}
-                        >
-                            <div className='w-full h-full flex flex-col gap-2 bg-transparent rounded-xl p-2'>
-                                <p className='cursor-default text-lg font-semibold text-gray-800'>Expence</p>
-                                <div className='cursor-default flex items-center font-bold gap-1 text-3xl text-gray-900'>
-                                    <span><BiRupee /></span>
-                                    <span className='text-red-500'>-{expenseAmount}</span>
-                                </div>
-                                <div className='cursor-default text-green-500 flex items-center gap-2'>
-                                    <span className='p-[2px] rounded-full text-white bg-green-500'><FiArrowUpRight /></span>
-                                    <span className='text-sm font-bold'>2%</span>
-                                </div>
-                            </div>
-                        </motion.div>
+                    <p className='cursor-default text-sm text-skin-text-dashboard'>Income</p>
+                </motion.div>
+
+                <motion.div
+                    initial="initial"
+                    animate={cardControls}
+                    variants={animationVariants}
+                    className=' w-full h-24 bg-skin-bg-dashboard flex flex-col items-center justify-center gap-2 shadow-md rounded-md'>
+                    <div className='cursor-default flex items-center font-sans gap-1 text-md font-medium sm:text-2xl text-red-500'>
+                        <span><BiRupee /></span>
+                        <span>{expenseAmount}</span>
                     </div>
-                    <div className="h-36 bg-orange-200 rounded-md">
-                        <motion.div
-                            initial="initial"
-                            animate={cardControls}
-                            variants={animationVariants}
-                        >
-                            <div className='w-full h-full bg-transparent rounded-md p-2'>
-                                <div className='flex w-full h-[84px] border-b-2'>
-                                    <div className='w-[50%] h-full border-r-2'>kjnk</div>
-                                    <div className='w-[50%] h-full'>oin</div>
-                                </div>
-                                <div className='w-full h-[60px]'>lin</div>
-                            </div>
-                        </motion.div>
+                    <p className='cursor-default text-sm text-skin-text-dashboard'>Expence</p>
+                </motion.div>
+
+                <motion.div
+                    initial="initial"
+                    animate={cardControls}
+                    variants={animationVariants}
+                    className=' w-full h-24 bg-skin-bg-dashboard flex flex-col items-center justify-center gap-2 shadow-md rounded-md'>
+                    <div className='cursor-default font-sans text-md font-medium sm:text-2xl text-blue-400'>
+                        <span>98</span>
                     </div>
-                </div>
-                <div className='w-full shadow-md h-[400px] bg-white rounded-lg p-2 font-sans'>
+                    <p className='cursor-default text-sm text-skin-text-dashboard'>Transactions</p>
+                </motion.div>
+            </div>
+            <div className='w-full bg-skin-bg-dashboard grid grid-cols-1 sm:grid-cols-2 font-sans'>
+                <div className='w-full shadow-md h-[400px] p-2'>
                     <BarChart />
                 </div>
-                <div className='w-full shadow-md h-[400px] flex items-center justify-center bg-white rounded-lg p-2 font-sans'>
+                <div className='w-full shadow-md h-[400px] flex items-center justify-center'>
                     <PieChart />
                 </div>
-                <div className='w-full shadow-md h-[400px] flex items-center justify-center bg-white rounded-lg p-2 font-sans'>
+            </div>
+            <div className='grid grid-cols-1 sm:grid-cols-2  gap-2 sm:gap-5 w-full'>
+                <div className='w-full shadow-md h-[400px] flex items-center justify-center bg-skin-bg-dashboard rounded-lg p-2 font-sans'>
                     <div className="w-[380px]">
                         <DoughnutChart />
                     </div>
                 </div>
-                <div className='w-full shadow-md h-[400px] bg-white rounded-lg p-2 font-sans'>
+                <div className='w-full shadow-md h-[400px] bg-skin-bg-dashboard rounded-lg p-2 font-sans'>
                     <AreaChart />
                 </div>
-            </div>
-            <div className='hidden lg:block  max-w-[20rem] h-full bg-white rounded-md font-sans p-1'>
-                <div className='w-full h-full rounded-lg overflow-auto'><Table /></div>
             </div>
         </div>
     );
