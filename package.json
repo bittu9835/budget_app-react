@@ -55,6 +55,7 @@
   },
   "devDependencies": {
     "@types/node": "^20.8.3",
+    "@types/react-datepicker": "^4.19.1",
     "tailwindcss": "^3.3.3"
   }
 }

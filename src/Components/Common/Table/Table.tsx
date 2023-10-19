@@ -42,7 +42,24 @@ const Table: FC<TableProps> = () => {
                 <p className='text-gray-500 font-semibold truncate'>Latest Transactions</p>
                 <input className='w-40 h-6 focus:outline-none text-sm text-gray-800 font-semibold px-2 py-1 border rounded-md placeholder:text-sm placeholder:font-semibold' placeholder='search..' type="search" />
             </div>
-            <table className="w-full text-sm text-lef relative px-1">
+            <div className='w-full'>
+                <div className='w-full h-6 flex items-center justify-around bg-black text-white'>
+                    <p>Date</p>
+                    <p>Description</p>
+                    <p>From</p>
+                    <p>Amount</p>
+                </div>
+
+                {transactionData?.map((item: any) =>
+                    <div key={item?._id} className='grid grid-cols-4 gap-2 w-full border-b hover:bg-gray-500 bg-gray-600 text-white'>
+                        <p>{moment(item?.created_at).format('MMM DD, YYYY')}</p>
+                        <p className='truncate'>{item?.description}</p>
+                        <p className='flex items-center gap-2'>{item?.paymentMethod === 'Cash' ? <BsCashCoin /> : item?.paymentMethod === 'Account' ? <MdAccountBalance /> : item?.paymentMethod === 'Card' ? <BsCreditCard2Back /> : 'NaN'}{item?.from}</p>
+                        <p className='w-full flex justify-center'>{item.DrCr === 'earning' ? '+' : item.DrCr === 'expense' ? '-' : ''}{item?.amount}</p>
+                    </div>
+                )}
+            </div>
+            {/* <table className="w-full text-sm text-lef relative px-1">
                 <thead className="border-l-white bg-skin-fill-table-head px-6 text-skin-base-table-head-text sticky z-20 top-0">
                     <tr className=''>
                         <th scope="col" className="px-6 py-4 font-medium truncate">
@@ -83,7 +100,7 @@ const Table: FC<TableProps> = () => {
                         </tr>
                     )}
                 </tbody>
-            </table>
+            </table> */}
         </div>
     );
 }

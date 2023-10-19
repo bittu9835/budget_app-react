@@ -1,4 +1,4 @@
-.theme3{
+.theme3 {
         /* general  */
         --color-logo: hsl(245, 58%, 51%);
         --color-bg-color: hsl(245, 58%, 51%);
@@ -34,4 +34,8 @@
         --color-button-text: #ffffff;
         --color-button-hover: #3d40ed;
         --color-button-muted: #5c5ea8;
+        /* form  */
+        --color-form-bg: #ffffff;
+        --color-form-text: #000000;
+        --color-form-label-text: #000000;
 }

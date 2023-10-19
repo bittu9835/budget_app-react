@@ -4,7 +4,6 @@ import Home from '../../Home/Home';
 import SignIn from '../Auth/SignIn/SignIn';
 import SignUp from '../Auth/SignUp/SignUp';
 import Dashboard from '../Pages/Dashboard/Dashboars';
-import Cards from '../Pages/Cards/Cards';
 import BankAccounts from '../Pages/BankAccounts/BankAccounts';
 import Settings from '../Pages/Settings/Settings';
 import PageNoteFound from '../Common/PageNoteFound/PageNoteFound';
@@ -23,8 +22,7 @@ const Router: FC<RouterProps> = () => {
                 <Route path='/home' element={<Home />}>
                     <Route path='dashBoard' element={<Dashboard />} />
                     <Route path='transactions' element={<Transactions />} />
-                    <Route path='cards' element={<Cards />} />
-                    <Route path='bankAccounts' element={<BankAccounts />} />
+                    <Route path='Card&Accounts' element={<BankAccounts />} />
                     <Route path='calculator' element={<Calculator />} />
                     <Route path='settings' element={<Settings />} />
                 </Route>

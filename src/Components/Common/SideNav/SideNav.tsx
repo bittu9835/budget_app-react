@@ -3,7 +3,6 @@ import { FaChartLine } from 'react-icons/fa'
 import { RxDashboard } from 'react-icons/rx'
 import { CiBank } from 'react-icons/ci'
 import { AiOutlineFileDone } from 'react-icons/ai'
-import { LiaCreditCardSolid } from 'react-icons/lia'
 import { NavLink } from 'react-router-dom';
 import { SlCalculator } from 'react-icons/sl';
 
@@ -18,14 +17,11 @@ const SideNav: FC<SideNavProps> = () => {
                     <NavLink to='dashBoard' className={({ isActive, }) => `${isActive ? 'text-skin-active-nav-text' : 'text-skin-sideNav-text'}`}>
                         <span className='flex items-center gap-3'><RxDashboard className='text-2xl' /> DASHBOARD</span>
                     </NavLink>
+                    <NavLink to='Card&Accounts' className={({ isActive, }) => `${isActive ? 'text-skin-active-nav-text' : 'text-skin-sideNav-text'}`}>
+                        <span className='flex items-center gap-3'><CiBank className='text-2xl' />Cards & ACCOUNTS</span>
+                    </NavLink>
                     <NavLink to='transactions' className={({ isActive, }) => `${isActive ? 'text-skin-active-nav-text' : 'text-skin-sideNav-text'}`}>
                         <span className='flex items-center gap-3'><AiOutlineFileDone className='text-2xl' /> TRANSACTIONS</span>
-                    </NavLink>
-                    <NavLink to='cards' className={({ isActive, }) => `${isActive ? 'text-skin-active-nav-text' : 'text-skin-sideNav-text'}`}>
-                        <span className='flex items-center gap-3'><LiaCreditCardSolid className='text-2xl' /> CARDS</span>
-                    </NavLink>
-                    <NavLink to='bankAccounts' className={({ isActive, }) => `${isActive ? 'text-skin-active-nav-text' : 'text-skin-sideNav-text'}`}>
-                        <span className='flex items-center gap-3'><CiBank className='text-2xl' /> BANK ACCOUNTS</span>
                     </NavLink>
                     <NavLink to='calculator' className={({ isActive, }) => `${isActive ? 'text-skin-active-nav-text' : 'text-skin-sideNav-text'}`}>
                         <span className='flex items-center gap-3'><SlCalculator className='text-2xl' /> Calculator</span>

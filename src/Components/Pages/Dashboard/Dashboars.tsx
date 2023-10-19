@@ -29,6 +29,8 @@ const Dashboard: FC<DashboardProps> = () => {
     const [earningAmount, setEarningAmount] = useState<any>()
     const [expenseAmount, setexpenseAmount] = useState<any>()
 
+    const Balance = earningAmount - expenseAmount;
+
     const featchTransactions = async () => {
         try {
             const response: any = await http({
@@ -87,7 +89,7 @@ const Dashboard: FC<DashboardProps> = () => {
                     className=' w-full h-24 bg-skin-bg-dashboard flex flex-col items-center justify-center gap-2 shadow-md rounded-md'>
                     <div className='cursor-default flex items-center font-sans gap-1 text-md font-medium sm:text-2xl text-[#793bcb]'>
                         <span><BiRupee /></span>
-                        <span className={`${earningAmount - expenseAmount < 0 ? 'text-red-500' : ''}`}>{earningAmount - expenseAmount}</span>
+                        <span className={`${earningAmount - expenseAmount < 0 ? 'text-red-500' : ''}`}>{Balance?.toLocaleString()}</span>
                     </div>
                     <p className='cursor-default text-sm text-skin-text-dashboard'>Total Balance</p>
                 </motion.div>
@@ -99,7 +101,7 @@ const Dashboard: FC<DashboardProps> = () => {
                     className=' w-full h-24 bg-skin-bg-dashboard flex flex-col items-center justify-center gap-2 shadow-md rounded-md'>
                     <div className='cursor-default flex items-center font-sans gap-1 text-md font-medium sm:text-2xl text-green-500'>
                         <span><BiRupee /></span>
-                        <span>{earningAmount}</span>
+                        <span>{earningAmount?.toLocaleString()}</span>
                     </div>
                     <p className='cursor-default text-sm text-skin-text-dashboard'>Income</p>
                 </motion.div>
@@ -111,7 +113,7 @@ const Dashboard: FC<DashboardProps> = () => {
                     className=' w-full h-24 bg-skin-bg-dashboard flex flex-col items-center justify-center gap-2 shadow-md rounded-md'>
                     <div className='cursor-default flex items-center font-sans gap-1 text-md font-medium sm:text-2xl text-red-500'>
                         <span><BiRupee /></span>
-                        <span>{expenseAmount}</span>
+                        <span>{expenseAmount?.toLocaleString()}</span>
                     </div>
                     <p className='cursor-default text-sm text-skin-text-dashboard'>Expence</p>
                 </motion.div>

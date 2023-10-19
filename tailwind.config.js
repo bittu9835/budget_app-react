@@ -18,6 +18,8 @@ module.exports = {
           'table-head-text': 'var(--color-table-head-text)',
           'table-hover': 'var(--color-table-hover)',
           'button-text': 'var(--color-button-text)',
+          'form-text': 'var(--color-form-text)',
+          'form-label-text': 'var(--color-form-label-text)',
         }
       },
       backgroundColor: {
@@ -34,6 +36,7 @@ module.exports = {
           'bg-button-bg': 'var(--color-button-bg)',
           'bg-button-hover': 'var(--color-button-hover)',
           'bg-button-muted': 'var(--color-button-muted)',
+          'bg-form-bg': 'var(--color-form-bg)',
         }
       },
       borderColor: {
