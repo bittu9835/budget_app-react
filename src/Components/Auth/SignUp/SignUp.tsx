@@ -14,6 +14,7 @@ interface SignUpProps { }
 const SignUp: FC<SignUpProps> = () => {
     const [togglePassIcon, setTogglePassIcon] = useState(true)
     const navigate = useNavigate()
+    const [isLoading, setIsLoading] = useState(false)
 
     const initialValues = {
         name: '',
@@ -32,18 +33,8 @@ const SignUp: FC<SignUpProps> = () => {
             .matches(/[^\w]/, 'Password requires a symbol'),
     });
 
-    const handleSignUp = async (values:any) => {
-        // axios.post(`http://localhost:4000/api/user/addUser`, values)
-        //     .then((response) => {
-        //         // toast.success(response.data.message)
-        //         navigate('/')
-        //         // setToggleRegister(false)
-        //     })
-        //     .catch((error) => {
-        //         // toast.error(error.response.data.message)
-        //         console.log("Error occurred:", error);
-        //     });
-
+    const handleSignUp = async (values: any) => {
+        setIsLoading(true)
         try {
             const response: any = await http({
                 url: `/user/addUser`,
@@ -54,6 +45,7 @@ const SignUp: FC<SignUpProps> = () => {
                 toast.success(response?.data?.message);
                 setTimeout(() => {
                     navigate('/');
+                    setIsLoading(false)
                 }, 1000);
             } else {
                 toast.error(response?.data?.message);
@@ -92,9 +84,15 @@ const SignUp: FC<SignUpProps> = () => {
                                     <span className="text-yellow-400 text-sm"><ErrorMessage name="password" /></span>
                                 </div>
                             </div>
-                            <div className=' w-full h-[2.25rem] mt-7 rounded-md shadow-md'>
-                                <button type='submit' className='bg-green-600 text-white rounded-md w-full h-full font-extrabold'>SignUp</button>
-                            </div>
+                            {isLoading ?
+                                <div className='bg-green-500 w-full h-[2.25rem] flex items-center justify-center mt-7 rounded-md shadow-md'>
+                                    <div className="w-4 h-4  border-t-2  border-r-0 border-b-0 border-red-500 border-solid rounded-full animate-spin"></div>
+                                </div>
+                                :
+
+                                <div className=' w-full h-[2.25rem] mt-7 rounded-md shadow-md'>
+                                    <button type='submit' className='bg-green-600 text-white rounded-md w-full h-full font-extrabold'>SignUp</button>
+                                </div>}
                         </Form>
                     </Formik>
                 </div>

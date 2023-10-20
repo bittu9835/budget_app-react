@@ -16,6 +16,7 @@ const SignIn: FC<SignInProps> = () => {
     const [togglePassIcon, setTogglePassIcon] = useState(true)
     const navigate = useNavigate()
     const cardControls = useAnimation();
+    const [isLoading, setIsLoading] = useState(false)
 
     const initialValues = {
         email: '',
@@ -33,7 +34,7 @@ const SignIn: FC<SignInProps> = () => {
     });
 
     const handleLogin = async (values: any) => {
-
+        setIsLoading(true)
         try {
             const response: any = await http({
                 url: `/auth/login`,
@@ -46,6 +47,7 @@ const SignIn: FC<SignInProps> = () => {
                 toast.success(response?.data?.message);
                 setTimeout(() => {
                     navigate('home/dashBoard');
+                    setIsLoading(false)
                 }, 1000);
             } else {
                 toast.error(response?.data?.message);
@@ -101,9 +103,17 @@ const SignIn: FC<SignInProps> = () => {
                                 <div className=''>
                                     <p className='text-white mt-4 underline hover:text-blue-900 cursor-pointer'>Forgot Password</p>
                                 </div>
-                                <div className=' w-full h-[2.25rem] mt-7 rounded-md shadow-md'>
-                                    <button type='submit' className='bg-green-600 text-white rounded-md w-full h-full font-extrabold'>Login</button>
-                                </div>
+                                {isLoading ?
+                                    <div className='bg-green-500 w-full h-[2.25rem] flex items-center justify-center mt-7 rounded-md shadow-md'>
+                                        <div className="w-4 h-4  border-t-2  border-r-0 border-b-0 border-red-500 border-solid rounded-full animate-spin"></div>
+                                    </div>
+                                    :
+                                    <div className=' w-full h-[2.25rem] mt-7 rounded-md shadow-md'>
+                                        <button type='submit' className='bg-green-600 text-white rounded-md w-full h-full font-extrabold'>Login</button>
+                                    </div>
+                                }
+
+
                             </div>
                         </Form>
                     </Formik>

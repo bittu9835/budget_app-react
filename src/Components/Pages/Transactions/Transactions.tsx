@@ -1,20 +1,17 @@
-import type { FC } from 'react';
+import { useState, type FC } from 'react';
 import Table from '../../Common/Table/Table';
-import { motion } from 'framer-motion';
+import Loader from '../../Common/Loader/Loader';
 
-interface TransactionsProps {}
+interface TransactionsProps { }
 
 const Transactions: FC<TransactionsProps> = () => {
-    return (
-        <motion.div
-        className='w-full h-full bg-gray-100 p-2'
-        initial={{ opacity: 0, scale: 0 }} // Initial state (hidden and scaled down)
-        animate={{ opacity: 1, scale: 1 }} // Animation state (visible and full size)
-        transition={{ duration: 1 }} // Animation duration in seconds
-      >
-            <Table/>
-      </motion.div>
-    );
+  const [isLoading, setIsLoading] = useState(true)
+  return (
+    <div className='w-full h-full bg-gray-100 p-2 relative'>
+      <Loader isLoading={isLoading} />
+      <Table setIsLoading={setIsLoading} />
+    </div>
+  );
 }
 
 export default Transactions;

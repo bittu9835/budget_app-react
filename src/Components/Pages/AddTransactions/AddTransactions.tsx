@@ -1,5 +1,5 @@
-import {  FC, useContext } from 'react';
-import { Field, Form, Formik } from 'formik';
+import { FC, useContext, useState } from 'react';
+import { ErrorMessage, Field, Form, Formik } from 'formik';
 import * as Yup from 'yup';
 import { IoClose } from 'react-icons/io5';
 import { LuIndianRupee } from 'react-icons/lu';
@@ -14,6 +14,7 @@ interface AddTransactionsProps {
 
 const AddTransactions: FC<AddTransactionsProps> = ({ openFotm, setOpenForm }) => {
     const { render, setRender }: any = useContext(DataContext);
+    const [isLoading, setIsLoading] = useState(false)
     const paymentMethods = [
         {
             id: 1,
@@ -72,17 +73,17 @@ const AddTransactions: FC<AddTransactionsProps> = ({ openFotm, setOpenForm }) =>
     ];
     // const [action, setAction] = useState('');
     const initialValues = {
-        action:'',
+        action: '',
         amount: 100,
         description: '',
-        paymentMethod: '',
+        paymentMethod: 'Cash',
         from: 'Cash',
         date: new Date().toISOString().split('T')[0],
         category: '',
     };
 
     const validationSchema = Yup.object().shape({
-        action:Yup.string().required(),
+        action: Yup.string().required(),
         amount: Yup.number().required('Enter Amount'),
         description: Yup.string().required('Add Description'),
         paymentMethod: Yup.string().required('Sellect Payment Method'),
@@ -92,10 +93,10 @@ const AddTransactions: FC<AddTransactionsProps> = ({ openFotm, setOpenForm }) =>
     });
 
     const handleSubmit = async (values: any, { resetForm }: any) => {
+        setIsLoading(true)
         if (values.paymentMethod === 'Cash') {
             values['from'] = 'Cash';
         }
-
         try {
             const response: any = await http({
                 url: `/transaction/addTransaction`,
@@ -104,8 +105,9 @@ const AddTransactions: FC<AddTransactionsProps> = ({ openFotm, setOpenForm }) =>
             });
             if (response?.data?.code === 'SUCCESS_200') {
                 toast.success(response?.data?.message);
-                setOpenForm(false)
+                setIsLoading(false)
                 setRender(!render)
+                setOpenForm(false)
                 resetForm();
             } else {
                 toast.error(response?.data?.message);
@@ -119,12 +121,20 @@ const AddTransactions: FC<AddTransactionsProps> = ({ openFotm, setOpenForm }) =>
         <div className={`w-full h-full ${openFotm ? 'translate-y-0' : 'translate-y-full'} fixed z-40 top-0 bg-black bg-opacity-70  transition-all duration-300 flex items-center justify-center`}>
             <Formik initialValues={initialValues} onSubmit={handleSubmit} validationSchema={validationSchema}>
                 {({ values, setFieldValue }) => (
-                    <Form className='sm:w-[33rem] w-full h-full sm:h-auto bg-white   rounded-sm p-6'>
+                    <Form className='sm:w-[33rem] w-full h-full sm:h-auto bg-skin-bg-form-bg rounded-sm p-6'>
                         <div className='flex items-center justify-between mb-5'>
                             <p className='text-lg'>New Transaction</p>
                             <p onClick={() => setOpenForm(false)} className='p-2 text-lg flex items-center justify-center hover:bg-gray-200 rounded-full cursor-pointer'><IoClose /></p>
                         </div>
-                        <div className='px-2 w-full flex text-sm text-gray-800 sm:mt-2 mt-24 flex-col gap-8 '>
+                        <div>
+                            <span className='text-xs text-red-500'><ErrorMessage name='action' /></span>
+                            <span className='text-xs text-red-500'><ErrorMessage name='amount' /></span>
+                            <span className='text-xs text-red-500'><ErrorMessage name='description' /></span>
+                            <span className='text-xs text-red-500'><ErrorMessage name='paymentMethod' /></span>
+                            <span className='text-xs text-red-500'><ErrorMessage name='from' /></span>
+                            <span className='text-xs text-red-500'><ErrorMessage name='category' /></span>
+                        </div>
+                        <div className='px-5 w-full flex text-sm text-gray-800 sm:mt-2 mt-10 flex-col gap-10 '>
                             <div className='w-full flex gap-10 justify-around'>
                                 <div className='w-1/2 flex gap-2'>
                                     <Field
@@ -143,7 +153,7 @@ const AddTransactions: FC<AddTransactionsProps> = ({ openFotm, setOpenForm }) =>
                                     <label htmlFor="action">Expence</label>
                                 </div>
                             </div>
-                            <div className='w-full  sm:flex block  items-center gap-10'>
+                            <div className='w-full flex sm:flex-row flex-col  items-center gap-10'>
                                 <div className='w-full sm:w-1/2'>
                                     <label htmlFor="date">Choose a Date</label>
                                     <Field
@@ -167,9 +177,10 @@ const AddTransactions: FC<AddTransactionsProps> = ({ openFotm, setOpenForm }) =>
                                             </option>
                                         ))}
                                     </Field>
+
                                 </div>
                             </div>
-                            <div className='w-full sm:flex block items-center gap-10'>
+                            <div className='w-full flex sm:flex-row flex-col  items-center gap-10'>
                                 <div title='Enter Amount' className='w-full sm:w-1/2 relative'>
                                     <label htmlFor="amount">Enter Amount</label>
                                     <Field
@@ -178,7 +189,7 @@ const AddTransactions: FC<AddTransactionsProps> = ({ openFotm, setOpenForm }) =>
                                         name='amount'
                                         id='amount'
                                     />
-                                    <span className='absolute left-0'><LuIndianRupee/></span>
+                                    <span className='absolute left-0'><LuIndianRupee /></span>
                                 </div>
                                 <div title='Enter Description' className='w-full sm:w-1/2'>
                                     <label htmlFor="description">Add Description</label>
@@ -190,7 +201,7 @@ const AddTransactions: FC<AddTransactionsProps> = ({ openFotm, setOpenForm }) =>
                                     />
                                 </div>
                             </div>
-                            <div className='w-full sm:flex block items-center gap-10'>
+                            <div className='w-full flex sm:flex-row flex-col  items-center gap-10'>
                                 <div className='w-full sm:w-1/2'>
                                     <label htmlFor="paymentMethod">Select Payment Mode</label>
                                     <Field
@@ -208,7 +219,7 @@ const AddTransactions: FC<AddTransactionsProps> = ({ openFotm, setOpenForm }) =>
                                 </div>
                                 {values.paymentMethod !== 'Cash' &&
                                     <div className='w-full sm:w-1/2'>
-                                        <label htmlFor="from">Select Account</label>
+                                        <label htmlFor="from">Select {values.paymentMethod === 'Account' ? 'Account' : values.paymentMethod === 'Card' ? 'Card' : ''}</label>
                                         <Field
                                             id='from'
                                             name='from'
@@ -236,13 +247,21 @@ const AddTransactions: FC<AddTransactionsProps> = ({ openFotm, setOpenForm }) =>
                             </div>
 
                             <div className='flex gap-5 font-medium justify-end mt-5'>
-                                <button
-                                    type='submit'
-                                    disabled={values.action === 'income' || values.action === 'expence' ? false : true}
-                                    className={`${values.action === 'income' || values.action === 'expence' ? 'bg-[#5200bb]' : 'bg-gray-800'} py-[2px] px-4   text-white  rounded-sm`}>
-                                    Add
-                                </button>
-                                <div onClick={() => setOpenForm(false)} className='py-[2px] px-2 flex justify-center cursor-pointer hover:bg-[#4e2682] border-[#5200bb] border text-black hover:text-white rounded-sm'>Cancle</div>
+                                {isLoading ?
+                                    <div className='py-[2px] px-5 flex items-center justify-center  border-[#5200bb] border  rounded-sm'>
+                                        <div className="w-4 h-4  border-t-2  border-r-0 border-b-0 border-red-500 border-solid rounded-full animate-spin"></div>
+                                    </div>
+                                    :
+                                    <button
+                                        type='submit'
+                                        disabled={values.action === 'income' || values.action === 'expence' ? false : true}
+                                        className={`${values.action === 'income' || values.action === 'expence' ? 'bg-[#5200bb]' : 'bg-gray-800'} py-[2px] px-4   text-white  rounded-sm`}>
+                                        Add
+                                    </button>
+                                }
+
+
+                                <div onClick={() => setOpenForm(false)} className='py-[2px] px-2  cursor-pointer hover:bg-[#4e2682] border-[#5200bb] border text-black hover:text-white rounded-sm'>Cancle</div>
                             </div>
                         </div>
                     </Form>

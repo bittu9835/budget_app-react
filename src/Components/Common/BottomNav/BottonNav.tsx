@@ -10,7 +10,7 @@ interface BottonNavProps { }
 const BottonNav: FC<BottonNavProps> = () => {
     return (
         <div className='w-full h-full bg-skin-bg-sideNav flex items-center justify-between px-5'>
-            <NavLink to='bankAccounts' className={({ isActive, }) => `${isActive ? 'text-skin-active-nav-text' : 'text-skin-sideNav-text'} cursor-pointer text-3xl `}><CiBank />
+            <NavLink to='Card&Accounts' className={({ isActive, }) => `${isActive ? 'text-skin-active-nav-text' : 'text-skin-sideNav-text'} cursor-pointer text-3xl `}><CiBank />
             </NavLink>
             <NavLink to='calculator' className={({ isActive, }) => `${isActive ? 'text-skin-active-nav-text' : 'text-skin-sideNav-text'} cursor-pointer text-3xl `}><SlCalculator className='text-2xl'/>
             </NavLink >

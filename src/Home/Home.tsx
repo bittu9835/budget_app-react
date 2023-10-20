@@ -13,13 +13,13 @@ const Home: FC<HomeProps> = () => {
     const navigate = useNavigate();
     const [openFotm,setOpenForm]=useState(false)
     const { setProfileToggle, theme} = useContext(DataContext)
-    let login = sessionStorage.getItem('token');
-    useEffect(() => {
-        if (!login) {
-            navigate('/')
-        }
-        // eslint-disable-next-line
-    }, [login]);
+    // let login = sessionStorage.getItem('token');
+    // useEffect(() => {
+    //     if (!login) {
+    //         navigate('/')
+    //     }
+    //     // eslint-disable-next-line
+    // }, [login]);
 
     return (
         <div className={`${theme} w-screen h-screen flex transition-all duration-300 relative scrollbar-thumb-slate-800`}>

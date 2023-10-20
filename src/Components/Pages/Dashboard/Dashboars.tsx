@@ -3,17 +3,17 @@ import { BarChart } from '../../Common/Charts/BarChart';
 import { PieChart } from '../../Common/Charts/PiaChart';
 import { DoughnutChart } from '../../Common/Charts/DoughNutChart';
 import { AreaChart } from '../../Common/Charts/AreaChart';
-import { motion, useAnimation } from 'framer-motion';
 import { DataContext } from '../../../Context/DataProvider';
 import http from '../../../Services/http/http';
 import { toast } from 'react-toastify';
 import { BiRupee } from 'react-icons/bi';
+import Loader from '../../Common/Loader/Loader';
 
 interface DashboardProps { }
 interface Transaction {
     _id: string;
     amount: number;
-    DrCr: string;
+    action: string;
     description: string;
     paymentMethod: string;
     from: string;
@@ -28,9 +28,8 @@ const Dashboard: FC<DashboardProps> = () => {
     const [trasactions, setTrasactions] = useState<Transaction[]>()
     const [earningAmount, setEarningAmount] = useState<any>()
     const [expenseAmount, setexpenseAmount] = useState<any>()
-
+    const [isLoading, setIsLoading] = useState(true)
     const Balance = earningAmount - expenseAmount;
-
     const featchTransactions = async () => {
         try {
             const response: any = await http({
@@ -39,6 +38,9 @@ const Dashboard: FC<DashboardProps> = () => {
             });
             if (response?.data?.code === 'SUCCESS_200') {
                 setTrasactions(response?.data?.data)
+                setTimeout(() => {
+                    setIsLoading(false)
+                }, 500);
             } else {
                 toast.error(response?.data?.message);
             }
@@ -52,82 +54,55 @@ const Dashboard: FC<DashboardProps> = () => {
     }
 
     useEffect(() => {
-
-        featchTransactions()
-        // eslint-disable-next-line 
-    }, [render])
-
-    useEffect(() => {
-        const sumEarnings = trasactions?.filter((transaction) => transaction.DrCr === "earning")
+        const sumEarnings = trasactions?.filter((transaction) => transaction?.action === "income")
             .reduce((total, transaction) => total + transaction.amount, 0);
         setEarningAmount(sumEarnings)
-        const sumExpenses = trasactions?.filter((transaction) => transaction.DrCr === "expense")
+        const sumExpenses = trasactions?.filter((transaction) => transaction?.action === "expence")
             .reduce((total, transaction) => total + transaction.amount, 0)
         setexpenseAmount(sumExpenses)
         // eslint-disable-next-line 
     }, [trasactions])
 
-    const cardControls = useAnimation();
-
-    // Define the animation properties (e.g., scale and opacity)
-    const animationVariants = {
-        initial: { scale: 0.5, opacity: 0, rotate: -90 }, // Added 'rotate' property
-        animate: { scale: 1, opacity: 1, rotate: 0 },   // Added 'rotate' property
-    };
     useEffect(() => {
-        // Trigger the animation when the component mounts
-        cardControls.start('animate');
-    }, [cardControls]);
-    return (
-        <div className='w-full h-full flex flex-col gap-2 sm:gap-5 sm:p-5 p-2 overflow-y-scroll scrollbar-none'>
-            <div className='w-full grid grid-cols-2 sm:grid-cols-2 lg:grid-cols-4 gap-5  '>
+        featchTransactions()
+        // eslint-disable-next-line 
+    }, [render])
 
-                <motion.div
-                    initial="initial"
-                    animate={cardControls}
-                    variants={animationVariants}
+    return (
+        <div className='w-full h-full flex flex-col gap-2 sm:gap-5 sm:p-5 p-2 overflow-y-scroll scrollbar-none relative'>
+            <Loader isLoading={isLoading} />
+            <div className='w-full grid grid-cols-2 sm:grid-cols-2 lg:grid-cols-4 gap-5  '>
+                <div
                     className=' w-full h-24 bg-skin-bg-dashboard flex flex-col items-center justify-center gap-2 shadow-md rounded-md'>
                     <div className='cursor-default flex items-center font-sans gap-1 text-md font-medium sm:text-2xl text-[#793bcb]'>
                         <span><BiRupee /></span>
                         <span className={`${earningAmount - expenseAmount < 0 ? 'text-red-500' : ''}`}>{Balance?.toLocaleString()}</span>
                     </div>
                     <p className='cursor-default text-sm text-skin-text-dashboard'>Total Balance</p>
-                </motion.div>
-
-                <motion.div
-                    initial="initial"
-                    animate={cardControls}
-                    variants={animationVariants}
+                </div>
+                <div
                     className=' w-full h-24 bg-skin-bg-dashboard flex flex-col items-center justify-center gap-2 shadow-md rounded-md'>
                     <div className='cursor-default flex items-center font-sans gap-1 text-md font-medium sm:text-2xl text-green-500'>
                         <span><BiRupee /></span>
                         <span>{earningAmount?.toLocaleString()}</span>
                     </div>
                     <p className='cursor-default text-sm text-skin-text-dashboard'>Income</p>
-                </motion.div>
-
-                <motion.div
-                    initial="initial"
-                    animate={cardControls}
-                    variants={animationVariants}
+                </div>
+                <div
                     className=' w-full h-24 bg-skin-bg-dashboard flex flex-col items-center justify-center gap-2 shadow-md rounded-md'>
                     <div className='cursor-default flex items-center font-sans gap-1 text-md font-medium sm:text-2xl text-red-500'>
                         <span><BiRupee /></span>
                         <span>{expenseAmount?.toLocaleString()}</span>
                     </div>
                     <p className='cursor-default text-sm text-skin-text-dashboard'>Expence</p>
-                </motion.div>
-
-                <motion.div
-                    initial="initial"
-                    animate={cardControls}
-                    variants={animationVariants}
+                </div>
+                <div
                     className=' w-full h-24 bg-skin-bg-dashboard flex flex-col items-center justify-center gap-2 shadow-md rounded-md'>
                     <div className='cursor-default font-sans text-md font-medium sm:text-2xl text-blue-400'>
                         <span>98</span>
                     </div>
                     <p className='cursor-default text-sm text-skin-text-dashboard'>Transactions</p>
-                </motion.div>
+                </div>
             </div>
             <div className='w-full bg-skin-bg-dashboard grid grid-cols-1 sm:grid-cols-2 font-sans'>
                 <div className='w-full shadow-md h-[400px] p-2'>

@@ -7,9 +7,11 @@ import moment from 'moment';
 import { MdAccountBalance } from 'react-icons/md'
 
 
-interface TableProps { }
+interface TableProps {
+    setIsLoading:React.Dispatch<React.SetStateAction<boolean>>
+ }
 
-const Table: FC<TableProps> = () => {
+const Table: FC<TableProps> = ({setIsLoading}) => {
     const { render } = useContext(DataContext);
     const [transactionData, setTransactionData] = useState<any>()
     const fetchTransactions = async () => {
@@ -20,6 +22,9 @@ const Table: FC<TableProps> = () => {
             });
             if (response?.data?.code === 'SUCCESS_200') {
                 setTransactionData(response?.data?.data)
+                setTimeout(() => {
+                    setIsLoading(false)
+                }, 500);
             } else {
                 toast.error(response?.data?.message);
             }

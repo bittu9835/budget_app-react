@@ -37,11 +37,13 @@ module.exports = {
           'bg-button-hover': 'var(--color-button-hover)',
           'bg-button-muted': 'var(--color-button-muted)',
           'bg-form-bg': 'var(--color-form-bg)',
+          'loader-bg': 'var(--color-loader-bg)',
         }
       },
       borderColor: {
         skin: {
           'border': 'var(--color-border)',
+          'loader-border': 'var(--color-loader-border)',
           'table-border': 'var(--color-table-border)',
           'profile-border-hover': 'var(--color-profile-border-hover)',
           'profile-border': 'var( --color-profile-border)',

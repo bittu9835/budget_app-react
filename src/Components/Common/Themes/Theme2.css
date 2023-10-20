@@ -38,4 +38,7 @@
       --color-form-bg: #ffffff;
       --color-form-text: #000000;
       --color-form-label-text: #000000;
+      /* loader  */
+      --color-loader-bg: #ffffff;
+      --color-loader-border: #5200bb;
 }
