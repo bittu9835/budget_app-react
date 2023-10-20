@@ -73,13 +73,13 @@ const AddTransactions: FC<AddTransactionsProps> = ({ openFotm, setOpenForm }) =>
     ];
     // const [action, setAction] = useState('');
     const initialValues = {
-        action: '',
+        action: 'expence',
         amount: 100,
-        description: '',
+        description: 'Any',
         paymentMethod: 'Cash',
         from: 'Cash',
         date: new Date().toISOString().split('T')[0],
-        category: '',
+        category: 'food',
     };
 
     const validationSchema = Yup.object().shape({
@@ -114,6 +114,7 @@ const AddTransactions: FC<AddTransactionsProps> = ({ openFotm, setOpenForm }) =>
             }
         } catch (error: any | unknown) {
             toast.error(error?.message);
+            setIsLoading(false)
         }
     };
 
