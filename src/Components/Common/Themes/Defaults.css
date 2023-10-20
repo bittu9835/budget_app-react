@@ -10,7 +10,7 @@
     /* side nav  */
     --color-bg-sideNav: #5200bb;
     --color-sideNav-text: hsl(0, 0%, 100%);
-    --color-active-nav-text: #ee0e0e;
+    --color-active-nav-text: #f48178;
     /* top nav  */
     --color-bg-topNav: hsl(0, 0%, 97%);
     --color-topNav-text: #5200bb;
@@ -30,7 +30,7 @@
     --color-table: #c5cae9;
     --color-table-border: #2206c1;
     /* button  */
-    --color-button-bg: #7f95ff;
+    --color-button-bg: #7216ea;
     --color-button-text: #ffffff;
     --color-button-hover: #3d40ed;
     --color-button-muted: #5c5ea8;

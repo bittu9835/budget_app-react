@@ -8,12 +8,30 @@ import { MdAccountBalance } from 'react-icons/md'
 
 
 interface TableProps {
-    setIsLoading:React.Dispatch<React.SetStateAction<boolean>>
- }
+    setIsLoading: React.Dispatch<React.SetStateAction<boolean>>
+    setSelectedTransaction: React.Dispatch<React.SetStateAction<any[]>>
+    selectedTransaction: any[]
+}
 
-const Table: FC<TableProps> = ({setIsLoading}) => {
+const Table: FC<TableProps> = ({ setIsLoading, setSelectedTransaction, selectedTransaction }) => {
     const { render } = useContext(DataContext);
     const [transactionData, setTransactionData] = useState<any>()
+
+    const handleCheckboxChange = (item: any) => {
+        if (selectedTransaction.find((selected: any): any => item._id === selected._id)) {
+            setSelectedTransaction(selectedTransaction.filter((selected: any) => selected._id !== item._id));
+        } else {
+            setSelectedTransaction([...selectedTransaction, { _id: item._id }]);
+        }
+    };
+    const handleParentChange = (e: any) => {
+        if (e.target.checked) {
+            const arraOfIds = transactionData.map((transaction: any) => { return ({ _id: transaction._id }) })
+            setSelectedTransaction(arraOfIds)
+        } else {
+            setSelectedTransaction([])
+        }
+    }
     const fetchTransactions = async () => {
         try {
             const response: any = await http({
@@ -42,70 +60,89 @@ const Table: FC<TableProps> = ({setIsLoading}) => {
         // eslint-disable-next-line 
     }, [render])
     return (
-        <div className="w-full h-full shadow-md rounded-lg overflow-y-auto scrollbar-none">
-            <div className='flex justify-between mb-3 px-1'>
-                <p className='text-gray-500 font-semibold truncate'>Latest Transactions</p>
-                <input className='w-40 h-6 focus:outline-none text-sm text-gray-800 font-semibold px-2 py-1 border rounded-md placeholder:text-sm placeholder:font-semibold' placeholder='search..' type="search" />
+        <div className="w-full h-full shadow-md rounded-lg overflow-auto scrollbar-none">
+            <div className="shadow-md sm:block hidden">
+                <table className="w-full relative text-sm text-left text-gray-500 ">
+                    <thead className="text-xs text-gray-700 sticky top-0 uppercase bg-gray-50 ">
+                        <tr>
+                            <th scope="col" className="p-4">
+                                <div className="flex items-center">
+                                    <input
+                                        checked={transactionData?.length === selectedTransaction?.length ? true : false}
+                                        onChange={(e) => handleParentChange(e)}
+                                        id="checkbox-all-search"
+                                        type="checkbox"
+                                        className="w-4 h-4 text-blue-600 bg-gray-100 border-gray-300 rounded focus:ring-blue-500  focus:ring-2 " />
+                                    <label htmlFor="checkbox-all-search" className="sr-only">checkbox</label>
+                                </div>
+                            </th>
+                            <th scope="col" className="px-4 truncate py-3">
+                                Category
+                            </th>
+                            <th scope="col" className="px-4 truncate py-3">
+                                Date
+                            </th>
+                            <th scope="col" className="px-4 truncate py-3">
+                                Payment Mode
+                            </th>
+                            <th scope="col" className="px-4 truncate py-3">
+                                Description
+                            </th>
+                            <th scope="col" className="px-4 truncate py-3">
+                                Amount
+                            </th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {transactionData?.map((item: any) =>
+                            <tr key={item._id} className="bg-white border-b cursor-default hover:bg-gray-50 hover:text-gray-800">
+                                <td className="w-4 p-4">
+                                    <div className="flex items-center">
+                                        <input
+                                            value={item?._id}
+                                            id={`checkbox-table-search-${item._id}`}
+                                            type="checkbox"
+                                            checked={selectedTransaction.find((selected: any): any => item._id === selected._id) ? true : false}
+                                            onChange={() => handleCheckboxChange(item)}
+                                            className="w-4 h-4 text-blue-600 bg-gray-100 border-gray-300 rounded focus:ring-blue-500  focus:ring-2 " />
+                                        <label htmlFor="checkbox-table-search-1" className="sr-only">checkbox</label>
+                                    </div>
+                                </td>
+                                <th title={item?.category} className="px-4 truncate py-4">
+                                    {item?.category}
+                                </th>
+                                <td title={item?.date} className="px-4 truncate py-4">
+                                    {moment(item?.date).format('DD MMM YYYY')}
+                                </td>
+                                <td title={item?.paymentMethod} className="px-4 truncate py-4 flex items-center gap-1">
+                                    {item?.paymentMethod === 'Cash' ? <BsCashCoin className='text-lg' /> : item?.paymentMethod === 'Account' ? <MdAccountBalance className='text-lg' /> : item?.paymentMethod === 'Card' ? <BsCreditCard2Back className='text-lg' /> : 'NaN'}{item?.from}
+                                </td>
+                                <td title={item?.description} className="px-4  max-w-[12rem] truncate py-4 font-medium text-gray-900 whitespace-nowrap ">
+                                    {item?.description}
+                                </td>
+                                <td title={item?.amount} className={`${item?.action === 'income' ? 'text-green-500' : item?.action === 'expence' ? 'text-red-500' : ''} px-4 truncate py-4`}>
+                                    {item?.action === 'income' ? '+' : item?.action === 'expence' ? '-' : ''}{item?.amount}
+                                </td>
+                            </tr>
+                        )}
+                    </tbody>
+                </table>
             </div>
-            <div className='w-full'>
-                <div className='w-full h-6 flex items-center justify-around bg-black text-white'>
-                    <p>Date</p>
-                    <p>Description</p>
-                    <p>From</p>
-                    <p>Amount</p>
-                </div>
-
+            <div className='w-full rounded-lg sm:hidden block text-xs text-left text-gray-700'>
                 {transactionData?.map((item: any) =>
-                    <div key={item?._id} className='grid grid-cols-4 gap-2 w-full border-b hover:bg-gray-500 bg-gray-600 text-white'>
-                        <p>{moment(item?.created_at).format('MMM DD, YYYY')}</p>
-                        <p className='truncate'>{item?.description}</p>
-                        <p className='flex items-center gap-2'>{item?.paymentMethod === 'Cash' ? <BsCashCoin /> : item?.paymentMethod === 'Account' ? <MdAccountBalance /> : item?.paymentMethod === 'Card' ? <BsCreditCard2Back /> : 'NaN'}{item?.from}</p>
-                        <p className='w-full flex justify-center'>{item.DrCr === 'earning' ? '+' : item.DrCr === 'expense' ? '-' : ''}{item?.amount}</p>
+                    <div key={item._id} className='flex justify-between border-b p-2'>
+                        <div className='flex flex-col gap-1 max-w-[70%] truncate '>
+                            <div>{item?.category}</div>
+                            <div className='text-gray-900 text-sm'> {item?.description}</div>
+                            <div className='flex items-center gap-1'>{item?.paymentMethod === 'Cash' ? <BsCashCoin className='text-lg' /> : item?.paymentMethod === 'Account' ? <MdAccountBalance className='text-lg' /> : item?.paymentMethod === 'Card' ? <BsCreditCard2Back className='text-lg' /> : 'NaN'}{item?.from}</div>
+                        </div>
+                        <div className='flex flex-col justify-between  truncate'>
+                            <div className={`${item?.action === 'income' ? 'text-green-500' : item?.action === 'expence' ? 'text-red-500' : ''}`}>{item?.action === 'income' ? '+' : item?.action === 'expence' ? '-' : ''}{item?.amount}</div>
+                            <div>{moment(item?.date).format('DD MMM YYYY')}</div>
+                        </div>
                     </div>
                 )}
             </div>
-            {/* <table className="w-full text-sm text-lef relative px-1">
-                <thead className="border-l-white bg-skin-fill-table-head px-6 text-skin-base-table-head-text sticky z-20 top-0">
-                    <tr className=''>
-                        <th scope="col" className="px-6 py-4 font-medium truncate">
-                            S.No.
-                        </th>
-                        <th scope="col" className="sticky left-0 bg-skin-fill-table-head px-4 py-4 font-medium truncate">
-                            Discription
-                        </th>
-                        <th scope="col" className="px-4 py-4 font-medium truncate">
-                            Date
-                        </th>
-                        <th scope="col" className="px-4 py-4 font-medium truncate">
-                            Amount
-                        </th>
-                        <th scope="col" className="px-4 py-4 font-medium truncate">
-                            From
-                        </th>
-                    </tr>
-                </thead>
-                <tbody>
-                    {transactionData?.map((item: any, index: number) =>
-                        <tr key={item._id} className="bg-skin-fill-table hover:text-skin-base-table-hover hover:bg-skin-fill-hover border-l-4 border-transparent text-skin-base-table-body-text hover:border-l-skin-table-color group">
-                            <td className="py-[14px] px-6">
-                                {index + 1}
-                            </td>
-                            <td title={item?.description} className="sticky left-0 max-w-[100px] group group-hover:bg-skin-fill-hover bg-skin-fill-table px-4 py-[14px] truncate">
-                                {item?.description}
-                            </td>
-                            <td title={item?.created_at} className="px-4 py-[14px] truncate">
-                                {moment(item?.created_at).format('MMM DD, YYYY')}
-                            </td>
-                            <td title={item?.amount} className={`px-4 py-[14px] font-bold  truncate ${item.DrCr === 'earning' ? 'text-green-500' : item.DrCr === 'expense' ? 'text-red-500' : ''} `}>
-                                {item.DrCr === 'earning' ? '+' : item.DrCr === 'expense' ? '-' : ''}{item?.amount}
-                            </td>
-                            <td title={item?.paymentMethod} className="px-4 py-[14px] flex items-center gap-1 truncate">
-                                {item?.paymentMethod === 'Cash' ? <BsCashCoin /> : item?.paymentMethod === 'Account' ? <MdAccountBalance /> : item?.paymentMethod === 'Card' ? <BsCreditCard2Back /> : 'NaN'}{item?.from}
-                            </td>
-                        </tr>
-                    )}
-                </tbody>
-            </table> */}
         </div>
     );
 }

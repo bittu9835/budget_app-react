@@ -99,7 +99,7 @@ const Dashboard: FC<DashboardProps> = () => {
                 <div
                     className=' w-full h-24 bg-skin-bg-dashboard flex flex-col items-center justify-center gap-2 shadow-md rounded-md'>
                     <div className='cursor-default font-sans text-md font-medium sm:text-2xl text-blue-400'>
-                        <span>98</span>
+                        <span>{trasactions?.length}</span>
                     </div>
                     <p className='cursor-default text-sm text-skin-text-dashboard'>Transactions</p>
                 </div>

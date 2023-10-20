@@ -8,6 +8,8 @@ type DataContextValue = {
     setProfileToggle:React.Dispatch<React.SetStateAction<boolean>>
     theme:string
     setTheme:React.Dispatch<React.SetStateAction<string>>
+    openFotm:boolean
+    setOpenForm:React.Dispatch<React.SetStateAction<boolean>>
 };
 
 export const DataContext = createContext<DataContextValue>({} as DataContextValue);
@@ -18,11 +20,14 @@ type DataProviderProps = {
 const DataProvider = ({ children }: DataProviderProps) => {
     const [render, setRender] = useState(false);
     const [profileToggle,setProfileToggle]=useState(false)
+    const [openFotm,setOpenForm]=useState(false)
     const [theme,setTheme]=useState('')
+
     const value: DataContextValue = {
         render, setRender,
         profileToggle,setProfileToggle,
         theme,setTheme,
+        openFotm,setOpenForm,
     };
     return (
         <DataContext.Provider value={value}>

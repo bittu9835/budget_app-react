@@ -1,29 +1,25 @@
 import { type FC, useContext } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 import { SlCalculator } from 'react-icons/sl'
-import { FaPlus } from 'react-icons/fa'
 import avtar from '../../../Assets/avtar.png'
 import { IoSettingsOutline } from 'react-icons/io5';
 import { DataContext } from '../../../Context/DataProvider';
 import Profile from '../Profile/Profile';
 
-interface TopNavProps {
-    openFotm: boolean
-    setOpenForm: React.Dispatch<React.SetStateAction<boolean>>
-}
-const TopNav: FC<TopNavProps> = ({ openFotm, setOpenForm }) => {
+interface TopNavProps {}
+const TopNav: FC<TopNavProps> = () => {
     const userDetails = JSON.parse(sessionStorage.getItem('userDetails') || '{}');
     const { pathname } = useLocation();
     const pageTitle = pathname?.split('/')?.[2]?.charAt(0)?.toUpperCase() + pathname?.split('/')?.[2]?.slice(1)
     const navigate = useNavigate()
-    const { profileToggle, setProfileToggle } = useContext(DataContext)
+    const { profileToggle, setProfileToggle} = useContext(DataContext)
     return (
         <div className='w-full h-full bg-skin-bg-topNav flex items-center justify-between sm:px-4 p-2'>
             <p className='text-lg font-medium transition-all duration-300 text-skin-topNav-secondery-text cursor-default'>{pageTitle}</p>
             <div className='flex items-center gap-2 h-full py-2'>
-                <div onClick={() => setOpenForm(!openFotm)} title='Add Transaction' className='w-6 h-6 rounded-full cursor-pointer border border-skin-border flex justify-center items-center text-skin-topNav-text'>
+                {/* <div onClick={() => setOpenForm(!openFotm)} title='Add Transaction' className='w-6 h-6 rounded-full cursor-pointer border border-skin-border flex justify-center items-center text-skin-topNav-text'>
                     <FaPlus />
-                </div>
+                </div> */}
                 <div onClick={() => { navigate('settings') }} title='Setting' className='sm:block hidden '>
                     <div className='w-6 h-6 border border-skin-border rounded-full cursor-pointer bg-transparent flex justify-center items-center'><IoSettingsOutline className='text-skin-topNav-text' /></div>
                 </div>

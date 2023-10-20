@@ -85,9 +85,9 @@ const AddTransactions: FC<AddTransactionsProps> = ({ openFotm, setOpenForm }) =>
     const validationSchema = Yup.object().shape({
         action: Yup.string().required(),
         amount: Yup.number().required('Enter Amount'),
-        description: Yup.string().required('Add Description'),
+        description: Yup.string().required('Add Description').max(100,'Too Long'),
         paymentMethod: Yup.string().required('Sellect Payment Method'),
-        from: Yup.string().required('Choose By'),
+        from: Yup.string().required('Choose payment from'),
         date: Yup.date(),
         category: Yup.string().required('Choose Category'),
     });
@@ -227,6 +227,7 @@ const AddTransactions: FC<AddTransactionsProps> = ({ openFotm, setOpenForm }) =>
                                             as='select'
 
                                         >
+                                            <option value=''></option>
                                             {values.paymentMethod === 'Account'
                                                 ?
                                                 accounts.map((item: any) => (

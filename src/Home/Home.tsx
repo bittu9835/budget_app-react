@@ -1,4 +1,4 @@
-import { FC, useContext, useEffect, useState } from 'react';
+import { FC, useContext, useEffect } from 'react';
 import { Outlet, useNavigate } from 'react-router-dom';
 import TopNav from '../Components/Common/TopNav/TopNav';
 import BottonNav from '../Components/Common/BottomNav/BottonNav';
@@ -11,15 +11,15 @@ interface HomeProps { }
 
 const Home: FC<HomeProps> = () => {
     const navigate = useNavigate();
-    const [openFotm,setOpenForm]=useState(false)
-    const { setProfileToggle, theme} = useContext(DataContext)
-    // let login = sessionStorage.getItem('token');
-    // useEffect(() => {
-    //     if (!login) {
-    //         navigate('/')
-    //     }
-    //     // eslint-disable-next-line
-    // }, [login]);
+   
+    const { setProfileToggle,openFotm,setOpenForm, theme} = useContext(DataContext)
+    let login = sessionStorage.getItem('token');
+    useEffect(() => {
+        if (!login) {
+            navigate('/')
+        }
+        // eslint-disable-next-line
+    }, [login]);
 
     return (
         <div className={`${theme} w-screen h-screen flex transition-all duration-300 relative scrollbar-thumb-slate-800`}>
@@ -28,7 +28,7 @@ const Home: FC<HomeProps> = () => {
             </div>
             <div className='w-full h-full'>
                 <div className='w-full h-[8vh]'>
-                    <TopNav openFotm={openFotm} setOpenForm={setOpenForm}/>
+                    <TopNav/>
                 </div>
                 <div onClick={()=>setProfileToggle(false)} className='h-[85vh] lg:h-[92vh] bg-skin-bg-outlet w-full scrollbar-thin'>
                     <Outlet />
