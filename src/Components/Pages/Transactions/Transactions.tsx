@@ -63,7 +63,7 @@ const Transactions: FC<TransactionsProps> = () => {
         <div className='w-full bg-white border-b flex justify-between items-center sm:px-5 px-1 rounded-sm h-10'>
          <p className='text-lg text-gray-800'>{selectedTransaction.length>0 ? selectedTransaction?.length : ''}</p>
           <div className='flex gap-1'>
-          <div className={`${selectedTransaction?.length === 1 ? 'hover:bg-gray-300 cursor-pointer text-gray-900' : 'cursor-default text-gray-500'} px-2 py-1 flex items-center gap-2  rounded-sm`}>
+          <div className={`${selectedTransaction?.length === 1 ? 'hover:bg-gray-300 cursor-pointer text-gray-900' : 'cursor-default text-gray-200'} px-2 py-1 flex items-center gap-2  rounded-sm`}>
             <MdOutlineModeEditOutline />
             <span>Edit</span>
           </div>
@@ -72,7 +72,7 @@ const Transactions: FC<TransactionsProps> = () => {
               <div className="w-4 h-4  border-t-2  border-r-0 border-b-0 border-red-500 border-solid rounded-full animate-spin"></div>
             </div>
             :
-            <div onClick={deleteTransaction} className={`${selectedTransaction?.length > 0 ? 'hover:bg-gray-300 cursor-pointer text-gray-900' : 'cursor-default text-gray-500'} px-2 py-1 flex items-center gap-2  rounded-sm`}>
+            <div onClick={deleteTransaction} className={`${selectedTransaction?.length > 0 ? 'hover:bg-gray-300 cursor-pointer text-gray-900' : 'cursor-default text-gray-200'} px-2 py-1 flex items-center gap-2  rounded-sm`}>
               <RiDeleteBinLine />
               <span> Delete</span>
             </div>

@@ -1,4 +1,4 @@
-import { FC, useContext, useState } from 'react';
+import { FC, useContext, useEffect, useState } from 'react';
 import { ErrorMessage, Field, Form, Formik } from 'formik';
 import * as Yup from 'yup';
 import { IoClose } from 'react-icons/io5';
@@ -15,6 +15,8 @@ interface AddTransactionsProps {
 const AddTransactions: FC<AddTransactionsProps> = ({ openFotm, setOpenForm }) => {
     const { render, setRender }: any = useContext(DataContext);
     const [isLoading, setIsLoading] = useState(false)
+    const [categoryIncome, setCategoryIncome] = useState<any>()
+    const [categoryExpence, setCategoryExpence] = useState<any>()
     const paymentMethods = [
         {
             id: 1,
@@ -57,21 +59,7 @@ const AddTransactions: FC<AddTransactionsProps> = ({ openFotm, setOpenForm }) =>
             name: '**2363',
         },
     ];
-    const category = [
-        {
-            id: 1,
-            name: 'food',
-        },
-        {
-            id: 2,
-            name: 'travel',
-        },
-        {
-            id: 3,
-            name: 'other',
-        },
-    ];
-    // const [action, setAction] = useState('');
+
     const initialValues = {
         action: 'expence',
         amount: 100,
@@ -80,22 +68,27 @@ const AddTransactions: FC<AddTransactionsProps> = ({ openFotm, setOpenForm }) =>
         from: 'Cash',
         date: new Date().toISOString().split('T')[0],
         category: 'food',
+        newCategory: '',
     };
 
     const validationSchema = Yup.object().shape({
         action: Yup.string().required(),
         amount: Yup.number().required('Enter Amount'),
-        description: Yup.string().required('Add Description').max(100,'Too Long'),
+        description: Yup.string().required('Add Description').max(100, 'Too Long'),
         paymentMethod: Yup.string().required('Sellect Payment Method'),
         from: Yup.string().required('Choose payment from'),
         date: Yup.date(),
         category: Yup.string().required('Choose Category'),
+        newCategory: Yup.string()
     });
 
     const handleSubmit = async (values: any, { resetForm }: any) => {
         setIsLoading(true)
         if (values.paymentMethod === 'Cash') {
             values['from'] = 'Cash';
+        }
+        if (values.category === 'addNewCategory') {
+            values['category'] = values.newCategory;
         }
         try {
             const response: any = await http({
@@ -118,6 +111,45 @@ const AddTransactions: FC<AddTransactionsProps> = ({ openFotm, setOpenForm }) =>
         }
     };
 
+
+    const FeatchIncomeCategory = async () => {
+        try {
+            const response: any = await http({
+                url: `/category/getIncomeCategory`,
+                method: 'get',
+            });
+            if (response?.data?.code === 'SUCCESS_200') {
+                setCategoryIncome(response?.data?.data)
+            } else {
+                toast.error(response?.data?.message);
+            }
+        } catch (error: any | unknown) {
+            toast.error(error?.message);
+            setIsLoading(false)
+        }
+    }
+    const FeatchExpenceCategory = async () => {
+        try {
+            const response: any = await http({
+                url: `/category/getExpenceCategory`,
+                method: 'get',
+            });
+            if (response?.data?.code === 'SUCCESS_200') {
+                setCategoryExpence(response?.data?.data)
+            } else {
+                toast.error(response?.data?.message);
+            }
+        } catch (error: any | unknown) {
+            toast.error(error?.message);
+            setIsLoading(false)
+        }
+    }
+
+    useEffect(() => {
+        FeatchIncomeCategory()
+        FeatchExpenceCategory()
+    }, [])
+
     return (
         <div className={`w-full h-full ${openFotm ? 'translate-y-0' : 'translate-y-full'} fixed z-40 top-0 bg-black bg-opacity-70  transition-all duration-300 flex items-center justify-center`}>
             <Formik initialValues={initialValues} onSubmit={handleSubmit} validationSchema={validationSchema}>
@@ -134,6 +166,7 @@ const AddTransactions: FC<AddTransactionsProps> = ({ openFotm, setOpenForm }) =>
                             <span className='text-xs text-red-500'><ErrorMessage name='paymentMethod' /></span>
                             <span className='text-xs text-red-500'><ErrorMessage name='from' /></span>
                             <span className='text-xs text-red-500'><ErrorMessage name='category' /></span>
+                            <span className='text-xs text-red-500'><ErrorMessage name='newCategory' /></span>
                         </div>
                         <div className='px-5 w-full flex text-sm text-gray-800 sm:mt-2 mt-10 flex-col gap-10 '>
                             <div className='w-full flex gap-10 justify-around'>
@@ -163,23 +196,48 @@ const AddTransactions: FC<AddTransactionsProps> = ({ openFotm, setOpenForm }) =>
                                         className='w-full border-b outline-none'
                                     />
                                 </div>
-                                <div className='w-full sm:w-1/2'>
-                                    <label htmlFor="category">Select Category</label>
-                                    <Field
-                                        id='category'
-                                        name='category'
-                                        className={`w-full border-b bg-transparent focus:outline-none`}
-                                        as='select'
-                                    >
-                                        <option value=''></option>
-                                        {category.map((item: any) => (
-                                            <option key={item.id} value={item.name}>
-                                                {item.name}
-                                            </option>
-                                        ))}
-                                    </Field>
 
-                                </div>
+                                {values.category === 'addNewCategory' ?
+                                    <div className='w-full sm:w-1/2'>
+                                        <label htmlFor="from">Enter Category Name</label>
+                                        <Field
+                                            autoFocus={true}
+                                            id='newCategory'
+                                            name='newCategory'
+                                            className={`w-full border-b bg-transparent focus:outline-none`}
+                                            type='text'
+                                        >
+                                        </Field>
+                                    </div>
+                                    :
+                                    <div className='w-full sm:w-1/2'>
+                                        <label htmlFor="category">Select Category</label>
+                                        <Field
+                                            id='category'
+                                            name='category'
+                                            className={`w-full border-b bg-transparent focus:outline-none`}
+                                            as='select'
+                                        >
+                                            <option value=''></option>
+                                            {values.action === 'income' ?
+                                                categoryIncome?.map((item: any) => (
+                                                    <option key={item._id} value={item.category}>
+                                                        {item.category}
+                                                    </option>
+                                                ))
+                                                :
+                                                values.action === 'expence' ?
+                                                    categoryExpence?.map((item: any) => (
+                                                        <option key={item._id} value={item.category}>
+                                                            {item.category}
+                                                        </option>
+                                                    ))
+                                                    :
+                                                    ''}
+                                            <option value='addNewCategory'>Add Category</option>
+                                        </Field>
+                                    </div>}
+
                             </div>
                             <div className='w-full flex sm:flex-row flex-col  items-center gap-10'>
                                 <div title='Enter Amount' className='w-full sm:w-1/2 relative'>
@@ -218,6 +276,7 @@ const AddTransactions: FC<AddTransactionsProps> = ({ openFotm, setOpenForm }) =>
                                         ))}
                                     </Field>
                                 </div>
+
                                 {values.paymentMethod !== 'Cash' &&
                                     <div className='w-full sm:w-1/2'>
                                         <label htmlFor="from">Select {values.paymentMethod === 'Account' ? 'Account' : values.paymentMethod === 'Card' ? 'Card' : ''}</label>

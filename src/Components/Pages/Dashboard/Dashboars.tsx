@@ -104,7 +104,7 @@ const Dashboard: FC<DashboardProps> = () => {
                     <p className='cursor-default text-sm text-skin-text-dashboard'>Transactions</p>
                 </div>
             </div>
-            <div className='w-full bg-skin-bg-dashboard grid grid-cols-1 sm:grid-cols-2 font-sans'>
+            <div className='w-full rounded-md bg-skin-bg-dashboard grid grid-cols-1 sm:grid-cols-2 font-sans'>
                 <div className='w-full shadow-md h-[400px] p-2'>
                     <BarChart />
                 </div>
