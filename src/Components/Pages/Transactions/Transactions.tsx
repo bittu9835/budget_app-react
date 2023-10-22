@@ -11,8 +11,7 @@ import { toast } from 'react-toastify';
 interface TransactionsProps { }
 
 const Transactions: FC<TransactionsProps> = () => {
-  const { setOpenForm, setRender, render } = useContext(DataContext)
-  const [selectedTransaction, setSelectedTransaction] = useState<any[]>([])
+  const { setOpenForm, setRender, render, settransactionForEdit,selectedTransaction, setSelectedTransaction } = useContext(DataContext)
   const [isLoading, setIsLoading] = useState(true)
   const [isLoadingButton, setIsLoadingButton] = useState(false)
 
@@ -45,6 +44,31 @@ const Transactions: FC<TransactionsProps> = () => {
 
   }
 
+  const editTransaction = async () => {
+    if (selectedTransaction?.length === 1) {
+      try {
+        const response: any = await http({
+          url: `/transaction/getTransactionsForEdit`,
+          method: 'get',
+          data: selectedTransaction[0]
+        });
+        if (response?.data?.code === 'SUCCESS_200') {
+          settransactionForEdit(response?.data?.data)
+          setOpenForm(true)
+        } else {
+          toast.error(response?.data?.message);
+        }
+      } catch (error: any) {
+        if (error.response && error.response.data && error.response.data.message) {
+          toast.error(error?.response?.data?.message);
+        } else {
+          toast.error('Error fetching Transactions.');
+        }
+      }
+    }
+  }
+
+
 
   return (
     <div className="w-full h-full relative bg-gray-50 overflow-auto scrollbar-none px-2">
@@ -61,27 +85,27 @@ const Transactions: FC<TransactionsProps> = () => {
           </div>
         </div>
         <div className='w-full bg-white border-b flex justify-between items-center sm:px-5 px-1 rounded-sm h-10'>
-         <p className='text-lg text-gray-800'>{selectedTransaction.length>0 ? selectedTransaction?.length : ''}</p>
+          <p className='text-lg text-gray-800'>{selectedTransaction.length > 0 ? selectedTransaction?.length : ''}</p>
           <div className='flex gap-1'>
-          <div className={`${selectedTransaction?.length === 1 ? 'hover:bg-gray-300 cursor-pointer text-gray-900' : 'cursor-default text-gray-200'} px-2 py-1 flex items-center gap-2  rounded-sm`}>
-            <MdOutlineModeEditOutline />
-            <span>Edit</span>
-          </div>
-          {isLoadingButton ?
-            <div className=' cursor-default text-gray-500 bg-gray-300  px-9 py-2 flex items-center justify-center  rounded-sm'>
-              <div className="w-4 h-4  border-t-2  border-r-0 border-b-0 border-red-500 border-solid rounded-full animate-spin"></div>
+            <div onClick={editTransaction} className={`${selectedTransaction?.length === 1 ? 'hover:bg-gray-300 cursor-pointer text-gray-900' : 'cursor-default text-gray-200'} px-2 py-1 flex items-center gap-2  rounded-sm`}>
+              <MdOutlineModeEditOutline />
+              <span>Edit</span>
             </div>
-            :
-            <div onClick={deleteTransaction} className={`${selectedTransaction?.length > 0 ? 'hover:bg-gray-300 cursor-pointer text-gray-900' : 'cursor-default text-gray-200'} px-2 py-1 flex items-center gap-2  rounded-sm`}>
-              <RiDeleteBinLine />
-              <span> Delete</span>
-            </div>
-          }
+            {isLoadingButton ?
+              <div className=' cursor-default text-gray-500 bg-gray-300  px-9 py-2 flex items-center justify-center  rounded-sm'>
+                <div className="w-4 h-4  border-t-2  border-r-0 border-b-0 border-red-500 border-solid rounded-full animate-spin"></div>
+              </div>
+              :
+              <div onClick={deleteTransaction} className={`${selectedTransaction?.length > 0 ? 'hover:bg-gray-300 cursor-pointer text-gray-900' : 'cursor-default text-gray-200'} px-2 py-1 flex items-center gap-2  rounded-sm`}>
+                <RiDeleteBinLine />
+                <span> Delete</span>
+              </div>
+            }
           </div>
         </div>
       </div>
       <div>
-      <Table setIsLoading={setIsLoading} setSelectedTransaction={setSelectedTransaction} selectedTransaction={selectedTransaction} />
+        <Table setIsLoading={setIsLoading} setSelectedTransaction={setSelectedTransaction} selectedTransaction={selectedTransaction} />
       </div>
     </div>
   );

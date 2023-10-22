@@ -13,7 +13,7 @@ interface AddTransactionsProps {
 }
 
 const AddTransactions: FC<AddTransactionsProps> = ({ openFotm, setOpenForm }) => {
-    const { render, setRender }: any = useContext(DataContext);
+    const { render, setRender, transactionForEdit, settransactionForEdit, setSelectedTransaction }: any = useContext(DataContext);
     const [isLoading, setIsLoading] = useState(false)
     const [categoryIncome, setCategoryIncome] = useState<any>()
     const [categoryExpence, setCategoryExpence] = useState<any>()
@@ -61,13 +61,13 @@ const AddTransactions: FC<AddTransactionsProps> = ({ openFotm, setOpenForm }) =>
     ];
 
     const initialValues = {
-        action: 'expence',
-        amount: 100,
-        description: 'Any',
-        paymentMethod: 'Cash',
-        from: 'Cash',
-        date: new Date().toISOString().split('T')[0],
-        category: 'food',
+        action: transactionForEdit !== null ? transactionForEdit.action : '',
+        amount: transactionForEdit !== null ? transactionForEdit.amount : '',
+        description: transactionForEdit !== null ? transactionForEdit.description : '',
+        paymentMethod: transactionForEdit !== null ? transactionForEdit.paymentMethod : 'Cash',
+        from: transactionForEdit !== null ? transactionForEdit.from : 'Cash',
+        date: transactionForEdit !== null ? new Date(transactionForEdit.date).toISOString().split('T')[0] : new Date().toISOString().split('T')[0],
+        category: transactionForEdit !== null ? transactionForEdit.category : '',
         newCategory: '',
     };
 
@@ -83,31 +83,64 @@ const AddTransactions: FC<AddTransactionsProps> = ({ openFotm, setOpenForm }) =>
     });
 
     const handleSubmit = async (values: any, { resetForm }: any) => {
-        setIsLoading(true)
-        if (values.paymentMethod === 'Cash') {
-            values['from'] = 'Cash';
-        }
-        if (values.category === 'addNewCategory') {
-            values['category'] = values.newCategory;
-        }
-        try {
-            const response: any = await http({
-                url: `/transaction/addTransaction`,
-                method: 'post',
-                data: values
-            });
-            if (response?.data?.code === 'SUCCESS_200') {
-                toast.success(response?.data?.message);
-                setIsLoading(false)
-                setRender(!render)
-                setOpenForm(false)
-                resetForm();
-            } else {
-                toast.error(response?.data?.message);
+        if (transactionForEdit !== null) {
+            setIsLoading(true)
+            if (values.paymentMethod === 'Cash') {
+                values['from'] = 'Cash';
             }
-        } catch (error: any | unknown) {
-            toast.error(error?.message);
-            setIsLoading(false)
+            if (values.category === 'addNewCategory') {
+                values['category'] = values.newCategory;
+            }
+            values['_id'] = transactionForEdit?._id
+
+            try {
+                const response: any = await http({
+                    url: `/transaction/editTransactions`,
+                    method: 'put',
+                    data: values
+                });
+                if (response?.data?.code === 'SUCCESS_200') {
+                    toast.success(response?.data?.message);
+                    settransactionForEdit(null)
+                    setSelectedTransaction([])
+                    setIsLoading(false)
+                    setRender(!render)
+                    setOpenForm(false)
+                    resetForm();
+                } else {
+                    toast.error(response?.data?.message);
+                }
+            } catch (error: any | unknown) {
+                toast.error(error?.message);
+                setIsLoading(false)
+            }
+        } else {
+            setIsLoading(true)
+            if (values.paymentMethod === 'Cash') {
+                values['from'] = 'Cash';
+            }
+            if (values.category === 'addNewCategory') {
+                values['category'] = values.newCategory;
+            }
+            try {
+                const response: any = await http({
+                    url: `/transaction/addTransaction`,
+                    method: 'post',
+                    data: values
+                });
+                if (response?.data?.code === 'SUCCESS_200') {
+                    toast.success(response?.data?.message);
+                    setIsLoading(false)
+                    setRender(!render)
+                    setOpenForm(false)
+                    resetForm();
+                } else {
+                    toast.error(response?.data?.message);
+                }
+            } catch (error: any | unknown) {
+                toast.error(error?.message);
+                setIsLoading(false)
+            }
         }
     };
 
@@ -157,7 +190,10 @@ const AddTransactions: FC<AddTransactionsProps> = ({ openFotm, setOpenForm }) =>
                     <Form className='sm:w-[33rem] w-full h-full sm:h-auto bg-skin-bg-form-bg rounded-sm p-6'>
                         <div className='flex items-center justify-between mb-5'>
                             <p className='text-lg'>New Transaction</p>
-                            <p onClick={() => setOpenForm(false)} className='p-2 text-lg flex items-center justify-center hover:bg-gray-200 rounded-full cursor-pointer'><IoClose /></p>
+                            <p onClick={() => {
+                                setOpenForm(false)
+                                settransactionForEdit(null)
+                            }} className='p-2 text-lg flex items-center justify-center hover:bg-gray-200 rounded-full cursor-pointer'><IoClose /></p>
                         </div>
                         <div>
                             <span className='text-xs text-red-500'><ErrorMessage name='action' /></span>
@@ -189,7 +225,7 @@ const AddTransactions: FC<AddTransactionsProps> = ({ openFotm, setOpenForm }) =>
                             </div>
                             <div className='w-full flex sm:flex-row flex-col  items-center gap-10'>
                                 <div className='w-full sm:w-1/2'>
-                                    <label htmlFor="date">Choose a Date</label>
+                                    <label htmlFor="date">Choose a Date (MM/DD/YYYY)</label>
                                     <Field
                                         name="date"
                                         type='date'
@@ -322,7 +358,10 @@ const AddTransactions: FC<AddTransactionsProps> = ({ openFotm, setOpenForm }) =>
                                 }
 
 
-                                <div onClick={() => setOpenForm(false)} className='py-[2px] px-2  cursor-pointer hover:bg-[#4e2682] border-[#5200bb] border text-black hover:text-white rounded-sm'>Cancle</div>
+                                <div onClick={() => {
+                                    setOpenForm(false)
+                                    settransactionForEdit(null)
+                                }} className='py-[2px] px-2  cursor-pointer hover:bg-[#4e2682] border-[#5200bb] border text-black hover:text-white rounded-sm'>Cancle</div>
                             </div>
                         </div>
                     </Form>

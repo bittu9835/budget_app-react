@@ -13,8 +13,8 @@ interface TableProps {
     selectedTransaction: any[]
 }
 
-const Table: FC<TableProps> = ({ setIsLoading, setSelectedTransaction, selectedTransaction }) => {
-    const { render } = useContext(DataContext);
+const Table: FC<TableProps> = ({ setIsLoading }) => {
+    const { render,selectedTransaction, setSelectedTransaction } = useContext(DataContext);
     const [transactionData, setTransactionData] = useState<any>()
     // const [hideChecBox, setHideChecBox] = useState(false)
 
@@ -129,8 +129,8 @@ const Table: FC<TableProps> = ({ setIsLoading, setSelectedTransaction, selectedT
                     </tbody>
                 </table>
             </div>
-            <div className='w-full h-full rounded-lg lg:hidden block  sm:text-base text-sm text-left text-gray-700'>
-                <div className={` w-full h-10 flex items-center`}>
+            <div className='w-full h-full rounded-lg lg:hidden block  text-sm text-left text-gray-700'>
+                <div className={` w-full bg-gray-200 h-10 flex items-center`}>
                     <span className="p-4">
                         <div className="flex gap-3 items-center">
                             <input
