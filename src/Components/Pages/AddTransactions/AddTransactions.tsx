@@ -187,9 +187,9 @@ const AddTransactions: FC<AddTransactionsProps> = ({ openFotm, setOpenForm }) =>
         <div className={`w-full h-full ${openFotm ? 'translate-y-0' : 'translate-y-full'} fixed z-40 top-0 bg-black bg-opacity-70  transition-all duration-300 flex items-center justify-center`}>
             <Formik initialValues={initialValues} onSubmit={handleSubmit} validationSchema={validationSchema}>
                 {({ values, setFieldValue }) => (
-                    <Form className='sm:w-[33rem] w-full h-full sm:h-auto bg-skin-bg-form-bg rounded-sm p-6'>
+                    <Form className={`${values.action === 'income' ? 'bg-green-100' : values.action === 'expence' ? 'bg-red-100' : 'bg-skin-bg-form-bg'} sm:w-[33rem] w-full h-full sm:h-auto  rounded-sm p-6`}>
                         <div className='flex items-center justify-between mb-5'>
-                            <p className='text-lg'>New Transaction</p>
+                            <p className='text-lg'>{transactionForEdit !== null ? 'Edit' : 'New'} Transaction</p>
                             <p onClick={() => {
                                 setOpenForm(false)
                                 settransactionForEdit(null)
@@ -229,7 +229,7 @@ const AddTransactions: FC<AddTransactionsProps> = ({ openFotm, setOpenForm }) =>
                                     <Field
                                         name="date"
                                         type='date'
-                                        className='w-full border-b outline-none'
+                                        className='w-full border-b border-gray-700 font-semibold  bg-transparent outline-none'
                                     />
                                 </div>
 
@@ -240,7 +240,7 @@ const AddTransactions: FC<AddTransactionsProps> = ({ openFotm, setOpenForm }) =>
                                             autoFocus={true}
                                             id='newCategory'
                                             name='newCategory'
-                                            className={`w-full border-b bg-transparent focus:outline-none`}
+                                            className={`w-full border-b border-gray-700 font-semibold  bg-transparent focus:outline-none`}
                                             type='text'
                                         >
                                         </Field>
@@ -251,7 +251,7 @@ const AddTransactions: FC<AddTransactionsProps> = ({ openFotm, setOpenForm }) =>
                                         <Field
                                             id='category'
                                             name='category'
-                                            className={`w-full border-b bg-transparent focus:outline-none`}
+                                            className={`w-full border-b border-gray-700 font-semibold  bg-transparent focus:outline-none`}
                                             as='select'
                                         >
                                             <option value=''></option>
@@ -279,7 +279,7 @@ const AddTransactions: FC<AddTransactionsProps> = ({ openFotm, setOpenForm }) =>
                                 <div title='Enter Amount' className='w-full sm:w-1/2 relative'>
                                     <label htmlFor="amount">Enter Amount</label>
                                     <Field
-                                        className={`pl-5 text-sm outline-none bg-transparent border-b w-full appearance-none`}
+                                        className={`pl-5 text-sm outline-none bg-transparent border-b border-gray-700 font-semibold  w-full appearance-none`}
                                         type='number'
                                         name='amount'
                                         id='amount'
@@ -289,7 +289,7 @@ const AddTransactions: FC<AddTransactionsProps> = ({ openFotm, setOpenForm }) =>
                                 <div title='Enter Description' className='w-full sm:w-1/2'>
                                     <label htmlFor="description">Add Description</label>
                                     <Field
-                                        className='w-full border-b appearance-none outline-none bg-transparent'
+                                        className='w-full border-b border-gray-700 font-semibold  appearance-none outline-none bg-transparent'
                                         type='text'
                                         name='description'
                                         id='description'
@@ -302,7 +302,7 @@ const AddTransactions: FC<AddTransactionsProps> = ({ openFotm, setOpenForm }) =>
                                     <Field
                                         id='paymentMethod'
                                         name='paymentMethod'
-                                        className={`w-full border-b bg-transparent focus:outline-none`}
+                                        className={`w-full border-b border-gray-700 font-semibold  bg-transparent focus:outline-none`}
                                         as='select'
                                     >
                                         {paymentMethods.map((item: any) => (
@@ -319,7 +319,7 @@ const AddTransactions: FC<AddTransactionsProps> = ({ openFotm, setOpenForm }) =>
                                         <Field
                                             id='from'
                                             name='from'
-                                            className={`w-full border-b bg-transparent focus:outline-none`}
+                                            className={`w-full border-b border-gray-700 font-semibold  bg-transparent focus:outline-none`}
                                             as='select'
 
                                         >
@@ -353,7 +353,7 @@ const AddTransactions: FC<AddTransactionsProps> = ({ openFotm, setOpenForm }) =>
                                         type='submit'
                                         disabled={values.action === 'income' || values.action === 'expence' ? false : true}
                                         className={`${values.action === 'income' || values.action === 'expence' ? 'bg-[#5200bb]' : 'bg-gray-800'} py-[2px] px-4   text-white  rounded-sm`}>
-                                        Add
+                                      {transactionForEdit !== null ? 'Update' : 'Add'} 
                                     </button>
                                 }
 
