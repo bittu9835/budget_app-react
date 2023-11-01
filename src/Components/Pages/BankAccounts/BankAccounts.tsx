@@ -1,16 +1,18 @@
 import { useState, type FC } from 'react';
-import visa from '../../../Assets/Visa_Inc._logo.svg.png'
-import chip from '../../../Assets/chip.png'
+
 import { ErrorMessage, Field, Form, Formik } from 'formik';
 import * as Yup from 'yup';
-import { IoClose } from 'react-icons/io5';
+import { IoAdd, IoClose } from 'react-icons/io5';
+import { useNavigate } from 'react-router-dom';
 
 interface BankAccountsProps { }
 
 const BankAccounts: FC<BankAccountsProps> = () => {
     const [openBankForm, setOpenBankForm] = useState(false)
-    const [accountForEdit, setAccountForEdit] = useState('')
+    const [accountForEdit, setAccountForEdit] = useState(null)
+    const [accountData, setAccountData] = useState([])
     const [isLoading, setIsLoading] = useState(false)
+    const navigate = useNavigate()
 
 
     const initialValues = {
@@ -19,7 +21,7 @@ const BankAccounts: FC<BankAccountsProps> = () => {
 
     const validationSchema = Yup.object().shape({
         Account_number: Yup.string().matches(/^[0-9]{4}$/, 'Last 4 digits of account number is required.').required('Enter A/C No.'),
-        bankName: Yup.string().required('Add Description').max(100, 'Too Long'),
+        bankName: Yup.string().required('Add Description').max(50, 'Too Long'),
     });
 
     const handleAddCard = () => {
@@ -30,6 +32,9 @@ const BankAccounts: FC<BankAccountsProps> = () => {
         setOpenBankForm(true)
     }
 
+    const handleClick = () => {
+        navigate('/home/accountDetails')
+    }
     const handleSubmit = () => {
 
     }
@@ -40,10 +45,10 @@ const BankAccounts: FC<BankAccountsProps> = () => {
                     {({ values, setFieldValue }) => (
                         <Form className='sm:w-[33rem] bg-white w-full h-full sm:h-auto  rounded-sm p-6'>
                             <div className='flex items-center justify-between mb-5'>
-                                <p className='text-lg'>{accountForEdit !== null ? 'Edit' : 'New'} Transaction</p>
+                                <p className='text-lg'>{accountForEdit !== null ? 'Edit' : 'Add'} Account & Card</p>
                                 <p onClick={() => {
                                     setOpenBankForm(false)
-                                    setAccountForEdit('')
+                                    setAccountForEdit(null)
                                 }} className='p-2 text-lg flex items-center justify-center hover:bg-gray-200 rounded-full cursor-pointer'><IoClose /></p>
                             </div>
                             <div>
@@ -85,11 +90,9 @@ const BankAccounts: FC<BankAccountsProps> = () => {
                                             {accountForEdit !== null ? 'Update' : 'Add'}
                                         </button>
                                     }
-
-
                                     <div onClick={() => {
                                         setOpenBankForm(false)
-                                        setAccountForEdit('')
+                                        setAccountForEdit(null)
                                     }} className='py-[2px] px-2  cursor-pointer hover:bg-[#4e2682] border-[#5200bb] border text-black hover:text-white rounded-sm'>Cancle</div>
                                 </div>
                             </div>
@@ -97,51 +100,50 @@ const BankAccounts: FC<BankAccountsProps> = () => {
                     )}
                 </Formik>
             </div>
-
-            <div className='w-full h-full py-5 flex sm:justify-evenly px-7 sm:flex-row md:gap-4 gap-12 flex-col'>
-                <div className='w-full lg:w-80 md:w-52 flex flex-col items-center'>
-                    <div className="w-full cursor-default h-48 bg-gradient-to-r from-blue-400 to-purple-400 rounded-lg p-4 relative shadow-md">
-                        <div className="absolute top-4 left-4">
-                            <img src={visa} alt="" className="w-16" />
-                        </div>
-                        <p title='State Bank Of India' className='text-blue-800 font-extrabold absolute top-2 right-2 text-xl'>SBI</p>
-                        <div className="text-white text-2xl font-semibold absolute bottom-20 left-4">
-                            **** **** **** 3456
-                        </div>
-                        <div className="text-white text-base absolute font-medium bottom-7 left-4">
-                            Bittu Kumar
-                        </div>
-                        <div className="absolute bottom-8 right-4">
-                            <img src={chip} alt="" className="w-10" />
-                        </div>
+            <div className="w-full h-full overflow-y-auto shadow-md">
+                <div className="shadow-md rounded-lg">
+                    <div className={` w-full bg-gray-100 h-10 flex justify-between px-2 items-center`}>
+                        <p className='text-gray-700 text-lg'>Bank Accounts</p>
+                        <p onClick={handleAddBank} title='Add Bank Accounts' className='p-2 cursor-pointer rounded-full hover:bg-gray-200'><IoAdd /></p>
                     </div>
-                    <div onClick={handleAddCard} className='mt-4'>
-                        <p className='text-[#5200bb] cursor-pointer font-semibold'>Add Cards (+)</p>
+                    <table className="w-full relative text-sm text-left text-gray-500 ">
+                        <tbody>
+                            {/* {accountData?.map((item: any) => */}
+                            <tr onClick={handleClick} className="bg-white border-b cursor-default shadow-md hover:bg-gray-50 hover:text-gray-800">
+                                <th title={'Bank Name'} className="px-4 truncate py-2">
+                                    1
+                                </th>
+                                <th title={'Bank Name'} className="px-4 truncate py-2">
+                                    State Bank Of India
+                                </th>
+                                <td title={'a'} className="px-4 truncate py-2">
+                                    any
+                                </td>
+                            </tr>
+                            {/* )} */}
+                        </tbody>
+                    </table>
+                    <div className={` w-full bg-gray-100 h-10 flex justify-between px-2 items-center`}>
+                        <p className='text-gray-700 text-lg'>Cards</p>
+                        <p onClick={handleAddCard} title='Add Cards' className='p-2 cursor-pointer rounded-full hover:bg-gray-200'><IoAdd /></p>
                     </div>
-                </div>
-                <div className='w-full lg:w-80 md:w-52 flex flex-col items-center'>
-                    <div className="bg-white px-2 bg-gradient-to-r from-pink-400 to-purple-400 rounded-lg shadow-md w-full   h-48">
-                        <div className="cursor-default">
-                            <div className='mb-2 flex justify-between items-center'>
-                            <div className="">
-                                <label className="text-sm text-white">Account Number</label>
-                                <p className="text-lg text-white font-semibold">**** **** 3456</p>
-                            </div>
-                            <p title='State Bank Of India' className='text-blue-800 font-extrabold mr-1 text-xl'>SBI</p>
-                            </div>
-                            <div className="mb-2">
-                                <label className="text-sm text-white">Account Holder</label>
-                                <p className="text-lg text-white font-semibold">Bittu kumar</p>
-                            </div>
-                        </div>
-                        <div className="mt-2 border-t cursor-default border-gray-300 pt-2 text-center">
-                            <p className="text-sm text-white">A/C Balance</p>
-                            <p className="text-lg font-semibold text-white">₹ 500.00</p>
-                        </div>
-                    </div>
-                    <div onClick={handleAddBank} className='mt-4'>
-                        <p className='text-[#5200bb] cursor-pointer font-semibold'>Add Accounts (+)</p>
-                    </div>
+                    <table className="w-full relative text-sm text-left text-gray-500 ">
+                        <tbody>
+                            {/* {accountData?.map((item: any) => */}
+                            <tr onClick={handleClick} className="bg-white border-b cursor-default shadow-md hover:bg-gray-50 hover:text-gray-800">
+                                <th title={'Bank Name'} className="px-4 truncate py-2">
+                                    1
+                                </th>
+                                <th title={'Bank Name'} className="px-4 truncate py-2">
+                                    State Bank Of India
+                                </th>
+                                <td title={'a'} className="px-4 truncate py-2">
+                                    any
+                                </td>
+                            </tr>
+                            {/* )} */}
+                        </tbody>
+                    </table>
                 </div>
             </div>
         </div>
