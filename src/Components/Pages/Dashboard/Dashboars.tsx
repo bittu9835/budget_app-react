@@ -33,8 +33,8 @@ const Dashboard: FC<DashboardProps> = () => {
     const featchTransactions = async () => {
         try {
             const response: any = await http({
-                url: `/transaction/getTransaction`,
-                method: 'get'
+                url: `/transaction/getTransactionsForDashboard`,
+                method: 'get',
             });
             if (response?.data?.code === 'SUCCESS_200') {
                 setTrasactions(response?.data?.data)

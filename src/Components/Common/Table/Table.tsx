@@ -11,11 +11,13 @@ interface TableProps {
     setIsLoading: React.Dispatch<React.SetStateAction<boolean>>
     setSelectedTransaction: React.Dispatch<React.SetStateAction<any[]>>
     selectedTransaction: any[]
+    searchValue:string
 }
 
-const Table: FC<TableProps> = ({ setIsLoading }) => {
+const Table: FC<TableProps> = ({ setIsLoading,searchValue }) => {
     const { render,selectedTransaction, setSelectedTransaction } = useContext(DataContext);
     const [transactionData, setTransactionData] = useState<any>()
+    
     // const [hideChecBox, setHideChecBox] = useState(false)
 
     const handleCheckboxChange = (item: any) => {
@@ -37,7 +39,10 @@ const Table: FC<TableProps> = ({ setIsLoading }) => {
         try {
             const response: any = await http({
                 url: `/transaction/getTransaction`,
-                method: 'get'
+                method: 'get',
+                data:{
+                    search: searchValue
+                }
             });
             if (response?.data?.code === 'SUCCESS_200') {
                 setTransactionData(response?.data?.data)
@@ -59,7 +64,7 @@ const Table: FC<TableProps> = ({ setIsLoading }) => {
     useEffect(() => {
         fetchTransactions()
         // eslint-disable-next-line 
-    }, [render])
+    }, [render,searchValue])
     return (
         <div className="w-full h-full overflow-y-auto shadow-md rounded-lg">
             <div className="shadow-md lg:block hidden">

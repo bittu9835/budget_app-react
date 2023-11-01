@@ -17,6 +17,8 @@ const AddTransactions: FC<AddTransactionsProps> = ({ openFotm, setOpenForm }) =>
     const [isLoading, setIsLoading] = useState(false)
     const [categoryIncome, setCategoryIncome] = useState<any>()
     const [categoryExpence, setCategoryExpence] = useState<any>()
+    const [paymentMode,setPaymentMode]=useState('')
+    console.log(paymentMode)
     const paymentMethods = [
         {
             id: 1,
@@ -87,6 +89,7 @@ const AddTransactions: FC<AddTransactionsProps> = ({ openFotm, setOpenForm }) =>
             setIsLoading(true)
             if (values.paymentMethod === 'Cash') {
                 values['from'] = 'Cash';
+                setPaymentMode('Cash')
             }
             if (values.category === 'addNewCategory') {
                 values['category'] = values.newCategory;
@@ -116,6 +119,7 @@ const AddTransactions: FC<AddTransactionsProps> = ({ openFotm, setOpenForm }) =>
             }
         } else {
             setIsLoading(true)
+            
             if (values.paymentMethod === 'Cash') {
                 values['from'] = 'Cash';
             }
@@ -187,7 +191,7 @@ const AddTransactions: FC<AddTransactionsProps> = ({ openFotm, setOpenForm }) =>
         <div className={`w-full h-full ${openFotm ? 'translate-y-0' : 'translate-y-full'} fixed z-40 top-0 bg-black bg-opacity-70  transition-all duration-300 flex items-center justify-center`}>
             <Formik initialValues={initialValues} onSubmit={handleSubmit} validationSchema={validationSchema}>
                 {({ values, setFieldValue }) => (
-                    <Form className={`${values.action === 'income' ? 'bg-green-100' : values.action === 'expence' ? 'bg-red-100' : 'bg-skin-bg-form-bg'} sm:w-[33rem] w-full h-full sm:h-auto  rounded-sm p-6`}>
+                    <Form className={` sm:w-[33rem] w-full h-full sm:h-auto bg-skin-bg-form-bg rounded-sm p-6`}>
                         <div className='flex items-center justify-between mb-5'>
                             <p className='text-lg'>{transactionForEdit !== null ? 'Edit' : 'New'} Transaction</p>
                             <p onClick={() => {
@@ -279,12 +283,12 @@ const AddTransactions: FC<AddTransactionsProps> = ({ openFotm, setOpenForm }) =>
                                 <div title='Enter Amount' className='w-full sm:w-1/2 relative'>
                                     <label htmlFor="amount">Enter Amount</label>
                                     <Field
-                                        className={`pl-5 text-sm outline-none bg-transparent border-b border-gray-700 font-semibold  w-full appearance-none`}
+                                        className={`pl-5 text-sm ${values.action === 'income' ? 'text-green-500' : values.action === 'expence' ? 'text-red-500' : ''} outline-none bg-transparent border-b border-gray-700 font-semibold  w-full appearance-none`}
                                         type='number'
                                         name='amount'
                                         id='amount'
                                     />
-                                    <span className='absolute left-0'><LuIndianRupee /></span>
+                                    <span className={`absolute left-0 ${values.action === 'income' ? 'text-green-500' : values.action === 'expence' ? 'text-red-500' : ''}`}><LuIndianRupee /></span>
                                 </div>
                                 <div title='Enter Description' className='w-full sm:w-1/2'>
                                     <label htmlFor="description">Add Description</label>
@@ -305,6 +309,7 @@ const AddTransactions: FC<AddTransactionsProps> = ({ openFotm, setOpenForm }) =>
                                         className={`w-full border-b border-gray-700 font-semibold  bg-transparent focus:outline-none`}
                                         as='select'
                                     >
+                                        <option value=''></option>
                                         {paymentMethods.map((item: any) => (
                                             <option key={item.id} value={item.name}>
                                                 {item.name}

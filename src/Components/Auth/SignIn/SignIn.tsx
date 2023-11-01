@@ -34,6 +34,7 @@ const SignIn: FC<SignInProps> = () => {
     });
 
     const handleLogin = async (values: any) => {
+        setTogglePassIcon(true)
         setIsLoading(true)
         try {
             const response: any = await http({

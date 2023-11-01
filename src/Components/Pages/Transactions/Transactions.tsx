@@ -1,4 +1,4 @@
-import { useState, type FC, useContext } from 'react';
+import { useState, type FC, useContext, ChangeEvent, useEffect } from 'react';
 import Table from '../../Common/Table/Table';
 import Loader from '../../Common/Loader/Loader';
 import { ImSearch } from 'react-icons/im'
@@ -14,6 +14,18 @@ const Transactions: FC<TransactionsProps> = () => {
   const { setOpenForm, setRender, render, settransactionForEdit,selectedTransaction, setSelectedTransaction } = useContext(DataContext)
   const [isLoading, setIsLoading] = useState(true)
   const [isLoadingButton, setIsLoadingButton] = useState(false)
+  const [searchValue, setSearchValue] = useState<string>('')
+  const plasholder =['Description','Category','payment Mode']
+  const [placeholderIndex, setPlaceholderIndex] = useState(0);
+
+  useEffect(() => {
+    const interval = setInterval(() => {
+      setPlaceholderIndex((prevIndex) => (prevIndex + 1) % plasholder.length);
+    }, 3000);
+    return () => clearInterval(interval); 
+     // eslint-disable-next-line 
+  }, []);
+
 
   const deleteTransaction = async () => {
     if (selectedTransaction?.length > 0) {
@@ -76,7 +88,7 @@ const Transactions: FC<TransactionsProps> = () => {
       <div className='sticky top-0 z-10 bg-gray-50 flex flex-col gap-5 mt-3 px-1'>
         <div className='flex gap-5  w-full'>
           <div className='relative shadow-sm w-full text-gray-800'>
-            <input title='Search' className='w-full h-8 focus:outline-none text-sm font-semibold px-2 pl-10 border rounded-md placeholder:text-sm placeholder:font-semibold' placeholder='search..' type="search" />
+            <input onChange={(e:ChangeEvent<HTMLInputElement>)=>setSearchValue(e.target.value)} title='Search' className='w-full h-8 focus:outline-none text-sm font-semibold placeholder:font-normal pl-10 border rounded-md placeholder:text-sm' placeholder={`search for ${plasholder[placeholderIndex]}`} type="search" />
             <span className='absolute left-3 top-2 text-md'><ImSearch className='text-gray-500' /></span>
           </div>
           <div onClick={() => setOpenForm(true)} title='Add Transaction' className='w-36 hover:shadow-md cursor-pointer bg-skin-bg-button-bg text-skin-button-text text-xs font-bold border flex items-center justify-center rounded-md h-8'>
@@ -105,7 +117,7 @@ const Transactions: FC<TransactionsProps> = () => {
         </div>
       </div>
       <div>
-        <Table setIsLoading={setIsLoading} setSelectedTransaction={setSelectedTransaction} selectedTransaction={selectedTransaction} />
+        <Table searchValue={searchValue} setIsLoading={setIsLoading} setSelectedTransaction={setSelectedTransaction} selectedTransaction={selectedTransaction} />
       </div>
     </div>
   );

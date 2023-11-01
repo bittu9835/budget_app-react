@@ -34,6 +34,7 @@ const SignUp: FC<SignUpProps> = () => {
     });
 
     const handleSignUp = async (values: any) => {
+        setTogglePassIcon(true)
         setIsLoading(true)
         try {
             const response: any = await http({
@@ -76,7 +77,7 @@ const SignUp: FC<SignUpProps> = () => {
                                     <span className="text-yellow-400 text-sm"><ErrorMessage name="name" /></span>
                                 </div>
                                 <div className='w-full'>
-                                    <Field className='w-full border-b text-white outline-none bg-transparent font-medium pb-2 placeholder:text-gray-200' type="email" name='email' id='email' placeholder='User Name' />
+                                    <Field className='w-full border-b text-white outline-none bg-transparent font-medium pb-2 placeholder:text-gray-200' type="email" name='email' id='email' placeholder='Email' />
                                     <span className="text-yellow-400 text-sm"><ErrorMessage name="email" /></span>
                                 </div>
                                 <div className='w-full relative'>
