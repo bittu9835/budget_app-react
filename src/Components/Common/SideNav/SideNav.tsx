@@ -5,6 +5,7 @@ import { CiBank } from 'react-icons/ci'
 import { AiOutlineFileDone } from 'react-icons/ai'
 import { NavLink } from 'react-router-dom';
 import { SlCalculator } from 'react-icons/sl';
+import { BsGraphUpArrow } from 'react-icons/bs';
 
 interface SideNavProps { }
 const SideNav: FC<SideNavProps> = () => {
@@ -15,13 +16,16 @@ const SideNav: FC<SideNavProps> = () => {
                 <span className='text-xs text-yellow-300 cursor-default font-semibold'>Expense Tracker</span>
                 <div className=' h-full w-full text-md font-medium flex flex-col gap-6 mt-12 pl-2'>
                     <NavLink to='dashBoard' className={({ isActive, }) => `${isActive ? 'text-skin-active-nav-text' : 'text-skin-sideNav-text'}`}>
-                        <span className='flex items-center gap-3'><RxDashboard className='text-2xl' /> DASHBOARD</span>
+                        <span className='flex items-center gap-3'><RxDashboard className='text-2xl' /> Dashboard</span>
                     </NavLink>
                     <NavLink to='Card&Accounts' className={({ isActive, }) => `${isActive ? 'text-skin-active-nav-text' : 'text-skin-sideNav-text'}`}>
-                        <span className='flex items-center gap-3'><CiBank className='text-2xl' />Cards & ACCOUNTS</span>
+                        <span className='flex items-center gap-3'><CiBank className='text-2xl' />Cards & Accounts</span>
                     </NavLink>
                     <NavLink to='transactions' className={({ isActive, }) => `${isActive ? 'text-skin-active-nav-text' : 'text-skin-sideNav-text'}`}>
-                        <span className='flex items-center gap-3'><AiOutlineFileDone className='text-2xl' /> TRANSACTIONS</span>
+                        <span className='flex items-center gap-3'><AiOutlineFileDone className='text-2xl' /> Transactions</span>
+                    </NavLink>
+                    <NavLink to='investment' className={({ isActive, }) => `${isActive ? 'text-skin-active-nav-text' : 'text-skin-sideNav-text'}`}>
+                        <span className='flex items-center gap-3'><BsGraphUpArrow className='text-2xl' /> Investments</span>
                     </NavLink>
                     <NavLink to='calculator' className={({ isActive, }) => `${isActive ? 'text-skin-active-nav-text' : 'text-skin-sideNav-text'}`}>
                         <span className='flex items-center gap-3'><SlCalculator className='text-2xl' /> Calculator</span>

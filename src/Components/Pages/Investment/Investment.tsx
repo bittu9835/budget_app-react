@@ -1,8 +1,8 @@
 import type { FC } from 'react';
 
-interface CalculatorProps { }
+interface InvestmentProps {}
 
-const Calculator: FC<CalculatorProps> = () => {
+const Investment: FC<InvestmentProps> = () => {
     return (
         <div className='bg-white flex w-full h-full items-center justify-center'>
             <p className='text-7xl font-bold text-purple-950 animate-bounce'>Comming Soon</p>
@@ -10,4 +10,4 @@ const Calculator: FC<CalculatorProps> = () => {
     );
 }
 
-export default Calculator;
+export default Investment;
