@@ -10,7 +10,6 @@ import PageNoteFound from '../Common/PageNoteFound/PageNoteFound';
 import Transactions from '../Pages/Transactions/Transactions';
 import Calculator from '../Pages/Calculator/Calculator';
 import Investment from '../Pages/Investment/Investment';
-import AccountDetails from '../Pages/BankAccounts/AccountDetails/AccountDetails';
 
 interface RouterProps { }
 
@@ -25,7 +24,6 @@ const Router: FC<RouterProps> = () => {
                     <Route path='dashBoard' element={<Dashboard />} />
                     <Route path='transactions' element={<Transactions />} />
                     <Route path='Card&Accounts' element={<BankAccounts />} />
-                    <Route path='accountDetails/:Id' element={<AccountDetails />} />
                     <Route path='calculator' element={<Calculator />} />
                     <Route path='investment' element={<Investment />} />
                     <Route path='settings' element={<Settings />} />

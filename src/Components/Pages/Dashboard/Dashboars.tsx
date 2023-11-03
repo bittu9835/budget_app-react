@@ -74,9 +74,9 @@ const Dashboard: FC<DashboardProps> = () => {
             <div className='w-full grid grid-cols-2 sm:grid-cols-2 lg:grid-cols-4 gap-5  '>
                 <div
                     className=' w-full h-24 bg-skin-bg-dashboard flex flex-col items-center justify-center gap-2 shadow-md rounded-md'>
-                    <div className='cursor-default flex items-center font-sans gap-1 text-md font-medium sm:text-2xl text-[#793bcb]'>
+                    <div className={`${earningAmount - expenseAmount < 0 ? 'text-red-500' : 'text-[#793bcb]'} cursor-default flex items-center font-sans gap-1 text-md font-medium sm:text-2xl `}>
                         <span><BiRupee /></span>
-                        <span className={`${earningAmount - expenseAmount < 0 ? 'text-red-500' : ''}`}>{Balance?.toLocaleString()}</span>
+                        <span className={``}>{Balance?.toLocaleString()}</span>
                     </div>
                     <p className='cursor-default text-sm text-skin-text-dashboard'>Total Balance</p>
                 </div>
