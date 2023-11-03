@@ -5,7 +5,7 @@ import { CiBank } from 'react-icons/ci'
 import { AiOutlineFileDone } from 'react-icons/ai'
 import { NavLink } from 'react-router-dom';
 import { SlCalculator } from 'react-icons/sl';
-import { BsGraphUpArrow } from 'react-icons/bs';
+import { TbChartHistogram } from 'react-icons/tb';
 
 interface SideNavProps { }
 const SideNav: FC<SideNavProps> = () => {
@@ -25,7 +25,7 @@ const SideNav: FC<SideNavProps> = () => {
                         <span className='flex items-center gap-3'><AiOutlineFileDone className='text-2xl' /> Transactions</span>
                     </NavLink>
                     <NavLink to='investment' className={({ isActive, }) => `${isActive ? 'text-skin-active-nav-text' : 'text-skin-sideNav-text'}`}>
-                        <span className='flex items-center gap-3'><BsGraphUpArrow className='text-2xl' /> Investments</span>
+                        <span className='flex items-center gap-3'><TbChartHistogram className='text-2xl' /> Investments</span>
                     </NavLink>
                     <NavLink to='calculator' className={({ isActive, }) => `${isActive ? 'text-skin-active-nav-text' : 'text-skin-sideNav-text'}`}>
                         <span className='flex items-center gap-3'><SlCalculator className='text-2xl' /> Calculator</span>

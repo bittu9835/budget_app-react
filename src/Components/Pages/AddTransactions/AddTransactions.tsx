@@ -17,8 +17,9 @@ const AddTransactions: FC<AddTransactionsProps> = ({ openFotm, setOpenForm }) =>
     const [isLoading, setIsLoading] = useState(false)
     const [categoryIncome, setCategoryIncome] = useState<any>()
     const [categoryExpence, setCategoryExpence] = useState<any>()
-    const [paymentMode,setPaymentMode]=useState('')
-    console.log(paymentMode)
+    const [accountDetail, setAccountDetail] = useState<any>()
+    const [cardDetail, setCardDetail] = useState<any>()
+    // const [paymentMode,setPaymentMode]=useState('')
     const paymentMethods = [
         {
             id: 1,
@@ -31,34 +32,6 @@ const AddTransactions: FC<AddTransactionsProps> = ({ openFotm, setOpenForm }) =>
         {
             id: 3,
             name: 'Card',
-        },
-    ];
-    const accounts = [
-        {
-            id: 1,
-            name: '**4545',
-        },
-        {
-            id: 2,
-            name: '**5642',
-        },
-        {
-            id: 3,
-            name: '**5643',
-        },
-    ];
-    const cards = [
-        {
-            id: 1,
-            name: '**2361',
-        },
-        {
-            id: 2,
-            name: '**2362',
-        },
-        {
-            id: 3,
-            name: '**2363',
         },
     ];
 
@@ -89,7 +62,6 @@ const AddTransactions: FC<AddTransactionsProps> = ({ openFotm, setOpenForm }) =>
             setIsLoading(true)
             if (values.paymentMethod === 'Cash') {
                 values['from'] = 'Cash';
-                setPaymentMode('Cash')
             }
             if (values.category === 'addNewCategory') {
                 values['category'] = values.newCategory;
@@ -119,7 +91,7 @@ const AddTransactions: FC<AddTransactionsProps> = ({ openFotm, setOpenForm }) =>
             }
         } else {
             setIsLoading(true)
-            
+
             if (values.paymentMethod === 'Cash') {
                 values['from'] = 'Cash';
             }
@@ -181,17 +153,53 @@ const AddTransactions: FC<AddTransactionsProps> = ({ openFotm, setOpenForm }) =>
             setIsLoading(false)
         }
     }
-
+    const FeatchAccountDetails = async () => {
+        try {
+            const response: any = await http({
+                url: `/account/gatAccount`,
+                method: 'get',
+            });
+            if (response?.data?.code === 'SUCCESS_200') {
+                setAccountDetail(response?.data?.data)
+            } else {
+                toast.error(response?.data?.message);
+            }
+        } catch (error: any | unknown) {
+            toast.error(error?.message);
+            setIsLoading(false)
+        }
+    }
+    const FeatchCardDetails = async () => {
+        try {
+            const response: any = await http({
+                url: `/account/gatCard`,
+                method: 'get',
+            });
+            if (response?.data?.code === 'SUCCESS_200') {
+                setCardDetail(response?.data?.data)
+            } else {
+                toast.error(response?.data?.message);
+            }
+        } catch (error: any | unknown) {
+            toast.error(error?.message);
+            setIsLoading(false)
+        }
+    }
     useEffect(() => {
         FeatchIncomeCategory()
         FeatchExpenceCategory()
     }, [])
 
+    useEffect(() => {
+        FeatchCardDetails()
+        FeatchAccountDetails()
+    }, [render])
+
     return (
         <div className={`w-full h-full ${openFotm ? 'translate-y-0' : 'translate-y-full'} fixed z-40 top-0 bg-black bg-opacity-70  transition-all duration-300 flex items-center justify-center`}>
             <Formik initialValues={initialValues} onSubmit={handleSubmit} validationSchema={validationSchema}>
                 {({ values, setFieldValue }) => (
-                    <Form className={` sm:w-[33rem] w-full h-full sm:h-auto bg-skin-bg-form-bg rounded-sm p-6`}>
+                    <Form className={` sm:w-[33rem] w-full overflow-y-auto scrollbar-none h-full sm:h-auto bg-skin-bg-form-bg rounded-sm p-6`}>
                         <div className='flex items-center justify-between mb-5'>
                             <p className='text-lg'>{transactionForEdit !== null ? 'Edit' : 'New'} Transaction</p>
                             <p onClick={() => {
@@ -331,23 +339,22 @@ const AddTransactions: FC<AddTransactionsProps> = ({ openFotm, setOpenForm }) =>
                                             <option value=''></option>
                                             {values.paymentMethod === 'Account'
                                                 ?
-                                                accounts.map((item: any) => (
-                                                    <option key={item.id} value={item.name}>
-                                                        {item.name}
+                                                accountDetail?.map((item: any) => (
+                                                    <option key={item._id} value={item?.accountCardNumber}>
+                                                        **{item?.accountCardNumber}
                                                     </option>
                                                 ))
                                                 :
                                                 values.paymentMethod === 'Card'
-                                                    ? cards.map((item: any) => (
-                                                        <option key={item.id} value={item.name}>
-                                                            {item.name}
+                                                    ? cardDetail?.map((item: any) => (
+                                                        <option key={item._id} value={item?.accountCardNumber}>
+                                                           **{item?.accountCardNumber}
                                                         </option>
                                                     ))
                                                     : null}
                                         </Field>
                                     </div>}
                             </div>
-
                             <div className='flex gap-5 font-medium justify-end mt-5'>
                                 {isLoading ?
                                     <div className='py-[2px] px-5 flex items-center justify-center  border-[#5200bb] border  rounded-sm'>
@@ -358,7 +365,7 @@ const AddTransactions: FC<AddTransactionsProps> = ({ openFotm, setOpenForm }) =>
                                         type='submit'
                                         disabled={values.action === 'income' || values.action === 'expence' ? false : true}
                                         className={`${values.action === 'income' || values.action === 'expence' ? 'bg-[#5200bb]' : 'bg-gray-800'} py-[2px] px-4   text-white  rounded-sm`}>
-                                      {transactionForEdit !== null ? 'Update' : 'Add'} 
+                                        {transactionForEdit !== null ? 'Update' : 'Add'}
                                     </button>
                                 }
 

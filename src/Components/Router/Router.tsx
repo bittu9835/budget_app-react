@@ -25,7 +25,7 @@ const Router: FC<RouterProps> = () => {
                     <Route path='dashBoard' element={<Dashboard />} />
                     <Route path='transactions' element={<Transactions />} />
                     <Route path='Card&Accounts' element={<BankAccounts />} />
-                    <Route path='accountDetails' element={<AccountDetails />} />
+                    <Route path='accountDetails/:Id' element={<AccountDetails />} />
                     <Route path='calculator' element={<Calculator />} />
                     <Route path='investment' element={<Investment />} />
                     <Route path='settings' element={<Settings />} />

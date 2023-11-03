@@ -121,7 +121,7 @@ const Table: FC<TableProps> = ({ setIsLoading,searchValue }) => {
                                     {moment(item?.date).format('DD MMM YYYY')}
                                 </td>
                                 <td title={item?.paymentMethod} className="px-4 truncate py-4 flex items-center gap-1">
-                                    {item?.paymentMethod === 'Cash' ? <BsCashCoin className='text-lg' /> : item?.paymentMethod === 'Account' ? <MdAccountBalance className='text-lg' /> : item?.paymentMethod === 'Card' ? <BsCreditCard2Back className='text-lg' /> : 'NaN'}{item?.from}
+                                    {item?.paymentMethod === 'Cash' ? <BsCashCoin className='text-lg' /> : item?.paymentMethod === 'Account' ? <MdAccountBalance className='text-lg' /> : item?.paymentMethod === 'Card' ? <BsCreditCard2Back className='text-lg' /> : 'NaN'}{item?.paymentMethod !== 'Cash' && '**'}{item?.from}
                                 </td>
                                 <td title={item?.description} className="px-4 max-w-[8rem] sm:max-w-[12rem] truncate py-4 font-medium text-gray-900 whitespace-nowrap ">
                                     {item?.description}
