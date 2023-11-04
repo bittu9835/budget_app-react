@@ -10,19 +10,19 @@ import moment from 'moment';
 import bankStatement from '../../../Assets/bankStatment.png';
 import cardStatement from '../../../Assets/cardStatment.png';
 import { MdOutlineModeEditOutline } from 'react-icons/md'
+import { RiDeleteBin6Line } from 'react-icons/ri'
 import BankAccountForm from './BankAccountForm';
 
 interface BankAccountsProps { }
 
 const BankAccounts: FC<BankAccountsProps> = () => {
-    const { render }: any = useContext(DataContext);
+    const { render, setRender, setAccountForEdit }: any = useContext(DataContext);
     const [openBankForm, setOpenBankForm] = useState(false)
     const [accountDetail, setAccountDetail] = useState<any | null>(null)
     const [cardDetail, setCardDetail] = useState<any | null>(null)
     const [isLoadingButton, setIsLoadingButton] = useState(false)
     const [type, setType] = useState<string | null>(null)
     const [isLoading, setIsLoading] = useState(true)
-
 
 
     const handleAddCard = () => {
@@ -75,6 +75,48 @@ const BankAccounts: FC<BankAccountsProps> = () => {
             setIsLoadingButton(false)
         }
     }
+    const deleteAccountCard = async (_id: string) => {
+        try {
+            const response: any = await http({
+                url: `/account/deleteAccountCard`,
+                method: 'delete',
+                data: { '_id': _id }
+            });
+            if (response?.data?.code === 'SUCCESS_200') {
+                setRender(!render)
+                toast.success(response?.data?.message);
+            } else {
+                toast.error(response?.data?.message);
+            }
+        } catch (error: any | unknown) {
+            toast.error(error?.message);
+            setIsLoadingButton(false)
+        }
+    }
+
+    const editAccount = async (_id: string) => {
+        try {
+            const response: any = await http({
+                url: `/account/gatOneAccountCard`,
+                method: 'get',
+                data: { '_id': _id }
+            });
+            if (response?.data?.code === 'SUCCESS_200') {
+                setAccountForEdit(response?.data?.data)
+                setType(response?.data?.data?.type)
+                setOpenBankForm(true)
+            } else {
+                toast.error(response?.data?.message);
+            }
+        } catch (error: any) {
+            if (error.response && error.response.data && error.response.data.message) {
+                toast.error(error?.response?.data?.message);
+            } else {
+                toast.error('Error fetching Transactions.');
+            }
+        }
+    }
+
 
     useEffect(() => {
         FeatchAccountDetails()
@@ -98,7 +140,7 @@ const BankAccounts: FC<BankAccountsProps> = () => {
                     {accountDetail?.length !== 0 ?
                         <div className='w-full overflow-y-auto scrollbar-thin gap-2 grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-2 p-2'>
                             {accountDetail?.map((item: any) =>
-                                <div key={item?._id} className='h-auto flex flex-col items-center group'>
+                                <div key={item?._id} className='h-auto relative flex flex-col items-center group'>
                                     <div className=" text-white p-2 bg-gradient-to-r from-[#713045] to-[#c94e4e] rounded-lg shadow-md w-full h-full">
                                         <div className="cursor-default flex flex-col justify-between">
                                             <div className='mb-2 flex sm:flex-row flex-col-reverse justify-between items-center'>
@@ -125,7 +167,10 @@ const BankAccounts: FC<BankAccountsProps> = () => {
                                             <p className="text-lg font-semibold">{item?.balance}</p>
                                         </div>
                                     </div>
-                                    <p className='group-hover:block hidden'>
+                                    <p onClick={() => deleteAccountCard(item?._id)} className='absolute bottom-3 p-1 bg-gray-100 rounded-full cursor-pointer z-10 left-3 text-xl text-gray-700 group-hover:block hidden'>
+                                        <RiDeleteBin6Line />
+                                    </p>
+                                    <p onClick={() => editAccount(item?._id)} className='absolute bottom-3 p-1 bg-gray-100 rounded-full z-10 cursor-pointer right-3 text-xl text-gray-700 group-hover:block hidden'>
                                         <MdOutlineModeEditOutline />
                                     </p>
                                 </div>
@@ -149,10 +194,10 @@ const BankAccounts: FC<BankAccountsProps> = () => {
                     {cardDetail?.length !== 0 ?
                         <div className='w-full overflow-y-auto scrollbar-thin  mb-2 gap-2 grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-2 p-2'>
                             {cardDetail?.map((item: any) =>
-                                <div key={item?._id} className='h-60 flex flex-col shadow-lg items-center'>
+                                <div key={item?._id} className='h-60 group flex relative flex-col shadow-lg items-center'>
                                     <div className="w-full cursor-default h-full bg-gradient-to-r from-black to-[#1c1c1c] rounded-lg p-4 relative shadow-md">
                                         <div className="absolute text-white top-1 text-xs left-2">
-                                        Platinum Debit Card
+                                            Platinum Debit Card
                                         </div>
                                         <div className="absolute text-gray-100 font-extrabold bottom-2 text-xl right-5">
                                             {item?.serviveProvider}
@@ -173,9 +218,15 @@ const BankAccounts: FC<BankAccountsProps> = () => {
                                             <img src={chip} alt="" className="w-10" />
                                         </div>
                                         <div className="absolute top-14 right-8">
-                                            <img src={fride } alt="" className="w-12 " />
+                                            <img src={fride} alt="" className="w-12 " />
                                         </div>
                                     </div>
+                                    <p onClick={() => deleteAccountCard(item?._id)} className='absolute bottom-28 p-1 bg-gray-100 rounded-full cursor-pointer z-10 left-3 text-xl text-gray-700 group-hover:block hidden'>
+                                        <RiDeleteBin6Line />
+                                    </p>
+                                    <p onClick={() => editAccount(item?._id)} className='absolute bottom-28 p-1 bg-gray-100 rounded-full z-10 cursor-pointer right-3 text-xl text-gray-700 group-hover:block hidden'>
+                                        <MdOutlineModeEditOutline />
+                                    </p>
                                 </div>
                             )}
                         </div>

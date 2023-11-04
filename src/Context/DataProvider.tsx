@@ -14,6 +14,8 @@ type DataContextValue = {
     settransactionForEdit:React.Dispatch<React.SetStateAction<any | null>>
     selectedTransaction:any[]
     setSelectedTransaction:React.Dispatch<React.SetStateAction<any[]>>
+    accountForEdit:any | null
+    setAccountForEdit:React.Dispatch<React.SetStateAction<any | null>>
 };
 
 export const DataContext = createContext<DataContextValue>({} as DataContextValue);
@@ -27,6 +29,7 @@ const DataProvider = ({ children }: DataProviderProps) => {
     const [openFotm,setOpenForm]=useState(false)
     const [theme,setTheme]=useState('')
     const [transactionForEdit,settransactionForEdit]=useState<any | null>(null)
+    const [accountForEdit,setAccountForEdit]=useState<any | null>(null)
     const [selectedTransaction, setSelectedTransaction] = useState<any[]>([])
 
     const value: DataContextValue = {
@@ -35,7 +38,8 @@ const DataProvider = ({ children }: DataProviderProps) => {
         theme,setTheme,
         openFotm,setOpenForm,
         transactionForEdit,settransactionForEdit,
-        selectedTransaction, setSelectedTransaction
+        selectedTransaction, setSelectedTransaction,
+        accountForEdit,setAccountForEdit,
     };
     return (
         <DataContext.Provider value={value}>
