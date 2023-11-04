@@ -160,7 +160,7 @@ const BankAccounts: FC<BankAccountsProps> = () => {
                                         <p title='State Bank Of India' className='text-gray-100 font-extrabold absolute top-2 right-5 '>
                                             {item?.bankCardName}
                                         </p>
-                                        <div className="text-gray-100 text-2xl font-semibold absolute bottom-20 tracking-widest left-10">
+                                        <div className="text-gray-100 text-xl font-semibold absolute bottom-20 sm:tracking-widest left-10">
                                             **** **** **** {item?.accountCardNumber}
                                         </div>
                                         <div className="text-gray-100 tracking-widest text-md absolute font-medium bottom-5 left-10">
