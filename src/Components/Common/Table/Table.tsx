@@ -1,22 +1,16 @@
-import { useEffect, type FC, useContext, useState } from 'react';
+import {  type FC, useContext } from 'react';
 import { BsCashCoin, BsCreditCard2Back } from 'react-icons/bs'
 import { DataContext } from '../../../Context/DataProvider';
-import http from '../../../Services/http/http';
-import { toast } from 'react-toastify';
 import moment from 'moment';
 import { MdAccountBalance } from 'react-icons/md'
 
 
 interface TableProps {
-    setIsLoading: React.Dispatch<React.SetStateAction<boolean>>
-    setSelectedTransaction: React.Dispatch<React.SetStateAction<any[]>>
-    selectedTransaction: any[]
-    searchValue:string
+    transactionData:any
 }
 
-const Table: FC<TableProps> = ({ setIsLoading,searchValue }) => {
-    const { render,selectedTransaction, setSelectedTransaction } = useContext(DataContext);
-    const [transactionData, setTransactionData] = useState<any>()
+const Table: FC<TableProps> = ({ transactionData }) => {
+    const { selectedTransaction, setSelectedTransaction } = useContext(DataContext);
     
     // const [hideChecBox, setHideChecBox] = useState(false)
 
@@ -35,41 +29,12 @@ const Table: FC<TableProps> = ({ setIsLoading,searchValue }) => {
             setSelectedTransaction([])
         }
     }
-    const fetchTransactions = async () => {
-        try {
-            const response: any = await http({
-                url: `/transaction/getTransaction`,
-                method: 'get',
-                data:{
-                    search: searchValue
-                }
-            });
-            if (response?.data?.code === 'SUCCESS_200') {
-                setTransactionData(response?.data?.data)
-                setTimeout(() => {
-                    setIsLoading(false)
-                }, 500);
-            } else {
-                toast.error(response?.data?.message);
-            }
-        } catch (error: any) {
-            if (error.response && error.response.data && error.response.data.message) {
-                toast.error(error?.response?.data?.message);
-            } else {
-                toast.error('Error fetching Transactions.');
-            }
-        }
-    }
-
-    useEffect(() => {
-        fetchTransactions()
-        // eslint-disable-next-line 
-    }, [render,searchValue])
+ 
     return (
-        <div className="w-full h-full overflow-y-auto shadow-md rounded-lg">
+        <div className="w-full h-full overflow-y-auto shadow-md">
             <div className="shadow-md lg:block hidden">
                 <table className="w-full relative text-sm text-left text-gray-500 ">
-                    <thead className="text-xs text-gray-700 sticky top-0 uppercase bg-gray-50 ">
+                    <thead className="text-xs text-gray-700 uppercase bg-gray-50 ">
                         <tr>
                             <th scope="col" className="p-4">
                                 <div className="flex items-center">
