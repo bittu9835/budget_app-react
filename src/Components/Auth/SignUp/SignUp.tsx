@@ -52,6 +52,7 @@ const SignUp: FC<SignUpProps> = () => {
                 toast.error(response?.data?.message);
             }
         } catch (error: any | unknown) {
+            toast.warn(error?.response?.data?.message)
             toast.error(error?.message);
             setIsLoading(false)
         }

@@ -1,4 +1,4 @@
-import { useContext, type FC } from 'react';
+import { useContext, type FC, useEffect, useState } from 'react';
 import { ErrorMessage, Field, Form, Formik } from 'formik';
 import * as Yup from 'yup';
 import { render } from 'react-dom';
@@ -24,24 +24,38 @@ const BankAccountForm: FC<BankAccountFormProps> = ({ isLoadingButton, type, open
         setAccountForEdit(null);
     }
 
-    const initialValues = {
-        accountCardNumber: accountForEdit !== null  ? accountForEdit?.accountCardNumber : '',
-        bankCardName: accountForEdit !== null  ? accountForEdit?.bankCardName : '',
-        bankLocation: accountForEdit !== null  ? accountForEdit?.bankLocation : '',
-        ifcCode: accountForEdit !== null  ? accountForEdit?.ifcCode : '',
-        expairyDate: accountForEdit !== null  ? accountForEdit?.expairyDate : '',
-        serviveProvider: accountForEdit !== null  ? accountForEdit?.serviveProvider : '',
-        name: accountForEdit !== null  ? accountForEdit?.name : '',
-    }
+    const [initialValues, setInitialValues] = useState({
+        accountCardNumber: '',
+        bankCardName: '',
+        bankLocation: '',
+        ifcCode: '',
+        expairyDate: '',
+        serviveProvider: '',
+        name: '',
+      });
+   
+      useEffect(() => {
+        if (accountForEdit !== null) {
+          setInitialValues({
+            accountCardNumber: accountForEdit.accountCardNumber,
+            bankCardName: accountForEdit.bankCardName,
+            bankLocation: accountForEdit.bankLocation,
+            ifcCode: accountForEdit.ifcCode,
+            expairyDate: accountForEdit.expairyDate,
+            serviveProvider: accountForEdit.serviveProvider,
+            name: accountForEdit.name,
+          });
+        }
+      }, [accountForEdit]);
 
     const validationSchema = Yup.object().shape({
-        accountCardNumber: Yup.string().matches(/^[0-9]{4}$/, 'Number Must Bee 4 Digits.').required('Enter No.'),
-        bankCardName: Yup.string().required('Enter Bank Name').max(50, 'Bank Name is Too Long'),
-        bankLocation: Yup.string().max(30, 'Bank Location is Too Long'),
-        ifcCode: Yup.string().matches(/^[0-9A-Za-z]{11}$/, 'Incorrect IFSC Code'),
+        accountCardNumber: Yup.string().matches(/^[0-9]{4}$/, 'Number Must Bee 4 Digits,').required('Enter No,'),
+        bankCardName: Yup.string().required('Enter Bank Name,').max(50, 'Bank Name is Too Long,'),
+        bankLocation: Yup.string().max(30, 'Bank Location is Too Long,'),
+        ifcCode: Yup.string().matches(/^[0-9A-Za-z]{11}$/, 'Incorrect IFSC Code,'),
         expairyDate: Yup.date(),
-        serviveProvider: Yup.string().max(20, 'Too Long'),
-        name: Yup.string().required('Enter Your Name').max(20, 'Your Name is Too Long'),
+        serviveProvider: Yup.string().max(20, 'serviveProvider Too Long,'),
+        name: Yup.string().required('Enter Your Name,').max(20, 'Your Name is Too Long,'),
     });
 
     const handleSubmit = async (values: any, { resetForm }: any) => {
@@ -54,7 +68,6 @@ const BankAccountForm: FC<BankAccountFormProps> = ({ isLoadingButton, type, open
                     method: 'post',
                     data: values
                 });
-                console.log(response)
                 if (response?.data?.code === 'SUCCESS_200') {
                     toast.success(response?.data?.message);
                     setIsLoadingButton(false)
@@ -101,10 +114,10 @@ const BankAccountForm: FC<BankAccountFormProps> = ({ isLoadingButton, type, open
             <Formik initialValues={initialValues} onSubmit={handleSubmit} validationSchema={validationSchema}>
                 <Form className='sm:w-[33rem] bg-white w-full h-full sm:h-auto overflow-y-auto scrollbar-none rounded-sm p-6'>
                     <div className='flex items-center justify-between mb-5'>
-                        <p className='text-lg'>{accountForEdit !== null ? 'Edit' : 'Add '}{type === 'card' ? 'Card' : type === 'bank' ? 'Bank Account' : 'Account & Card'} </p>
+                        <p className='text-lg'>{accountForEdit !== null ? 'Edit' : 'Add '} {type === 'card' ? 'Card' : type === 'bank' ? 'Bank Account' : 'Account & Card'} </p>
                         <p onClick={handleCancle} className='p-2 text-lg flex items-center justify-center hover:bg-gray-200 rounded-full cursor-pointer'><IoClose /></p>
                     </div>
-                    <div>
+                    <div className='h-3'>
                         <span className='text-xs text-red-500'><ErrorMessage name='bankCardName' /></span>
                         <span className='text-xs text-red-500'><ErrorMessage name='accountCardNumber' /></span>
                         <span className='text-xs text-red-500'><ErrorMessage name='ifcCode' /></span>

@@ -54,9 +54,8 @@ const SignIn: FC<SignInProps> = () => {
                 toast.error(response?.data?.message);
             }
         } catch (error: any | unknown) {
-            console.log(error)
             setIsLoading(false)
-            toast.error(error?.response?.data?.message);
+            toast.warn(error?.response?.data?.message);
             toast.error(error?.message);
         }
     }

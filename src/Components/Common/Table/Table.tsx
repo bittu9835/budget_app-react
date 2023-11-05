@@ -134,7 +134,7 @@ const Table: FC<TableProps> = ({ transactionData }) => {
                             <div className='flex flex-col gap-1 sm:max-w-[15rem] max-w-[10rem] truncate '>
                                 <div>{item?.category}</div>
                                 <div className='text-gray-900 sm:text-lg  text-base'> {item?.description}</div>
-                                <div className='flex items-center gap-1'>{item?.paymentMethod === 'Cash' ? <BsCashCoin className='text-lg' /> : item?.paymentMethod === 'Account' ? <MdAccountBalance className='text-lg' /> : item?.paymentMethod === 'Card' ? <BsCreditCard2Back className='text-lg' /> : 'NaN'}{item?.from}</div>
+                                <div className='flex items-center gap-1'>{item?.paymentMethod === 'Cash' ? <BsCashCoin className='text-lg' /> : item?.paymentMethod === 'Account' ? <MdAccountBalance className='text-lg' /> : item?.paymentMethod === 'Card' ? <BsCreditCard2Back className='text-lg' /> : 'NaN'}{item?.paymentMethod !== 'Cash' && '**'}{item?.from}</div>
                             </div>
                         </div>
                         <div className='flex flex-col justify-between text-base truncate'>
