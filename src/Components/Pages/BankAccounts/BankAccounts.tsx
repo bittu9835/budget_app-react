@@ -25,7 +25,6 @@ const BankAccounts: FC<BankAccountsProps> = () => {
     const [isLoadingDelete, setIsLoadingDelete] = useState(false)
     const [type, setType] = useState<string | null>(null)
     const [isLoading, setIsLoading] = useState(true)
-
     const handleAddCard = () => {
         setType('card')
         setOpenBankForm(true)
@@ -122,20 +121,20 @@ const BankAccounts: FC<BankAccountsProps> = () => {
         }
     }
 
-
     useEffect(() => {
         FeatchAccountDetails()
         FeatchCardDetails()
-    }, [render])
+    },[render])
+
     return (
         <div className='w-full h-full relative'>
             <Loader isLoading={isLoading} />
-            <BankAccountForm type={type}
+            {openBankForm && <BankAccountForm type={type}
                 openBankForm={openBankForm}
                 isLoadingButton={isLoadingButton}
                 setOpenBankForm={setOpenBankForm}
                 setIsLoadingButton={setIsLoadingButton}
-            />
+            />}
             <div className="w-full h-full px-2 overflow-y-auto shadow-md">
                 <div className='w-full bg-gray-50 mt-2 shadow-md rounded-t-md rounded-b-md'>
                     <div className={` w-full  h-10 flex justify-between px-2 items-center`}>

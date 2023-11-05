@@ -1,7 +1,6 @@
-import { useContext, type FC, useEffect, useState } from 'react';
+import { useContext, type FC } from 'react';
 import { ErrorMessage, Field, Form, Formik } from 'formik';
 import * as Yup from 'yup';
-import { render } from 'react-dom';
 import { IoClose } from 'react-icons/io5';
 import { toast } from 'react-toastify';
 import http from '../../../Services/http/http';
@@ -17,36 +16,23 @@ interface BankAccountFormProps {
 }
 
 const BankAccountForm: FC<BankAccountFormProps> = ({ isLoadingButton, type, openBankForm, setOpenBankForm, setIsLoadingButton }) => {
-    const { setRender, accountForEdit, setAccountForEdit }: any = useContext(DataContext);
+    const { setRender, accountForEdit, setAccountForEdit,render }: any = useContext(DataContext);
 
     const handleCancle = () => {
         setOpenBankForm(false);
         setAccountForEdit(null);
     }
 
-    const [initialValues, setInitialValues] = useState({
-        accountCardNumber: '',
-        bankCardName: '',
-        bankLocation: '',
-        ifcCode: '',
-        expairyDate: '',
-        serviveProvider: '',
-        name: '',
-      });
-   
-      useEffect(() => {
-        if (accountForEdit !== null) {
-          setInitialValues({
-            accountCardNumber: accountForEdit.accountCardNumber,
-            bankCardName: accountForEdit.bankCardName,
-            bankLocation: accountForEdit.bankLocation,
-            ifcCode: accountForEdit.ifcCode,
-            expairyDate: accountForEdit.expairyDate,
-            serviveProvider: accountForEdit.serviveProvider,
-            name: accountForEdit.name,
-          });
-        }
-      }, [accountForEdit]);
+    const initialValues = {
+        accountCardNumber: accountForEdit?.accountCardNumber ?? '',
+        bankCardName: accountForEdit?.bankCardName ?? '',
+        bankLocation: accountForEdit?.bankLocation ?? '',
+        ifcCode: accountForEdit?.ifcCode ?? '',
+        expairyDate: accountForEdit?.expairyDate ?? '',
+        serviveProvider: accountForEdit?.serviveProvider ?? '',
+        name: accountForEdit?.name ?? '',
+    };
+
 
     const validationSchema = Yup.object().shape({
         accountCardNumber: Yup.string().matches(/^[0-9]{4}$/, 'Number Must Bee 4 Digits,').required('Enter No,'),
@@ -69,9 +55,9 @@ const BankAccountForm: FC<BankAccountFormProps> = ({ isLoadingButton, type, open
                     data: values
                 });
                 if (response?.data?.code === 'SUCCESS_200') {
+                    setRender(!render)
                     toast.success(response?.data?.message);
                     setIsLoadingButton(false)
-                    setRender(!render)
                     setOpenBankForm(false);
                     resetForm();
                 } else {
@@ -93,9 +79,9 @@ const BankAccountForm: FC<BankAccountFormProps> = ({ isLoadingButton, type, open
                     data: values
                 });
                 if (response?.data?.code === 'SUCCESS_200') {
+                    setRender(!render)
                     toast.success(response?.data?.message);
                     setIsLoadingButton(false)
-                    setRender(!render)
                     setOpenBankForm(false);
                     resetForm();
                 } else {
@@ -130,21 +116,21 @@ const BankAccountForm: FC<BankAccountFormProps> = ({ isLoadingButton, type, open
                             <div title={type === 'card' ? 'Enter Card Name' : type === 'bank' ? 'Enter Bank Name' : 'Enter Bank & Card Name'} className='w-full sm:w-1/2'>
                                 <label htmlFor="bankCardName">{type === 'card' ? 'Card Provider Name' : type === 'bank' ? 'Bank Name' : 'Bank & Card Name'}</label>
                                 <Field
-                                    className={` text-sm outline-none bg-transparent border-b border-gray-700 font-semibold  w-full appearance-none`}
+                                    className={` text-sm outline-none bg-transparent border-b border-gray-700 placeholder:font-light text-gray-600 font-semibold  w-full appearance-none`}
                                     type='string'
                                     name='bankCardName'
                                     id='bankCardName'
-                                    placeholder='State Bank Of India'
+                                    placeholder='As:- State Bank Of India'
                                 />
                             </div>
                             <div title={type === 'card' ? 'Enter Last 4 Digit of Card No.' : type === 'bank' ? 'Enter Last 4 Digit of A/C No.' : 'Enter Last 4 Digit of A/C & Card No.'} className='w-full sm:w-1/2'>
                                 <label htmlFor="accountCardNumber">{type === 'card' ? 'Last 4 Digit of Card No.' : type === 'bank' ? 'Last 4 Digit of A/C No.' : 'Last 4 Digit of A/C & Card No.'}</label>
                                 <Field
-                                    className='w-full border-b border-gray-700 font-semibold  appearance-none outline-none bg-transparent'
+                                    className='w-full border-b border-gray-700 placeholder:font-light text-gray-600 font-semibold  appearance-none outline-none bg-transparent'
                                     type='number'
                                     name='accountCardNumber'
                                     id='accountCardNumber'
-                                    placeholder='4826'
+                                    placeholder='As:- 4826'
                                 />
                             </div>
                         </div>
@@ -153,21 +139,21 @@ const BankAccountForm: FC<BankAccountFormProps> = ({ isLoadingButton, type, open
                                 <div title='Enter IFC Code' className='w-full sm:w-1/2'>
                                     <label htmlFor="ifcCode">IFC Code</label>
                                     <Field
-                                        className={` text-sm outline-none bg-transparent appearance-none uppercase-input border-b border-gray-700 font-semibold  w-full`}
+                                        className={` text-sm outline-none bg-transparent appearance-none uppercase-input border-b border-gray-700 placeholder:font-light text-gray-600 font-semibold  w-full`}
                                         type='string'
                                         name='ifcCode'
                                         id='ifcCode'
-                                        placeholder='SBIN0012560'
+                                        placeholder='As:- SBIN0012560'
                                     />
                                 </div>
                                 <div title='Enter Bank Location' className='w-full sm:w-1/2'>
                                     <label htmlFor="bankLocation">Bank location</label>
                                     <Field
-                                        className='w-full border-b border-gray-700 font-semibold  appearance-none outline-none bg-transparent'
+                                        className='w-full border-b border-gray-700 placeholder:font-light text-gray-600 font-semibold  appearance-none outline-none bg-transparent'
                                         type='string'
                                         name='bankLocation'
                                         id='bankLocation'
-                                        placeholder='New Delhi'
+                                        placeholder='As:- New Delhi'
                                     />
                                 </div>
                             </div>
@@ -177,7 +163,7 @@ const BankAccountForm: FC<BankAccountFormProps> = ({ isLoadingButton, type, open
                                 <div title='Enter IFC Code' className='w-full sm:w-1/2'>
                                     <label htmlFor="expairyDate">Expairy Date</label>
                                     <Field
-                                        className={` text-sm outline-none bg-transparent appearance-none uppercase-input border-b border-gray-700 font-semibold  w-full`}
+                                        className={` text-sm outline-none bg-transparent appearance-none uppercase-input border-b border-gray-700 placeholder:font-light text-gray-600 font-semibold  w-full`}
                                         type='date'
                                         name='expairyDate'
                                         id='expairyDate'
@@ -186,11 +172,11 @@ const BankAccountForm: FC<BankAccountFormProps> = ({ isLoadingButton, type, open
                                 <div title='Enter Bank Location' className='w-full sm:w-1/2'>
                                     <label htmlFor="serviveProvider">Service Provider</label>
                                     <Field
-                                        className='w-full border-b border-gray-700 font-semibold  appearance-none outline-none bg-transparent'
+                                        className='w-full border-b border-gray-700 placeholder:font-light text-gray-600 font-semibold  appearance-none outline-none bg-transparent'
                                         type='string'
                                         name='serviveProvider'
                                         id='serviveProvider'
-                                        placeholder='VISA'
+                                        placeholder='As:- VISA'
                                     />
                                 </div>
                             </div>
@@ -198,11 +184,11 @@ const BankAccountForm: FC<BankAccountFormProps> = ({ isLoadingButton, type, open
                         <div title='Enter Name On your ' className='w-full'>
                             <label htmlFor="name">{type === 'card' ? 'Enter Your Name On Your Card' : type === 'bank' ? 'Enter Your Name On Your Bank' : 'Enter Your Name'}</label>
                             <Field
-                                className='w-full border-b border-gray-700 font-semibold  appearance-none outline-none bg-transparent'
+                                className='w-full border-b border-gray-700 placeholder:font-light text-gray-600 font-semibold  appearance-none outline-none bg-transparent'
                                 type='string'
                                 name='name'
                                 id='name'
-                                placeholder='Bittu Kumar Singh'
+                                placeholder='As:- Bittu Kumar Singh'
                             />
                         </div>
                         <div className='flex gap-5 font-medium justify-end mt-5'>

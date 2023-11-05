@@ -7,21 +7,37 @@ import http from '../../../Services/http/http';
 import { toast } from 'react-toastify';
 import { DataContext } from '../../../Context/DataProvider';
 import { useNavigate } from 'react-router-dom';
+// import Loader from '../../Common/Loader/Loader';
 
 interface AddTransactionsProps {
     openFotm: boolean;
     setOpenForm: React.Dispatch<React.SetStateAction<boolean>>;
 }
 
+interface AccountDetails {
+    accountCardNumber: number
+    balance?: number
+    bankCardName: string
+    bankLocation?: string
+    expairyDate: Date | null
+    ifcCode: string
+    isActive: boolean
+    name: string
+    serviveProvider: string
+    type: string
+    _id: string
+}
+
 const AddTransactions: FC<AddTransactionsProps> = ({ openFotm, setOpenForm }) => {
     const { render, setRender, transactionForEdit, settransactionForEdit, setSelectedTransaction }: any = useContext(DataContext);
-    const [isLoading, setIsLoading] = useState(false)
+    const [isButtonLoading, setIsButtonLoading] = useState(false)
     const [categoryIncome, setCategoryIncome] = useState<any>()
     const [categoryExpence, setCategoryExpence] = useState<any>()
-    const [accountDetail, setAccountDetail] = useState<any>()
-    const [cardDetail, setCardDetail] = useState<any>()
+    const [accountDetail, setAccountDetail] = useState<AccountDetails[] | null>(null)
+    const [cardDetail, setCardDetail] = useState<AccountDetails[] | null>(null)
+    // const [isLoading, setIsLoading] = useState(true)
     const navigate = useNavigate()
-    // const [paymentMode,setPaymentMode]=useState('')
+
     const paymentMethods = [
         {
             id: 1,
@@ -36,6 +52,12 @@ const AddTransactions: FC<AddTransactionsProps> = ({ openFotm, setOpenForm }) =>
             name: 'Card',
         },
     ];
+
+    const handleNavigateAccount = () => {
+        setOpenForm(false)
+        settransactionForEdit(null)
+        navigate('/home/Card&Accounts')
+    }
 
     const initialValues = {
         action: transactionForEdit !== null ? transactionForEdit.action : '',
@@ -61,7 +83,7 @@ const AddTransactions: FC<AddTransactionsProps> = ({ openFotm, setOpenForm }) =>
 
     const handleSubmit = async (values: any, { resetForm }: any) => {
         if (transactionForEdit !== null) {
-            setIsLoading(true)
+            setIsButtonLoading(true)
             if (values.paymentMethod === 'Cash') {
                 values['from'] = 'Cash';
             }
@@ -80,7 +102,7 @@ const AddTransactions: FC<AddTransactionsProps> = ({ openFotm, setOpenForm }) =>
                     toast.success(response?.data?.message);
                     settransactionForEdit(null)
                     setSelectedTransaction([])
-                    setIsLoading(false)
+                    setIsButtonLoading(false)
                     setRender(!render)
                     setOpenForm(false)
                     resetForm();
@@ -89,10 +111,10 @@ const AddTransactions: FC<AddTransactionsProps> = ({ openFotm, setOpenForm }) =>
                 }
             } catch (error: any | unknown) {
                 toast.error(error?.message);
-                setIsLoading(false)
+                setIsButtonLoading(false)
             }
         } else {
-            setIsLoading(true)
+            setIsButtonLoading(true)
 
             if (values.paymentMethod === 'Cash') {
                 values['from'] = 'Cash';
@@ -108,7 +130,7 @@ const AddTransactions: FC<AddTransactionsProps> = ({ openFotm, setOpenForm }) =>
                 });
                 if (response?.data?.code === 'SUCCESS_200') {
                     toast.success(response?.data?.message);
-                    setIsLoading(false)
+                    setIsButtonLoading(false)
                     setRender(!render)
                     setOpenForm(false)
                     resetForm();
@@ -117,7 +139,7 @@ const AddTransactions: FC<AddTransactionsProps> = ({ openFotm, setOpenForm }) =>
                 }
             } catch (error: any | unknown) {
                 toast.error(error?.message);
-                setIsLoading(false)
+                setIsButtonLoading(false)
             }
         }
     };
@@ -136,7 +158,7 @@ const AddTransactions: FC<AddTransactionsProps> = ({ openFotm, setOpenForm }) =>
             }
         } catch (error: any | unknown) {
             toast.error(error?.message);
-            setIsLoading(false)
+            setIsButtonLoading(false)
         }
     }
     const FeatchExpenceCategory = async () => {
@@ -152,7 +174,7 @@ const AddTransactions: FC<AddTransactionsProps> = ({ openFotm, setOpenForm }) =>
             }
         } catch (error: any | unknown) {
             toast.error(error?.message);
-            setIsLoading(false)
+            setIsButtonLoading(false)
         }
     }
     const FeatchAccountDetails = async () => {
@@ -163,12 +185,15 @@ const AddTransactions: FC<AddTransactionsProps> = ({ openFotm, setOpenForm }) =>
             });
             if (response?.data?.code === 'SUCCESS_200') {
                 setAccountDetail(response?.data?.data)
+                setTimeout(() => {
+                    // setIsLoading(false)
+                }, 500)
             } else {
                 toast.error(response?.data?.message);
             }
         } catch (error: any | unknown) {
             toast.error(error?.message);
-            setIsLoading(false)
+            // setIsLoading(false)
         }
     }
     const FeatchCardDetails = async () => {
@@ -179,12 +204,15 @@ const AddTransactions: FC<AddTransactionsProps> = ({ openFotm, setOpenForm }) =>
             });
             if (response?.data?.code === 'SUCCESS_200') {
                 setCardDetail(response?.data?.data)
+                setTimeout(() => {
+                    // setIsLoading(false)
+                }, 500)
             } else {
                 toast.error(response?.data?.message);
             }
         } catch (error: any | unknown) {
             toast.error(error?.message);
-            setIsLoading(false)
+            // setIsLoading(false)
         }
     }
     useEffect(() => {
@@ -327,54 +355,59 @@ const AddTransactions: FC<AddTransactionsProps> = ({ openFotm, setOpenForm }) =>
                                         ))}
                                     </Field>
                                 </div>
+                                {values.paymentMethod === 'Account' ?
+                                    accountDetail?.length === 0
+                                        ?
+                                        <span onClick={handleNavigateAccount} className='text-blue-700 cursor-pointer text-lg font-serif'>Click To Add {values.paymentMethod}</span>
+                                        :
+                                        <div className='w-full sm:w-1/2'>
+                                            <label htmlFor="from">Select {values.paymentMethod}</label>
+                                            <Field
+                                                id='from'
+                                                name='from'
+                                                className={`w-full border-b border-gray-700 font-semibold  bg-transparent focus:outline-none`}
+                                                as='select'
 
-                                {values.paymentMethod !== 'Cash' &&
-                                    <>
-                                        {cardDetail?.length === 0
-                                            ?
-                                            <span onClick={() => navigate('/home/Card&Accounts')} className='text-blue-700 cursor-pointer text-lg font-serif'>Click To Add {values.paymentMethod === 'Account' ? 'Account' : values.paymentMethod === 'Card' ? 'Card' : ''}</span>
-                                            :
-                                            cardDetail?.length === 0
-                                                ?
-                                                <span onClick={() => navigate('/home/Card&Accounts')} className='text-blue-700 cursor-pointer font-serif'>Add {values.paymentMethod === 'Account' ? 'Account' : values.paymentMethod === 'Card' ? 'Card' : ''}</span>
-                                                :
+                                            >
+                                                <option value=''></option>
+                                                {accountDetail?.map((item: any) => (
+                                                    <option key={item._id} value={item?.accountCardNumber}>
+                                                        **{item?.accountCardNumber}
+                                                    </option>
+                                                ))}
+                                            </Field>
+                                        </div> : ''}
+                                {values.paymentMethod === 'Card' ?
+                                    cardDetail?.length === 0
+                                        ?
+                                        <span onClick={handleNavigateAccount} className='text-blue-700 cursor-pointer text-lg font-serif'>Click To Add {values.paymentMethod}</span>
+                                        :
+                                        <div className='w-full sm:w-1/2'>
+                                            <label htmlFor="from">Select {values.paymentMethod}</label>
+                                            <Field
+                                                id='from'
+                                                name='from'
+                                                className={`w-full border-b border-gray-700 font-semibold  bg-transparent focus:outline-none`}
+                                                as='select'
 
-                                                <div className='w-full sm:w-1/2'>
-                                                    <label htmlFor="from">Select {values.paymentMethod === 'Account' ? 'Account' : values.paymentMethod === 'Card' ? 'Card' : ''}</label>
-                                                    <Field
-                                                        id='from'
-                                                        name='from'
-                                                        className={`w-full border-b border-gray-700 font-semibold  bg-transparent focus:outline-none`}
-                                                        as='select'
-
-                                                    >
-                                                        <option value=''></option>
-                                                        {values.paymentMethod === 'Account'
-                                                            ?
-
-                                                            accountDetail?.map((item: any) => (
-                                                                <option key={item._id} value={item?.accountCardNumber}>
-                                                                    **{item?.accountCardNumber}
-                                                                </option>
-                                                            ))
-                                                            :
-                                                            values.paymentMethod === 'Card'
-                                                                ? cardDetail?.map((item: any) => (
-                                                                    <option key={item._id} value={item?.accountCardNumber}>
-                                                                        **{item?.accountCardNumber}
-                                                                    </option>
-                                                                ))
-                                                                :
-                                                                null}
-                                                    </Field>
-                                                </div>
-                                        }
-                                    </>}
+                                            >
+                                                <option value=''></option>
+                                                {cardDetail?.map((item: any) => (
+                                                    <option key={item._id} value={item?.accountCardNumber}>
+                                                        **{item?.accountCardNumber}
+                                                    </option>
+                                                ))}
+                                            </Field>
+                                        </div> : ''}
                             </div>
-                            {values.paymentMethod === 'Cash' &&
-                                <>
-                                    <div className='flex gap-5 font-medium justify-end mt-5'>
-                                        {isLoading ?
+
+                            {values.paymentMethod === 'Account' ?
+                                accountDetail?.length === 0
+                                    ?
+                                    ''
+                                    :
+                                    <div className='2 flex gap-5 font-medium justify-end mt-5'>
+                                        {isButtonLoading ?
                                             <div className='py-[2px] px-5 flex items-center justify-center  border-[#5200bb] border  rounded-sm'>
                                                 <div className="w-4 h-4  border-t-2  border-r-0 border-b-0 border-red-500 border-solid rounded-full animate-spin"></div>
                                             </div>
@@ -390,35 +423,49 @@ const AddTransactions: FC<AddTransactionsProps> = ({ openFotm, setOpenForm }) =>
                                             setOpenForm(false)
                                             settransactionForEdit(null)
                                         }} className='py-[2px] px-2  cursor-pointer hover:bg-[#4e2682] border-[#5200bb] border text-black hover:text-white rounded-sm'>Cancle</div>
-                                    </div>
-                                    {cardDetail?.length === 0
-                                        ?
-                                        ''
-                                        :
-                                        cardDetail?.length === 0
-                                            ?
-                                            ''
-                                            :
-                                            <div className='flex gap-5 font-medium justify-end mt-5'>
-                                                {isLoading ?
-                                                    <div className='py-[2px] px-5 flex items-center justify-center  border-[#5200bb] border  rounded-sm'>
-                                                        <div className="w-4 h-4  border-t-2  border-r-0 border-b-0 border-red-500 border-solid rounded-full animate-spin"></div>
-                                                    </div>
-                                                    :
-                                                    <button
-                                                        type='submit'
-                                                        disabled={values.action === 'income' || values.action === 'expence' ? false : true}
-                                                        className={`${values.action === 'income' || values.action === 'expence' ? 'bg-[#5200bb]' : 'bg-gray-800'} py-[2px] px-4   text-white  rounded-sm`}>
-                                                        {transactionForEdit !== null ? 'Update' : 'Add'}
-                                                    </button>
-                                                }
-                                                <div onClick={() => {
-                                                    setOpenForm(false)
-                                                    settransactionForEdit(null)
-                                                }} className='py-[2px] px-2  cursor-pointer hover:bg-[#4e2682] border-[#5200bb] border text-black hover:text-white rounded-sm'>Cancle</div>
+                                    </div> : ''}
+                            {values.paymentMethod === 'Card' ?
+                                cardDetail?.length === 0
+                                    ?
+                                    ''
+                                    :
+                                    <div className='2 flex gap-5 font-medium justify-end mt-5'>
+                                        {isButtonLoading ?
+                                            <div className='py-[2px] px-5 flex items-center justify-center  border-[#5200bb] border  rounded-sm'>
+                                                <div className="w-4 h-4  border-t-2  border-r-0 border-b-0 border-red-500 border-solid rounded-full animate-spin"></div>
                                             </div>
+                                            :
+                                            <button
+                                                type='submit'
+                                                disabled={values.action === 'income' || values.action === 'expence' ? false : true}
+                                                className={`${values.action === 'income' || values.action === 'expence' ? 'bg-[#5200bb]' : 'bg-gray-800'} py-[2px] px-4   text-white  rounded-sm`}>
+                                                {transactionForEdit !== null ? 'Update' : 'Add'}
+                                            </button>
+                                        }
+                                        <div onClick={() => {
+                                            setOpenForm(false)
+                                            settransactionForEdit(null)
+                                        }} className='py-[2px] px-2  cursor-pointer hover:bg-[#4e2682] border-[#5200bb] border text-black hover:text-white rounded-sm'>Cancle</div>
+                                    </div> : ''}
+                            {values.paymentMethod === 'Cash' ?
+                                <div className='2 flex gap-5 font-medium justify-end mt-5'>
+                                    {isButtonLoading ?
+                                        <div className='py-[2px] px-5 flex items-center justify-center  border-[#5200bb] border  rounded-sm'>
+                                            <div className="w-4 h-4  border-t-2  border-r-0 border-b-0 border-red-500 border-solid rounded-full animate-spin"></div>
+                                        </div>
+                                        :
+                                        <button
+                                            type='submit'
+                                            disabled={values.action === 'income' || values.action === 'expence' ? false : true}
+                                            className={`${values.action === 'income' || values.action === 'expence' ? 'bg-[#5200bb]' : 'bg-gray-800'} py-[2px] px-4   text-white  rounded-sm`}>
+                                            {transactionForEdit !== null ? 'Update' : 'Add'}
+                                        </button>
                                     }
-                                </>}
+                                    <div onClick={() => {
+                                        setOpenForm(false)
+                                        settransactionForEdit(null)
+                                    }} className='py-[2px] px-2  cursor-pointer hover:bg-[#4e2682] border-[#5200bb] border text-black hover:text-white rounded-sm'>Cancle</div>
+                                </div> : ''}
                         </div>
                     </Form>
                 )}
