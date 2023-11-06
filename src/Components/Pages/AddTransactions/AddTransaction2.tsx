@@ -50,7 +50,6 @@ const AddTransaction2: FC<AddTransaction2Props> = ({
                         className={`w-full border-b border-gray-700 font-semibold  bg-transparent focus:outline-none`}
                         as='select'
                     >
-                        <option value=''></option>
                         {paymentMethods.map((item: any) => (
                             <option key={item} value={item}>
                                 {item}

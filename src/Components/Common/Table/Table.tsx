@@ -66,7 +66,7 @@ const Table: FC<TableProps> = ({ transactionData }) => {
                     </thead>
                     <tbody>
                         {transactionData?.map((item: any) =>
-                            <tr key={item._id} className="bg-white border-b cursor-default hover:bg-gray-50 hover:text-gray-800">
+                            <tr onClick={() => handleCheckboxChange(item)} key={item._id} className="bg-white border-b cursor-default hover:bg-gray-50 hover:text-gray-800">
                                 <td className="w-4 p-4">
                                     <div className="flex items-center">
                                         <input
@@ -76,7 +76,7 @@ const Table: FC<TableProps> = ({ transactionData }) => {
                                             checked={selectedTransaction.find((selected: any): any => item._id === selected._id) ? true : false}
                                             onChange={() => handleCheckboxChange(item)}
                                             className="w-4 h-4 text-blue-600 bg-gray-100 border-gray-300 rounded focus:ring-blue-500  focus:ring-2 " />
-                                        <label htmlFor="checkbox-table-search-1" className="sr-only">checkbox</label>
+                                        <label htmlFor={`checkbox-table-search-${item._id}`} className="sr-only">checkbox</label>
                                     </div>
                                 </td>
                                 <th title={item?.category} className="px-4 truncate py-4">
@@ -117,6 +117,7 @@ const Table: FC<TableProps> = ({ transactionData }) => {
                 {transactionData?.map((item: any) =>
                     <div
                     //  onClick={() => setHideChecBox(true)}
+                    onDoubleClick={() => handleCheckboxChange(item)}
                      key={item._id} className='flex justify-between border-b p-2'>
                         <div className='flex items-center gap-2'>
                             <span className="w-4">

@@ -48,9 +48,9 @@ const AddTransactions: FC<AddTransactionsProps> = ({ openFotm, setOpenForm }) =>
     }
 
     const initialValues = {
-        action: transactionForEdit !== null ? transactionForEdit.action : 'expence',
-        amount: transactionForEdit !== null ? transactionForEdit.amount : '1',
-        description: transactionForEdit !== null ? transactionForEdit.description : 'test',
+        action: transactionForEdit !== null ? transactionForEdit.action : '',
+        amount: transactionForEdit !== null ? transactionForEdit.amount : '',
+        description: transactionForEdit !== null ? transactionForEdit.description : '',
         paymentMethod: transactionForEdit !== null ? transactionForEdit.paymentMethod : 'Cash',
         from: transactionForEdit !== null ? transactionForEdit.from : '',
         date: transactionForEdit !== null ? new Date(transactionForEdit.date).toISOString().split('T')[0] : new Date().toISOString().split('T')[0],
@@ -79,7 +79,6 @@ const AddTransactions: FC<AddTransactionsProps> = ({ openFotm, setOpenForm }) =>
             if (values.paymentMethod === 'Cash') {
                 values['from'] = 'Cash';
             }
-            console.log(values)
             if (values.category === 'addNewCategory') {
                 values['category'] = values.newCategory;
             }
