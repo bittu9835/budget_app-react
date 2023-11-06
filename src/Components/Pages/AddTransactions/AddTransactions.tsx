@@ -75,8 +75,12 @@ const AddTransactions: FC<AddTransactionsProps> = ({ openFotm, setOpenForm }) =>
         action: Yup.string().required(),
         amount: Yup.number().required('Enter Amount,'),
         description: Yup.string().required('Add Description,').max(100, 'Description is Too Long,'),
-        paymentMethod: Yup.string().required('Sellect Payment Method'),
-        from: Yup.string().required('Choose payment from'),
+        paymentMethod: Yup.string().required('Select Payment Method'),
+        from: Yup.string().when('paymentMethod', ([paymentMethod]:any) => {
+            return paymentMethod === 'Cash'
+                ? Yup.string()
+                : Yup.string().required('From is required');
+        }),
         date: Yup.date(),
         category: Yup.string().required('Choose Category'),
         newCategory: Yup.string()
@@ -86,9 +90,9 @@ const AddTransactions: FC<AddTransactionsProps> = ({ openFotm, setOpenForm }) =>
         if (transactionForEdit !== null) {
             setIsButtonLoading(true)
             if (values.paymentMethod === 'Cash') {
-                initialValues.from = 'Cash'
                 values['from'] = 'Cash';
             }
+            console.log(values)
             if (values.category === 'addNewCategory') {
                 values['category'] = values.newCategory;
             }
@@ -117,7 +121,6 @@ const AddTransactions: FC<AddTransactionsProps> = ({ openFotm, setOpenForm }) =>
             }
         } else {
             setIsButtonLoading(true)
-
             if (values.paymentMethod === 'Cash') {
                 values['from'] = 'Cash';
             }
