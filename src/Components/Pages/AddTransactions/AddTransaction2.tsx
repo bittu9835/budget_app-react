@@ -52,8 +52,8 @@ const AddTransaction2: FC<AddTransaction2Props> = ({
                     >
                         <option value=''></option>
                         {paymentMethods.map((item: any) => (
-                            <option key={item.id} value={item.name}>
-                                {item.name}
+                            <option key={item} value={item}>
+                                {item}
                             </option>
                         ))}
                     </Field>

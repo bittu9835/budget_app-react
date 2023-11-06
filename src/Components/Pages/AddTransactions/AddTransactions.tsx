@@ -39,20 +39,7 @@ const AddTransactions: FC<AddTransactionsProps> = ({ openFotm, setOpenForm }) =>
     // const [isLoading, setIsLoading] = useState(true)
     const navigate = useNavigate()
 
-    const paymentMethods = [
-        {
-            id: 1,
-            name: 'Cash',
-        },
-        {
-            id: 2,
-            name: 'Account',
-        },
-        {
-            id: 3,
-            name: 'Card',
-        },
-    ];
+    const paymentMethods = ['Cash', 'Account', 'Card'];
 
     const handleNavigateAccount = () => {
         setOpenForm(false)
@@ -61,9 +48,9 @@ const AddTransactions: FC<AddTransactionsProps> = ({ openFotm, setOpenForm }) =>
     }
 
     const initialValues = {
-        action: transactionForEdit !== null ? transactionForEdit.action : '',
-        amount: transactionForEdit !== null ? transactionForEdit.amount : '',
-        description: transactionForEdit !== null ? transactionForEdit.description : '',
+        action: transactionForEdit !== null ? transactionForEdit.action : 'expence',
+        amount: transactionForEdit !== null ? transactionForEdit.amount : '1',
+        description: transactionForEdit !== null ? transactionForEdit.description : 'test',
         paymentMethod: transactionForEdit !== null ? transactionForEdit.paymentMethod : 'Cash',
         from: transactionForEdit !== null ? transactionForEdit.from : '',
         date: transactionForEdit !== null ? new Date(transactionForEdit.date).toISOString().split('T')[0] : new Date().toISOString().split('T')[0],
@@ -76,7 +63,7 @@ const AddTransactions: FC<AddTransactionsProps> = ({ openFotm, setOpenForm }) =>
         amount: Yup.number().required('Enter Amount,'),
         description: Yup.string().required('Add Description,').max(100, 'Description is Too Long,'),
         paymentMethod: Yup.string().required('Select Payment Method'),
-        from: Yup.string().when('paymentMethod', ([paymentMethod]:any) => {
+        from: Yup.string().when('paymentMethod', ([paymentMethod]: any) => {
             return paymentMethod === 'Cash'
                 ? Yup.string()
                 : Yup.string().required('From is required');
