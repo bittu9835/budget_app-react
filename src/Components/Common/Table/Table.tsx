@@ -82,7 +82,7 @@ const Table: FC<TableProps> = ({ transactionData }) => {
                                 <th title={item?.category} className="px-4 truncate py-4">
                                     {item?.category}
                                 </th>
-                                <td title={item?.date} className="px-4 truncate py-4">
+                                <td title={item?.created_at} className="px-4 truncate py-4">
                                     {moment(item?.date).format('DD MMM YYYY')}
                                 </td>
                                 <td title={item?.paymentMethod} className="px-4 truncate py-4 flex items-center gap-1">

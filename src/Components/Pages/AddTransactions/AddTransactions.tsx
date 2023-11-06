@@ -7,6 +7,7 @@ import http from '../../../Services/http/http';
 import { toast } from 'react-toastify';
 import { DataContext } from '../../../Context/DataProvider';
 import { useNavigate } from 'react-router-dom';
+import AddTransaction2 from './AddTransaction2';
 // import Loader from '../../Common/Loader/Loader';
 
 interface AddTransactionsProps {
@@ -64,7 +65,7 @@ const AddTransactions: FC<AddTransactionsProps> = ({ openFotm, setOpenForm }) =>
         amount: transactionForEdit !== null ? transactionForEdit.amount : '',
         description: transactionForEdit !== null ? transactionForEdit.description : '',
         paymentMethod: transactionForEdit !== null ? transactionForEdit.paymentMethod : 'Cash',
-        from: transactionForEdit !== null ? transactionForEdit.from : 'Cash',
+        from: transactionForEdit !== null ? transactionForEdit.from : '',
         date: transactionForEdit !== null ? new Date(transactionForEdit.date).toISOString().split('T')[0] : new Date().toISOString().split('T')[0],
         category: transactionForEdit !== null ? transactionForEdit.category : '',
         newCategory: '',
@@ -85,6 +86,7 @@ const AddTransactions: FC<AddTransactionsProps> = ({ openFotm, setOpenForm }) =>
         if (transactionForEdit !== null) {
             setIsButtonLoading(true)
             if (values.paymentMethod === 'Cash') {
+                initialValues.from = 'Cash'
                 values['from'] = 'Cash';
             }
             if (values.category === 'addNewCategory') {
@@ -338,134 +340,18 @@ const AddTransactions: FC<AddTransactionsProps> = ({ openFotm, setOpenForm }) =>
                                     />
                                 </div>
                             </div>
-                            <div className='w-full flex sm:flex-row flex-col  items-center gap-10'>
-                                <div className='w-full sm:w-1/2'>
-                                    <label htmlFor="paymentMethod">Select Payment Mode</label>
-                                    <Field
-                                        id='paymentMethod'
-                                        name='paymentMethod'
-                                        className={`w-full border-b border-gray-700 font-semibold  bg-transparent focus:outline-none`}
-                                        as='select'
-                                    >
-                                        <option value=''></option>
-                                        {paymentMethods.map((item: any) => (
-                                            <option key={item.id} value={item.name}>
-                                                {item.name}
-                                            </option>
-                                        ))}
-                                    </Field>
-                                </div>
-                                {values.paymentMethod === 'Account' ?
-                                    accountDetail?.length === 0
-                                        ?
-                                        <span onClick={handleNavigateAccount} className='text-blue-700 cursor-pointer text-lg font-serif'>Click To Add {values.paymentMethod}</span>
-                                        :
-                                        <div className='w-full sm:w-1/2'>
-                                            <label htmlFor="from">Select {values.paymentMethod}</label>
-                                            <Field
-                                                id='from'
-                                                name='from'
-                                                className={`w-full border-b border-gray-700 font-semibold  bg-transparent focus:outline-none`}
-                                                as='select'
-
-                                            >
-                                                <option value=''></option>
-                                                {accountDetail?.map((item: any) => (
-                                                    <option key={item._id} value={item?.accountCardNumber}>
-                                                        **{item?.accountCardNumber}
-                                                    </option>
-                                                ))}
-                                            </Field>
-                                        </div> : ''}
-                                {values.paymentMethod === 'Card' ?
-                                    cardDetail?.length === 0
-                                        ?
-                                        <span onClick={handleNavigateAccount} className='text-blue-700 cursor-pointer text-lg font-serif'>Click To Add {values.paymentMethod}</span>
-                                        :
-                                        <div className='w-full sm:w-1/2'>
-                                            <label htmlFor="from">Select {values.paymentMethod}</label>
-                                            <Field
-                                                id='from'
-                                                name='from'
-                                                className={`w-full border-b border-gray-700 font-semibold  bg-transparent focus:outline-none`}
-                                                as='select'
-
-                                            >
-                                                <option value=''></option>
-                                                {cardDetail?.map((item: any) => (
-                                                    <option key={item._id} value={item?.accountCardNumber}>
-                                                        **{item?.accountCardNumber}
-                                                    </option>
-                                                ))}
-                                            </Field>
-                                        </div> : ''}
-                            </div>
-
-                            {values.paymentMethod === 'Account' ?
-                                accountDetail?.length === 0
-                                    ?
-                                    ''
-                                    :
-                                    <div className='2 flex gap-5 font-medium justify-end mt-5'>
-                                        {isButtonLoading ?
-                                            <div className='py-[2px] px-5 flex items-center justify-center  border-[#5200bb] border  rounded-sm'>
-                                                <div className="w-4 h-4  border-t-2  border-r-0 border-b-0 border-red-500 border-solid rounded-full animate-spin"></div>
-                                            </div>
-                                            :
-                                            <button
-                                                type='submit'
-                                                disabled={values.action === 'income' || values.action === 'expence' ? false : true}
-                                                className={`${values.action === 'income' || values.action === 'expence' ? 'bg-[#5200bb]' : 'bg-gray-800'} py-[2px] px-4   text-white  rounded-sm`}>
-                                                {transactionForEdit !== null ? 'Update' : 'Add'}
-                                            </button>
-                                        }
-                                        <div onClick={() => {
-                                            setOpenForm(false)
-                                            settransactionForEdit(null)
-                                        }} className='py-[2px] px-2  cursor-pointer hover:bg-[#4e2682] border-[#5200bb] border text-black hover:text-white rounded-sm'>Cancle</div>
-                                    </div> : ''}
-                            {values.paymentMethod === 'Card' ?
-                                cardDetail?.length === 0
-                                    ?
-                                    ''
-                                    :
-                                    <div className='2 flex gap-5 font-medium justify-end mt-5'>
-                                        {isButtonLoading ?
-                                            <div className='py-[2px] px-5 flex items-center justify-center  border-[#5200bb] border  rounded-sm'>
-                                                <div className="w-4 h-4  border-t-2  border-r-0 border-b-0 border-red-500 border-solid rounded-full animate-spin"></div>
-                                            </div>
-                                            :
-                                            <button
-                                                type='submit'
-                                                disabled={values.action === 'income' || values.action === 'expence' ? false : true}
-                                                className={`${values.action === 'income' || values.action === 'expence' ? 'bg-[#5200bb]' : 'bg-gray-800'} py-[2px] px-4   text-white  rounded-sm`}>
-                                                {transactionForEdit !== null ? 'Update' : 'Add'}
-                                            </button>
-                                        }
-                                        <div onClick={() => {
-                                            setOpenForm(false)
-                                            settransactionForEdit(null)
-                                        }} className='py-[2px] px-2  cursor-pointer hover:bg-[#4e2682] border-[#5200bb] border text-black hover:text-white rounded-sm'>Cancle</div>
-                                    </div> : ''}
-                            {values.paymentMethod === 'Cash' ?
-                                <div className='2 flex gap-5 font-medium justify-end mt-5'>
-                                    {isButtonLoading ?
-                                        <div className='py-[2px] px-5 flex items-center justify-center  border-[#5200bb] border  rounded-sm'>
-                                            <div className="w-4 h-4  border-t-2  border-r-0 border-b-0 border-red-500 border-solid rounded-full animate-spin"></div>
-                                        </div>
-                                        :
-                                        <button
-                                            type='submit'
-                                            disabled={values.action === 'income' || values.action === 'expence' ? false : true}
-                                            className={`${values.action === 'income' || values.action === 'expence' ? 'bg-[#5200bb]' : 'bg-gray-800'} py-[2px] px-4   text-white  rounded-sm`}>
-                                            {transactionForEdit !== null ? 'Update' : 'Add'}
-                                        </button>
-                                    }
-                                    <div onClick={() => {
-                                        setOpenForm(false)
-                                        settransactionForEdit(null)
-                                    }} className='py-[2px] px-2  cursor-pointer hover:bg-[#4e2682] border-[#5200bb] border text-black hover:text-white rounded-sm'>Cancle</div>
-                                </div> : ''}
+                            <AddTransaction2
+                                paymentMethods={paymentMethods}
+                                valuespaymentMethod={values.paymentMethod}
+                                accountDetail={accountDetail}
+                                handleNavigateAccount={handleNavigateAccount}
+                                cardDetail={cardDetail}
+                                isButtonLoading={isButtonLoading}
+                                valuesaction={values.action}
+                                transactionForEdit={transactionForEdit}
+                                settransactionForEdit={settransactionForEdit}
+                                setOpenForm={setOpenForm}
+                            />
                         </div>
                     </Form>
                 )}
