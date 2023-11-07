@@ -1,5 +1,4 @@
 import { useContext, type FC } from 'react';
-import { BsFillShareFill } from 'react-icons/bs';
 import { FiLogOut } from 'react-icons/fi';
 import avatar from '../../../Assets/avtar.png'
 import { useNavigate } from 'react-router-dom';
@@ -10,7 +9,7 @@ interface ProfileProps { }
 
 const Profile: FC<ProfileProps> = () => {
     const nevigate = useNavigate()
-    const { profileToggle, setProfileToggle, setTheme} = useContext(DataContext)
+    const { profileToggle, setProfileToggle} = useContext(DataContext)
 
 
     const logout = () => {
@@ -28,12 +27,12 @@ const Profile: FC<ProfileProps> = () => {
                     </div>
                     <p>Profile</p>
                 </div>
-
+{/* 
                 <div className='flex items-center gap-5 cursor-pointer  hover:text-skin-profile-text-hover '>
                     <div className='w-8 h-8 rounded-[50%] border-[2px] border-skin-profile-border hover:border-skin-profile-border-hover flex items-center justify-center'><BsFillShareFill className='text-sm' />
                     </div>
                     <p>Share</p>
-                </div>
+                </div> */}
 
                 <div onClick={logout} className='flex items-center gap-5 cursor-pointer  hover:text-red-500'>
                     <div className='w-8 h-8 rounded-[50%] border-[2px] border-skin-profile-border hover:border-red-500 flex items-center justify-center'><FiLogOut className='text-sm' />
@@ -41,7 +40,7 @@ const Profile: FC<ProfileProps> = () => {
                     <p className='text-red-500'>LogOut</p>
                 </div>
 
-                <div className='flex items-center gap-5 cursor-pointer'>
+                {/* <div className='flex items-center gap-5 cursor-pointer'>
                     <div onClick={()=>setTheme('Default')} className='w-8 h-8 rounded-[50%] border-[2px] border-slate-300 hover:border-blue-400 hover:text-blue-500 flex items-center justify-center'>
                     </div>
                     <div onClick={()=>setTheme('theme1')}  className='w-8 h-8 rounded-[50%] border-[2px] border-slate-300 hover:border-blue-400 hover:text-blue-500 flex items-center justify-center'>
@@ -50,7 +49,7 @@ const Profile: FC<ProfileProps> = () => {
                     </div>
                     <div onClick={()=>setTheme('theme3')}  className='w-8 h-8 rounded-[50%] border-[2px] border-slate-300 hover:border-blue-400 hover:text-blue-500 flex items-center justify-center'>
                     </div>
-                </div>
+                </div> */}
             </div>
     );
 }

@@ -25,11 +25,11 @@ const BankAccounts: FC<BankAccountsProps> = () => {
     const [isLoadingDelete, setIsLoadingDelete] = useState(false)
     const [type, setType] = useState<string | null>(null)
     const [isLoading, setIsLoading] = useState(true)
+
     const handleAddCard = () => {
         setType('card')
         setOpenBankForm(true)
     }
-
     const handleAddBank = () => {
         setType('bank')
         setOpenBankForm(true)
@@ -209,7 +209,7 @@ const BankAccounts: FC<BankAccountsProps> = () => {
                     {cardDetail?.length !== 0 ?
                         <div className='w-full overflow-y-auto scrollbar-thin  mb-2 gap-2 grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-2 p-2'>
                             {cardDetail?.map((item: any) =>
-                                <div key={item?._id} className='h-60 group flex relative flex-col shadow-lg items-center'>
+                                <div key={item?._id} className='sm:h-60 h-52 group flex relative flex-col shadow-lg items-center'>
                                     <div className="w-full cursor-default h-full bg-gradient-to-r from-black to-[#1c1c1c] rounded-lg p-4 relative shadow-md">
                                         <div className="absolute text-white top-1 text-xs left-2">
                                             Platinum Card
@@ -220,19 +220,19 @@ const BankAccounts: FC<BankAccountsProps> = () => {
                                         <p title='State Bank Of India' className='text-gray-100 font-extrabold absolute top-2 right-5 '>
                                             {item?.bankCardName}
                                         </p>
-                                        <div className="text-gray-100 text-xl font-semibold absolute bottom-20 sm:tracking-widest left-10">
+                                        <div className="text-gray-100 text-xl font-semibold absolute bottom-20 sm:tracking-widest sm:left-10 left-3">
                                             **** **** **** {item?.accountCardNumber}
                                         </div>
-                                        <div className="text-gray-100 tracking-widest text-md absolute font-medium bottom-5 left-10">
+                                        <div className="text-gray-100 tracking-widest text-md absolute font-medium bottom-5 sm:left-10 left-3">
                                             {item?.name}
                                         </div>
-                                        <div className="text-gray-100 text-base absolute font-medium left-10 bottom-14">
+                                        <div className="text-gray-100 text-base absolute font-medium sm:left-10 left-3 bottom-14">
                                             <span className='text-xs text-gray-200'>Valid Thru</span> {moment(item?.expairyDate).format('MM/YY')}
                                         </div>
-                                        <div className="absolute top-14 left-14">
+                                        <div className="absolute sm:top-14 top-10 sm:left-14 left-8">
                                             <img src={chip} alt="" className="w-10" />
                                         </div>
-                                        <div className="absolute top-14 right-8">
+                                        <div className="absolute sm:top-14 top-10 right-8">
                                             <img src={fride} alt="" className="w-12 " />
                                         </div>
                                     </div>

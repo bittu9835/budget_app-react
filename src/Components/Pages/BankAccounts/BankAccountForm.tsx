@@ -19,8 +19,8 @@ const BankAccountForm: FC<BankAccountFormProps> = ({ isLoadingButton, type, open
     const { setRender, accountForEdit, setAccountForEdit,render }: any = useContext(DataContext);
 
     const handleCancle = () => {
-        setOpenBankForm(false);
         setAccountForEdit(null);
+        setOpenBankForm(false);
     }
 
     const initialValues = {

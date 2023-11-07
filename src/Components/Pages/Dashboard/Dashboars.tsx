@@ -1,5 +1,5 @@
 import { useEffect, type FC, useState, useContext } from 'react';
-import { BarChart } from '../../Common/Charts/BarChart';
+import BarChart from '../../Common/Charts/BarChart';
 import { PieChart } from '../../Common/Charts/PiaChart';
 import { DoughnutChart } from '../../Common/Charts/DoughNutChart';
 import { AreaChart } from '../../Common/Charts/AreaChart';
@@ -27,6 +27,7 @@ const Dashboard: FC<DashboardProps> = () => {
 
     const { render, setOpenForm } = useContext(DataContext);
     const [trasactions, setTrasactions] = useState<Transaction[]>()
+    const [barGraphData, setBarGraphData] = useState<any>()
     const [earningAmount, setEarningAmount] = useState<any>()
     const [expenseAmount, setexpenseAmount] = useState<any>()
     const [isLoading, setIsLoading] = useState(true)
@@ -54,6 +55,28 @@ const Dashboard: FC<DashboardProps> = () => {
             }
         }
     }
+    const featchBarGraphData = async () => {
+        try {
+            const response: any = await http({
+                url: `/transaction/getBarGraphData`,
+                method: 'get',
+            });
+            if (response?.data?.code === 'SUCCESS_200') {
+                setBarGraphData(response?.data?.data)
+                setTimeout(() => {
+                    setIsLoading(false)
+                }, 500);
+            } else {
+                toast.error(response?.data?.message);
+            }
+        } catch (error: any) {
+            if (error.response && error.response.data && error.response.data.message) {
+                toast.error(error?.response?.data?.message);
+            } else {
+                toast.error('Error fetching Transactions.');
+            }
+        }
+    }
 
     useEffect(() => {
         const sumEarnings = trasactions?.filter((transaction) => transaction?.action === "income")
@@ -67,6 +90,7 @@ const Dashboard: FC<DashboardProps> = () => {
 
     useEffect(() => {
         featchTransactions()
+        featchBarGraphData()
         // eslint-disable-next-line 
     }, [render])
 
@@ -79,7 +103,7 @@ const Dashboard: FC<DashboardProps> = () => {
                     <div className='absolute top-4 text-center'>
                         <p className='text-gray-700 font-semibold text-xl'>Transactions Not Found</p>
                         <p onClick={() => setOpenForm(true)} className='text-blue-700 cursor-pointer font-medium'>Add Transactions</p>
-                    </div>  
+                    </div>
                 </div>
                 :
                 <>
@@ -117,9 +141,10 @@ const Dashboard: FC<DashboardProps> = () => {
                         </div>
                     </div>
                     <div className='w-full rounded-md bg-skin-bg-dashboard grid grid-cols-1 sm:grid-cols-2 font-sans'>
-                        <div className='w-full shadow-md h-[400px] p-2'>
-                            <BarChart />
-                        </div>
+                        {barGraphData &&
+                            <div className='w-full shadow-md h-[400px] p-2'>
+                                <BarChart data={barGraphData}/>
+                            </div>}
                         <div className='w-full shadow-md h-[400px] flex items-center justify-center'>
                             <PieChart />
                         </div>
