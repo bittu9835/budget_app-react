@@ -1,0 +1,23 @@
+{
+  "files": {
+    "main.css": "/budget_app-react/static/css/main.dd7fdee2.css",
+    "main.js": "/budget_app-react/static/js/main.1a0b4ca9.js",
+    "static/js/787.b3b3af62.chunk.js": "/budget_app-react/static/js/787.b3b3af62.chunk.js",
+    "static/media/bitcoin-6219345_1280.jpg": "/budget_app-react/static/media/bitcoin-6219345_1280.dc1cf2ec260e840dfb02.jpg",
+    "static/media/cardStatment.png": "/budget_app-react/static/media/cardStatment.1f6055012458f01fc550.png",
+    "static/media/Login.jpg": "/budget_app-react/static/media/Login.3ed103bf1429e219019b.jpg",
+    "static/media/fride.png": "/budget_app-react/static/media/fride.a4ae65874322792e4dea.png",
+    "static/media/empty.jpg": "/budget_app-react/static/media/empty.f68b235b36538d96e299.jpg",
+    "static/media/avtar.png": "/budget_app-react/static/media/avtar.a8653453950151c6247e.png",
+    "static/media/bankStatment.png": "/budget_app-react/static/media/bankStatment.f438694f0b5474384d4b.png",
+    "static/media/chip.png": "/budget_app-react/static/media/chip.f64381bc571a0dd754b5.png",
+    "index.html": "/budget_app-react/index.html",
+    "main.dd7fdee2.css.map": "/budget_app-react/static/css/main.dd7fdee2.css.map",
+    "main.1a0b4ca9.js.map": "/budget_app-react/static/js/main.1a0b4ca9.js.map",
+    "787.b3b3af62.chunk.js.map": "/budget_app-react/static/js/787.b3b3af62.chunk.js.map"
+  },
+  "entrypoints": [
+    "static/css/main.dd7fdee2.css",
+    "static/js/main.1a0b4ca9.js"
+  ]
+}
