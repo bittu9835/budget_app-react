@@ -75,7 +75,7 @@ const SignIn: FC<SignInProps> = () => {
             animate={cardControls}
             variants={animationVariants}
             className='w-screen h-screen relative'>
-            <p className='absolute bottom-2 right-2 z-10  text-white'>Don't have Account ? <span onClick={() => navigate('/signUp')} className='text-violet-800 font-bold cursor-pointer ml-1'> SignUp</span> </p>
+            <p className='absolute top-2 right-4 z-10  text-white'>Don't have Account ? <span onClick={() => navigate('/signUp')} className='text-violet-800 font-bold cursor-pointer ml-1'> SignUp</span> </p>
             <div className='w-full h-full relative md:bg-transparent bg-black'>
                 <img className='md:block hidden w-full h-full' src={bg} alt="" />
                 <img className='block md:hidden w-full h-1/2 animate-pulse' src={bg2} alt="" />
