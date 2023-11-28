@@ -242,18 +242,18 @@ const AddTransactions: FC<AddTransactionsProps> = ({ openFotm, setOpenForm }) =>
                                 <div className='w-1/2 flex gap-2'>
                                     <Field
                                         type="radio"
-                                        id='action'
+                                        id='income'
                                         name='action'
                                         value='income' />
-                                    <label htmlFor="action">Income</label>
+                                    <label htmlFor="income">Income</label>
                                 </div>
                                 <div className='w-1/2 flex gap-2 '>
                                     <Field
                                         type="radio"
-                                        id='action'
+                                        id='expence'
                                         name='action'
                                         value='expence' />
-                                    <label htmlFor="action">Expence</label>
+                                    <label htmlFor="expence">Expence</label>
                                 </div>
                             </div>
                             <div className='w-full flex sm:flex-row flex-col  items-center gap-10'>
@@ -261,6 +261,7 @@ const AddTransactions: FC<AddTransactionsProps> = ({ openFotm, setOpenForm }) =>
                                     <label htmlFor="date">Choose a Date (MM/DD/YYYY)</label>
                                     <Field
                                         name="date"
+                                        id="date"
                                         type='date'
                                         className='w-full border-b border-gray-700 font-semibold  bg-transparent outline-none'
                                     />
@@ -268,7 +269,7 @@ const AddTransactions: FC<AddTransactionsProps> = ({ openFotm, setOpenForm }) =>
 
                                 {values.category === 'addNewCategory' ?
                                     <div className='w-full sm:w-1/2'>
-                                        <label htmlFor="from">Enter Category Name</label>
+                                        <label htmlFor="newCategory">Enter Category Name</label>
                                         <Field
                                             autoFocus={true}
                                             id='newCategory'
