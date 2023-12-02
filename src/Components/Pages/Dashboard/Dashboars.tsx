@@ -1,6 +1,5 @@
 import { useEffect, type FC, useState, useContext } from 'react';
-import BarChart from '../../Common/Charts/BarChart';
-import { PieChart } from '../../Common/Charts/PiaChart';
+import BarChart from '../../Common/Charts/BarChart'; 
 import { DoughnutChart } from '../../Common/Charts/DoughNutChart';
 import { AreaChart } from '../../Common/Charts/AreaChart';
 import { DataContext } from '../../../Context/DataProvider';
@@ -9,6 +8,7 @@ import { toast } from 'react-toastify';
 import { BiRupee } from 'react-icons/bi';
 import Loader from '../../Common/Loader/Loader';
 import emptyImg from '../../../Assets/empty.jpg'
+import PieChart from '../../Common/Charts/PiaChart';
 
 interface DashboardProps { }
 interface Transaction {
@@ -28,6 +28,7 @@ const Dashboard: FC<DashboardProps> = () => {
     const { render, setOpenForm } = useContext(DataContext);
     const [trasactions, setTrasactions] = useState<Transaction[]>()
     const [barGraphData, setBarGraphData] = useState<any>()
+    const [piGraphData, setpiGraphData] = useState<any>()
     const [earningAmount, setEarningAmount] = useState<any>()
     const [expenseAmount, setexpenseAmount] = useState<any>()
     const [isLoading, setIsLoading] = useState(true)
@@ -77,6 +78,28 @@ const Dashboard: FC<DashboardProps> = () => {
             }
         }
     }
+    const featchPiGraphData = async () => {
+        try {
+            const response: any = await http({
+                url: `/transaction/getPieGraphData`,
+                method: 'get',
+            });
+            if (response?.data?.code === 'SUCCESS_200') {
+                setpiGraphData(response?.data?.data)
+                setTimeout(() => {
+                    setIsLoading(false)
+                }, 500);
+            } else {
+                toast.error(response?.data?.message);
+            }
+        } catch (error: any) {
+            if (error.response && error.response.data && error.response.data.message) {
+                toast.error(error?.response?.data?.message);
+            } else {
+                toast.error('Error fetching Transactions.');
+            }
+        }
+    }
 
     useEffect(() => {
         const sumEarnings = trasactions?.filter((transaction) => transaction?.action === "income")
@@ -91,6 +114,7 @@ const Dashboard: FC<DashboardProps> = () => {
     useEffect(() => {
         featchTransactions()
         featchBarGraphData()
+        featchPiGraphData()
         // eslint-disable-next-line 
     }, [render])
 
@@ -146,7 +170,7 @@ const Dashboard: FC<DashboardProps> = () => {
                                 <BarChart data={barGraphData}/>
                             </div>}
                         <div className='w-full shadow-md h-[400px] flex items-center justify-center'>
-                            <PieChart />
+                            <PieChart data={piGraphData}/>
                         </div>
                     </div>
                     <div className='grid grid-cols-1 sm:grid-cols-2  gap-2 sm:gap-5 w-full'>
