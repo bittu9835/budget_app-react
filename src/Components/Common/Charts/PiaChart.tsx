@@ -2,21 +2,21 @@ import type { FC } from 'react';
 import { Chart as ChartJS, ArcElement, Tooltip, Legend } from 'chart.js';
 import { Pie } from 'react-chartjs-2';
 
-ChartJS.register(ArcElement, Tooltip, Legend); 
+ChartJS.register(ArcElement, Tooltip, Legend);
 
 
-interface PieChartProps { 
-    data:any
+interface PieChartProps {
+    data: any
 }
 
-const PieChart: FC<PieChartProps> = ({data}) => {
+const PieChart: FC<PieChartProps> = ({ data }) => {
 
     const datas = {
-        labels: data?.map((e:any)=>e?.category)??[],
+        labels: data?.map((e: any) => e?.category) ?? [],
         datasets: [
             {
-                label: '# of Votes',
-                data: data?.map((e:any)=>e?.amount)??[],
+                label: 'Amount',
+                data: data?.map((e: any) => e?.amount) ?? [],
                 backgroundColor: [
                     'rgba(255, 99, 132, 0.2)',
                     'rgba(54, 162, 235, 0.2)',

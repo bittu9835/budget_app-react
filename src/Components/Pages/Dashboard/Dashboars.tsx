@@ -1,7 +1,6 @@
 import { useEffect, type FC, useState, useContext } from 'react';
 import BarChart from '../../Common/Charts/BarChart'; 
 import { DoughnutChart } from '../../Common/Charts/DoughNutChart';
-import { AreaChart } from '../../Common/Charts/AreaChart';
 import { DataContext } from '../../../Context/DataProvider';
 import http from '../../../Services/http/http';
 import { toast } from 'react-toastify';
@@ -9,6 +8,7 @@ import { BiRupee } from 'react-icons/bi';
 import Loader from '../../Common/Loader/Loader';
 import emptyImg from '../../../Assets/empty.jpg'
 import PieChart from '../../Common/Charts/PiaChart';
+import AreaChart from '../../Common/Charts/AreaChart';
 
 interface DashboardProps { }
 interface Transaction {
@@ -169,7 +169,7 @@ const Dashboard: FC<DashboardProps> = () => {
                             <div className='w-full shadow-md h-[400px] p-2'>
                                 <BarChart data={barGraphData}/>
                             </div>}
-                        <div className='w-full shadow-md h-[400px] flex items-center justify-center'>
+                        <div className='w-full shadow-md h-[400px] pb-3 flex items-center justify-center text-xs'>
                             <PieChart data={piGraphData}/>
                         </div>
                     </div>
@@ -180,7 +180,7 @@ const Dashboard: FC<DashboardProps> = () => {
                             </div>
                         </div>
                         <div className='w-full shadow-md h-[400px] bg-skin-bg-dashboard rounded-lg p-2 font-sans'>
-                            <AreaChart />
+                            <AreaChart data={barGraphData}/>
                         </div>
                     </div>
                 </>}
