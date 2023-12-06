@@ -28,6 +28,7 @@ const Dashboard: FC<DashboardProps> = () => {
     const { render, setOpenForm } = useContext(DataContext);
     const [trasactions, setTrasactions] = useState<Transaction[]>()
     const [barGraphData, setBarGraphData] = useState<any>()
+    const [lineGraphData, setLineGraphData] = useState<any>()
     const [piGraphData, setpiGraphData] = useState<any>()
     const [earningAmount, setEarningAmount] = useState<any>()
     const [expenseAmount, setexpenseAmount] = useState<any>()
@@ -78,6 +79,28 @@ const Dashboard: FC<DashboardProps> = () => {
             }
         }
     }
+    const featchLineGraphData = async () => {
+        try {
+            const response: any = await http({
+                url: `/transaction/getLineGraphData`,
+                method: 'get',
+            });
+            if (response?.data?.code === 'SUCCESS_200') {
+                setLineGraphData(response?.data?.data)
+                setTimeout(() => {
+                    setIsLoading(false)
+                }, 500);
+            } else {
+                toast.error(response?.data?.message);
+            }
+        } catch (error: any) {
+            if (error.response && error.response.data && error.response.data.message) {
+                toast.error(error?.response?.data?.message);
+            } else {
+                toast.error('Error fetching Transactions.');
+            }
+        }
+    }
     const featchPiGraphData = async () => {
         try {
             const response: any = await http({
@@ -114,9 +137,10 @@ const Dashboard: FC<DashboardProps> = () => {
     useEffect(() => {
         featchTransactions()
         featchBarGraphData()
+        featchLineGraphData()
         featchPiGraphData()
         // eslint-disable-next-line 
-    }, [render])
+    }, [render]);
 
     return (
         <div className='w-full h-full flex flex-col gap-2 sm:gap-5 sm:p-5 p-2 overflow-y-scroll scrollbar-none relative'>
@@ -180,7 +204,7 @@ const Dashboard: FC<DashboardProps> = () => {
                             </div>
                         </div>
                         <div className='w-full shadow-md h-[400px] bg-skin-bg-dashboard rounded-lg p-2 font-sans'>
-                            <AreaChart data={barGraphData}/>
+                            {lineGraphData && <AreaChart data={lineGraphData}/>}
                         </div>
                     </div>
                 </>}

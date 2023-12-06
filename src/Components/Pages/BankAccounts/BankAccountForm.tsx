@@ -29,7 +29,7 @@ const BankAccountForm: FC<BankAccountFormProps> = ({ isLoadingButton, type, open
         bankLocation: accountForEdit?.bankLocation ?? '',
         ifcCode: accountForEdit?.ifcCode ?? '',
         expairyDate: accountForEdit?.expairyDate ?? '',
-        serviveProvider: accountForEdit?.serviveProvider ?? '',
+        serviceProvider: accountForEdit?.serviceProvider ?? '',
         name: accountForEdit?.name ?? '',
     };
 
@@ -40,7 +40,7 @@ const BankAccountForm: FC<BankAccountFormProps> = ({ isLoadingButton, type, open
         bankLocation: Yup.string().max(30, 'Bank Location is Too Long,'),
         ifcCode: Yup.string().matches(/^[0-9A-Za-z]{11}$/, 'Incorrect IFSC Code,'),
         expairyDate: Yup.date(),
-        serviveProvider: Yup.string().max(20, 'serviveProvider Too Long,'),
+        serviceProvider: Yup.string().max(20, 'serviceProvider Too Long,'),
         name: Yup.string().required('Enter Your Name,').max(20, 'Your Name is Too Long,'),
     });
 
@@ -108,7 +108,7 @@ const BankAccountForm: FC<BankAccountFormProps> = ({ isLoadingButton, type, open
                         <span className='text-xs text-red-500'><ErrorMessage name='accountCardNumber' /></span>
                         <span className='text-xs text-red-500'><ErrorMessage name='ifcCode' /></span>
                         <span className='text-xs text-red-500'><ErrorMessage name='bankLocation' /></span>
-                        <span className='text-xs text-red-500'><ErrorMessage name='serviveProvider' /></span>
+                        <span className='text-xs text-red-500'><ErrorMessage name='serviceProvider' /></span>
                         <span className='text-xs text-red-500'><ErrorMessage name='name' /></span>
                     </div>
                     <div className='px-5 w-full flex text-sm text-gray-800 sm:mt-2 mt-10 flex-col gap-10 '>
@@ -170,12 +170,12 @@ const BankAccountForm: FC<BankAccountFormProps> = ({ isLoadingButton, type, open
                                     />
                                 </div>
                                 <div title='Enter Bank Location' className='w-full sm:w-1/2'>
-                                    <label htmlFor="serviveProvider">Service Provider</label>
+                                    <label htmlFor="serviceProvider">Service Provider</label>
                                     <Field
                                         className='w-full border-b border-gray-700 placeholder:font-light text-gray-600 font-semibold  appearance-none outline-none bg-transparent'
                                         type='string'
-                                        name='serviveProvider'
-                                        id='serviveProvider'
+                                        name='serviceProvider'
+                                        id='serviceProvider'
                                         placeholder='As:- VISA'
                                     />
                                 </div>
@@ -203,7 +203,7 @@ const BankAccountForm: FC<BankAccountFormProps> = ({ isLoadingButton, type, open
                                     {accountForEdit !== null ? 'Update' : 'Add'}
                                 </button>
                             }
-                            <div onClick={handleCancle} className='py-[2px] px-2  cursor-pointer hover:bg-[#4e2682] border-[#5200bb] border text-black hover:text-white rounded-sm'>Cancle</div>
+                            <div onClick={handleCancle} className='py-[2px] px-2  cursor-pointer hover:bg-[#4e2682] border-[#5200bb] border text-black hover:text-white rounded-sm'>Cancel</div>
                         </div>
                     </div>
                 </Form>

@@ -166,7 +166,7 @@ const AddTransaction2: FC<AddTransaction2Props> = ({
                     <div onClick={() => {
                         setOpenForm(false)
                         settransactionForEdit(null)
-                    }} className='py-[2px] px-2  cursor-pointer hover:bg-[#4e2682] border-[#5200bb] border text-black hover:text-white rounded-sm'>Cancle</div>
+                    }} className='py-[2px] px-2  cursor-pointer hover:bg-[#4e2682] border-[#5200bb] border text-black hover:text-white rounded-sm'>Cancel</div>
                 </div> : ''}
         </>
     );
