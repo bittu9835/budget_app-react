@@ -168,7 +168,7 @@ const BankAccounts: FC<BankAccountsProps> = () => {
                                         </div>
                                         <div className="mt-2 border-t cursor-default border-gray-300 pt-2 text-center">
                                             <p className="text-sm">A/C Balance</p>
-                                            <p className="text-lg font-semibold">{item?.balance}</p>
+                                            <p className="text-lg font-semibold">{item?.balance?.toLocaleString()}</p>
                                         </div>
                                     </div>
                                     {isLoadingDelete ?
