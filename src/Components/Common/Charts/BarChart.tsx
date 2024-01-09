@@ -34,7 +34,7 @@ const BarChart: FC<BarChartProps> = ({data}) => {
                 position: 'top' as const,
             },
         },
-        maintainAspectRatio: false, // Set this to false to control the height and width manually
+        maintainAspectRatio: false, 
         height: 400, // Set the desired height of the chart
         width: 900, // Set the desired width of the chart
     };

@@ -1,7 +1,5 @@
 import { useEffect, type FC, useState, useContext } from 'react';
-import BarChart from '../../Common/Charts/BarChart'; 
-import { DoughnutChart } from '../../Common/Charts/DoughNutChart';
-import { AreaChart } from '../../Common/Charts/AreaChart';
+import BarChart from '../../Common/Charts/BarChart';
 import { DataContext } from '../../../Context/DataProvider';
 import http from '../../../Services/http/http';
 import { toast } from 'react-toastify';
@@ -9,6 +7,8 @@ import { BiRupee } from 'react-icons/bi';
 import Loader from '../../Common/Loader/Loader';
 import emptyImg from '../../../Assets/empty.jpg'
 import PieChart from '../../Common/Charts/PiaChart';
+import DoughnutChart from '../../Common/Charts/DoughNutChart';
+import AreaChart from '../../Common/Charts/AreaChart';
 
 interface DashboardProps { }
 interface Transaction {
@@ -28,7 +28,10 @@ const Dashboard: FC<DashboardProps> = () => {
     const { render, setOpenForm } = useContext(DataContext);
     const [trasactions, setTrasactions] = useState<Transaction[]>()
     const [barGraphData, setBarGraphData] = useState<any>()
-    const [piGraphData, setpiGraphData] = useState<any>()
+    const [expenceData, setExpenceData] = useState<any>()
+    const [incomeData, setIncomeData] = useState<any>()
+    const [lineGraphData, setLineGraphData] = useState<any>()
+    console.log(lineGraphData)
     const [earningAmount, setEarningAmount] = useState<any>()
     const [expenseAmount, setexpenseAmount] = useState<any>()
     const [isLoading, setIsLoading] = useState(true)
@@ -78,14 +81,58 @@ const Dashboard: FC<DashboardProps> = () => {
             }
         }
     }
-    const featchPiGraphData = async () => {
+    const featchExpenseData = async () => {
         try {
             const response: any = await http({
-                url: `/transaction/getPieGraphData`,
+                url: `/transaction/getExpenseData`,
                 method: 'get',
             });
             if (response?.data?.code === 'SUCCESS_200') {
-                setpiGraphData(response?.data?.data)
+                setExpenceData(response?.data?.data)
+                setTimeout(() => {
+                    setIsLoading(false)
+                }, 500);
+            } else {
+                toast.error(response?.data?.message);
+            }
+        } catch (error: any) {
+            if (error.response && error.response.data && error.response.data.message) {
+                toast.error(error?.response?.data?.message);
+            } else {
+                toast.error('Error fetching Transactions.');
+            }
+        }
+    }
+    const featchIncomeData = async () => {
+        try {
+            const response: any = await http({
+                url: `/transaction/getIncomeData`,
+                method: 'get',
+            });
+            if (response?.data?.code === 'SUCCESS_200') {
+                setIncomeData(response?.data?.data)
+                setTimeout(() => {
+                    setIsLoading(false)
+                }, 500);
+            } else {
+                toast.error(response?.data?.message);
+            }
+        } catch (error: any) {
+            if (error.response && error.response.data && error.response.data.message) {
+                toast.error(error?.response?.data?.message);
+            } else {
+                toast.error('Error fetching Transactions.');
+            }
+        }
+    }
+    const featchgetLineGraphData = async () => {
+        try {
+            const response: any = await http({
+                url: `/transaction/getLineGraphData`,
+                method: 'get',
+            });
+            if (response?.data?.code === 'SUCCESS_200') {
+                setLineGraphData(response?.data?.data)
                 setTimeout(() => {
                     setIsLoading(false)
                 }, 500);
@@ -114,7 +161,9 @@ const Dashboard: FC<DashboardProps> = () => {
     useEffect(() => {
         featchTransactions()
         featchBarGraphData()
-        featchPiGraphData()
+        featchExpenseData()
+        featchIncomeData()
+        featchgetLineGraphData()
         // eslint-disable-next-line 
     }, [render])
 
@@ -164,23 +213,33 @@ const Dashboard: FC<DashboardProps> = () => {
                             <p className='cursor-default text-sm text-skin-text-dashboard'>Transactions</p>
                         </div>
                     </div>
-                    <div className='w-full rounded-md bg-skin-bg-dashboard grid grid-cols-1 sm:grid-cols-2 font-sans'>
+                    <div className='grid grid-cols-1 sm:grid-cols-2  gap-2 sm:gap-5 w-full'>
                         {barGraphData &&
-                            <div className='w-full shadow-md h-[400px] p-2'>
-                                <BarChart data={barGraphData}/>
+                            <div className='w-full shadow-md h-[450px] bg-skin-bg-dashboard rounded-lg p-2 font-sans'>
+                                <h1 className='w-full self-start text-sm border-b pb-2'>Monthely Income & Expense</h1>
+                                <div className="w-full h-[400px] flex items-center justify-center">
+                                    <BarChart data={barGraphData} />
+                                </div>
                             </div>}
-                        <div className='w-full shadow-md h-[400px] flex items-center justify-center'>
-                            <PieChart data={piGraphData}/>
+                        <div className='w-full shadow-md h-[450px] bg-skin-bg-dashboard rounded-lg p-2 font-sans'>
+                            <h1 className='w-full self-start text-sm border-b pb-2'>Total Balance</h1>
+                            <div className="w-full h-[400px] flex items-center justify-center">
+                                <AreaChart data={lineGraphData}/>
+                            </div>
                         </div>
                     </div>
                     <div className='grid grid-cols-1 sm:grid-cols-2  gap-2 sm:gap-5 w-full'>
-                        <div className='w-full shadow-md h-[400px] flex items-center justify-center bg-skin-bg-dashboard rounded-lg p-2 font-sans'>
-                            <div className="w-[380px]">
-                                <DoughnutChart />
+                        <div className='w-full shadow-md h-[450px] bg-skin-bg-dashboard rounded-lg p-2 font-sans'>
+                            <h1 className='w-full self-start text-sm border-b pb-2'>Income Category</h1>
+                            <div className="w-full h-[400px] flex items-center justify-center">
+                                <DoughnutChart data={incomeData}/>
                             </div>
                         </div>
-                        <div className='w-full shadow-md h-[400px] bg-skin-bg-dashboard rounded-lg p-2 font-sans'>
-                            <AreaChart />
+                        <div className='w-full shadow-md h-[450px] bg-skin-bg-dashboard rounded-lg p-2 font-sans'>
+                            <h1 className='w-full self-start text-sm border-b pb-2'>Expense Category</h1>
+                            <div className="w-full h-[400px] flex items-center justify-center">
+                                <PieChart data={expenceData} />
+                            </div>
                         </div>
                     </div>
                 </>}
