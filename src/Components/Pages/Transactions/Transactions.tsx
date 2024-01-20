@@ -12,7 +12,7 @@ import emptyImg from '../../../Assets/empty.jpg'
 interface TransactionsProps { }
 
 const Transactions: FC<TransactionsProps> = () => {
-  const { setOpenForm, setRender, render, settransactionForEdit, selectedTransaction, setSelectedTransaction } = useContext(DataContext)
+  const { setOpenForm, setRender, render, settransactionForEdit, selectedTransaction, setSelectedTransaction, filterData } = useContext(DataContext)
   const [isLoading, setIsLoading] = useState(true)
   const [isLoadingButton, setIsLoadingButton] = useState(false)
   const [searchValue, setSearchValue] = useState<string>('')
@@ -56,7 +56,6 @@ const Transactions: FC<TransactionsProps> = () => {
         }
       }
     }
-
   }
 
   const editTransaction = async () => {
@@ -84,13 +83,17 @@ const Transactions: FC<TransactionsProps> = () => {
   }
 
   const fetchTransactions = async () => {
+    let data: any = {
+      search: searchValue
+    }
+    if (filterData) {
+      data.filterData = filterData
+    }
     try {
       const response: any = await http({
         url: `/transaction/getTransaction`,
         method: 'get',
-        data: {
-          search: searchValue
-        }
+        data
       });
       if (response?.data?.code === 'SUCCESS_200') {
         setTransactionData(response?.data?.data)

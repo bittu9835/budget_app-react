@@ -25,13 +25,12 @@ interface Transaction {
 
 const Dashboard: FC<DashboardProps> = () => {
 
-    const { render, setOpenForm } = useContext(DataContext);
+    const { render, setOpenForm,setfilterData } = useContext(DataContext);
     const [trasactions, setTrasactions] = useState<Transaction[]>()
     const [barGraphData, setBarGraphData] = useState<any>()
     const [expenceData, setExpenceData] = useState<any>()
     const [incomeData, setIncomeData] = useState<any>()
     const [lineGraphData, setLineGraphData] = useState<any>()
-    console.log(lineGraphData)
     const [earningAmount, setEarningAmount] = useState<any>()
     const [expenseAmount, setexpenseAmount] = useState<any>()
     const [isLoading, setIsLoading] = useState(true)
