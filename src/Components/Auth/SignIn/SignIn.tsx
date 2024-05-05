@@ -111,7 +111,7 @@ const SignIn: FC<SignInProps> = () => {
                                     </div>
                                     :
                                     <div className=' w-full h-[2.25rem] mt-7 rounded-md shadow-md'>
-                                        <button type='submit' className='bg-green-600 text-white rounded-md w-full h-full font-extrabold'>Login</button>
+                                        <button type='submit' className='bg-green-600 hover:bg-green-500 active:bg-green-600 text-white rounded-md w-full h-full font-extrabold transition ease-in-out duration-150'>Login</button>
                                     </div>
                                 }
 

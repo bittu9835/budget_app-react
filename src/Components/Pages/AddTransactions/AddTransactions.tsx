@@ -285,6 +285,7 @@ const AddTransactions: FC<AddTransactionsProps> = ({ openFotm, setOpenForm }) =>
                                         <Field
                                             id='category'
                                             name='category'
+                                            disabled={values.action === ''}
                                             className={`w-full border-b border-gray-700 font-semibold  bg-transparent focus:outline-none`}
                                             as='select'
                                         >
@@ -303,7 +304,8 @@ const AddTransactions: FC<AddTransactionsProps> = ({ openFotm, setOpenForm }) =>
                                                         </option>
                                                     ))
                                                     :
-                                                    ''}
+                                                    ''
+                                            }
                                             <option value='addNewCategory'>Add Category</option>
                                         </Field>
                                     </div>}
