@@ -1,6 +1,5 @@
 import { useState, type FC, useEffect } from 'react';
 import bg from '../../../Assets/Login.jpg'
-import bg2 from '../../../Assets/bitcoin-6219345_1280.jpg'
 import icon from '../../../Assets/favicon1.png'
 import { ErrorMessage, Field, Form, Formik } from 'formik';
 import { FaEye, FaEyeSlash } from 'react-icons/fa';
@@ -78,7 +77,7 @@ const SignIn: FC<SignInProps> = () => {
             <p className='absolute top-2 right-4 z-10  text-white'>Don't have Account ? <span onClick={() => navigate('/signUp')} className='text-violet-800 font-bold cursor-pointer ml-1'> SignUp</span> </p>
             <div className='w-full h-full relative md:bg-transparent bg-black'>
                 <img className='md:block hidden w-full h-full' src={bg} alt="" />
-                <img className='block md:hidden w-full h-1/2 animate-pulse' src={bg2} alt="" />
+                {/* <img className='block md:hidden w-full h-1/2 animate-pulse' src={bg2} alt="" /> */}
                 <div className='md:w-[40%] w-full absolute top-20 right-0 px-10 md:px-4 md:mr-2'>
                     <Formik
                         initialValues={initialValues}

@@ -40,7 +40,7 @@ const AreaChart: FC<AreaChartProps> = ({ data }) => {
         height: 400, // Set the desired height of the chart
         width: 900, // Set the desired width of the chart
     };
-    console.log(data?.labels)
+    // console.log(data?.labels)
     const datas = {
         labels: data?.labels ? data?.labels : ['January', 'February', 'March', 'April', 'May'],
         datasets: [

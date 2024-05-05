@@ -14,18 +14,19 @@ interface RouterProps { }
 
 const Router: FC<RouterProps> = () => {
     return (
-            <Routes>
-                <Route path='/' element={<SignIn />} />
-                <Route path='/signUp' element={<SignUp />} />
-                <Route path='*' element={<PageNoteFound/>} />
-                <Route path='/home' element={<Home />}>
-                    <Route path='dashBoard' element={<Dashboard />} />
-                    <Route path='transactions' element={<Transactions />} />
-                    <Route path='Card&Accounts' element={<BankAccounts />} />
-                    <Route path='calculator' element={<Calculator />} />
-                    <Route path='investment' element={<Investment />} />
-                </Route>
-            </Routes>
+        <Routes>
+            <Route path='/' element={<SignIn />} />
+            <Route path='/signUp' element={<SignUp />} />
+            <Route path='*' element={<PageNoteFound />} />
+            <Route path='/home' element={<Home />}>
+                <Route path='dashBoard' element={<Dashboard />} />
+                <Route path='transactions' element={<Transactions />} />
+                <Route path='transactions/:filter' element={<Transactions />} />
+                <Route path='Card&Accounts' element={<BankAccounts />} />
+                <Route path='calculator' element={<Calculator />} />
+                <Route path='investment' element={<Investment />} />
+            </Route>
+        </Routes>
     );
 }
 

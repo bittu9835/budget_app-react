@@ -9,6 +9,7 @@ import emptyImg from '../../../Assets/empty.jpg'
 import PieChart from '../../Common/Charts/PiaChart';
 import DoughnutChart from '../../Common/Charts/DoughNutChart';
 import AreaChart from '../../Common/Charts/AreaChart';
+import { useNavigate } from 'react-router-dom';
 
 interface DashboardProps { }
 interface Transaction {
@@ -25,7 +26,7 @@ interface Transaction {
 
 const Dashboard: FC<DashboardProps> = () => {
 
-    const { render, setOpenForm,setfilterData } = useContext(DataContext);
+    const { render, setOpenForm } = useContext(DataContext);
     const [trasactions, setTrasactions] = useState<Transaction[]>()
     const [barGraphData, setBarGraphData] = useState<any>()
     const [expenceData, setExpenceData] = useState<any>()
@@ -35,6 +36,7 @@ const Dashboard: FC<DashboardProps> = () => {
     const [expenseAmount, setexpenseAmount] = useState<any>()
     const [isLoading, setIsLoading] = useState(true)
     const Balance = earningAmount - expenseAmount;
+    const navigate = useNavigate()
 
     const featchTransactions = async () => {
         try {
@@ -188,24 +190,24 @@ const Dashboard: FC<DashboardProps> = () => {
                             </div>
                             <p className='cursor-default text-sm text-skin-text-dashboard'>Total Balance</p>
                         </div>
-                        <div
-                            className=' w-full h-24 bg-skin-bg-dashboard flex flex-col items-center justify-center gap-2 shadow-md rounded-md'>
+                        <div onClick={() => navigate('/home/transactions/income')}
+                            className='cursor-pointer w-full h-24 bg-skin-bg-dashboard flex flex-col items-center justify-center gap-2 shadow-md rounded-md'>
                             <div className='cursor-default flex items-center font-sans gap-1 text-md font-medium sm:text-2xl text-green-500'>
                                 <span><BiRupee /></span>
                                 <span>{earningAmount?.toLocaleString()}</span>
                             </div>
                             <p className='cursor-default text-sm text-skin-text-dashboard'>Income</p>
                         </div>
-                        <div
-                            className=' w-full h-24 bg-skin-bg-dashboard flex flex-col items-center justify-center gap-2 shadow-md rounded-md'>
+                        <div onClick={() => navigate('/home/transactions/expence')}
+                            className='cursor-pointer w-full h-24 bg-skin-bg-dashboard flex flex-col items-center justify-center gap-2 shadow-md rounded-md'>
                             <div className='cursor-default flex items-center font-sans gap-1 text-md font-medium sm:text-2xl text-red-500'>
                                 <span><BiRupee /></span>
                                 <span>{expenseAmount?.toLocaleString()}</span>
                             </div>
                             <p className='cursor-default text-sm text-skin-text-dashboard'>Expence</p>
                         </div>
-                        <div
-                            className=' w-full h-24 bg-skin-bg-dashboard flex flex-col items-center justify-center gap-2 shadow-md rounded-md'>
+                        <div onClick={() => navigate('/home/transactions')}
+                            className='cursor-pointer w-full h-24 bg-skin-bg-dashboard flex flex-col items-center justify-center gap-2 shadow-md rounded-md'>
                             <div className='cursor-default font-sans text-md font-medium sm:text-2xl text-blue-400'>
                                 <span>{trasactions?.length}</span>
                             </div>
@@ -223,7 +225,7 @@ const Dashboard: FC<DashboardProps> = () => {
                         <div className='w-full shadow-md h-[450px] bg-skin-bg-dashboard rounded-lg p-2 font-sans'>
                             <h1 className='w-full self-start text-sm border-b pb-2'>Total Balance</h1>
                             <div className="w-full h-[400px] flex items-center justify-center">
-                                <AreaChart data={lineGraphData}/>
+                                <AreaChart data={lineGraphData} />
                             </div>
                         </div>
                     </div>
@@ -231,7 +233,7 @@ const Dashboard: FC<DashboardProps> = () => {
                         <div className='w-full shadow-md h-[450px] bg-skin-bg-dashboard rounded-lg p-2 font-sans'>
                             <h1 className='w-full self-start text-sm border-b pb-2'>Income Category</h1>
                             <div className="w-full h-[400px] flex items-center justify-center">
-                                <DoughnutChart data={incomeData}/>
+                                <DoughnutChart data={incomeData} />
                             </div>
                         </div>
                         <div className='w-full shadow-md h-[450px] bg-skin-bg-dashboard rounded-lg p-2 font-sans'>

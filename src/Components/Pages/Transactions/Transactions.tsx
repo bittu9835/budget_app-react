@@ -8,6 +8,7 @@ import { DataContext } from '../../../Context/DataProvider';
 import http from '../../../Services/http/http';
 import { toast } from 'react-toastify';
 import emptyImg from '../../../Assets/empty.jpg'
+import { useParams } from 'react-router-dom';
 
 interface TransactionsProps { }
 
@@ -19,6 +20,7 @@ const Transactions: FC<TransactionsProps> = () => {
   const plasholder = ['Description', 'Category', 'payment Mode']
   const [placeholderIndex, setPlaceholderIndex] = useState(0);
   const [transactionData, setTransactionData] = useState<any>()
+  const { filter } = useParams();
 
 
   useEffect(() => {
@@ -88,6 +90,9 @@ const Transactions: FC<TransactionsProps> = () => {
     }
     if (filterData) {
       data.filterData = filterData
+    }
+    if (filter !== undefined) {
+      data.filterData = filter
     }
     try {
       const response: any = await http({
