@@ -1,4 +1,4 @@
-import {  type FC, useContext } from 'react';
+import { type FC, useContext } from 'react';
 import { BsCashCoin, BsCreditCard2Back } from 'react-icons/bs'
 import { DataContext } from '../../../Context/DataProvider';
 import moment from 'moment';
@@ -6,12 +6,12 @@ import { MdAccountBalance } from 'react-icons/md'
 
 
 interface TableProps {
-    transactionData:any
+    transactionData: any
 }
 
 const Table: FC<TableProps> = ({ transactionData }) => {
     const { selectedTransaction, setSelectedTransaction } = useContext(DataContext);
-    
+
     // const [hideChecBox, setHideChecBox] = useState(false)
 
     const handleCheckboxChange = (item: any) => {
@@ -29,10 +29,10 @@ const Table: FC<TableProps> = ({ transactionData }) => {
             setSelectedTransaction([])
         }
     }
- 
+
     return (
         <div className="w-full h-full overflow-y-auto shadow-md">
-            <div className="shadow-md lg:block hidden">
+            <div className="shadow-md md:block hidden">
                 <table className="w-full relative text-sm text-left text-gray-500 ">
                     <thead className="text-xs text-gray-700 uppercase bg-gray-50 ">
                         <tr>
@@ -99,7 +99,7 @@ const Table: FC<TableProps> = ({ transactionData }) => {
                     </tbody>
                 </table>
             </div>
-            <div className='w-full h-full rounded-lg lg:hidden block  text-sm text-left text-gray-700'>
+            <div className='w-full h-full rounded-lg md:hidden block  text-sm text-left text-gray-700'>
                 <div className={` w-full bg-gray-200 h-10 flex items-center`}>
                     <span className="p-4">
                         <div className="flex gap-3 items-center">
@@ -116,9 +116,9 @@ const Table: FC<TableProps> = ({ transactionData }) => {
                 </div>
                 {transactionData?.map((item: any) =>
                     <div
-                    //  onClick={() => setHideChecBox(true)}
-                    onDoubleClick={() => handleCheckboxChange(item)}
-                     key={item._id} className='flex justify-between border-b p-2'>
+                        //  onClick={() => setHideChecBox(true)}
+                        onDoubleClick={() => handleCheckboxChange(item)}
+                        key={item._id} className='flex justify-between border-b p-2'>
                         <div className='flex items-center gap-2'>
                             <span className="w-4">
                                 <div className="flex items-center">
