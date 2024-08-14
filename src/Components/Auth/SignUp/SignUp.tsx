@@ -8,6 +8,7 @@ import * as Yup from 'yup';
 import { useNavigate } from 'react-router-dom';
 import http from '../../../Services/http/http';
 import { toast } from 'react-toastify';
+import GoogleLoginButton from '../GoogleLogin';
 
 interface SignUpProps { }
 
@@ -92,10 +93,12 @@ const SignUp: FC<SignUpProps> = () => {
                                     <div className="w-4 h-4  border-t-2  border-r-0 border-b-0 border-red-500 border-solid rounded-full animate-spin"></div>
                                 </div>
                                 :
-
-                                <div className=' w-full h-[2.25rem] mt-7 rounded-md shadow-md'>
-                                    <button type='submit' className='bg-green-600 text-white rounded-md w-full h-full font-extrabold'>SignUp</button>
-                                </div>}
+                                <>
+                                    <div className=' w-full h-[2.25rem] mt-7 rounded-md shadow-md mb-2'>
+                                        <button type='submit' className='bg-green-600 text-white rounded-md w-full h-full font-extrabold'>SignUp</button>
+                                    </div>
+                                    <GoogleLoginButton />
+                                </>}
                         </Form>
                     </Formik>
                 </div>

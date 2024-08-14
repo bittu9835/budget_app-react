@@ -9,8 +9,8 @@ import http from '../../../Services/http/http';
 import { toast } from 'react-toastify';
 import emptyImg from '../../../Assets/empty.jpg'
 import { useParams } from 'react-router-dom';
-import { VscSettings } from "react-icons/vsc";
-import Filter from './Filter';
+// import { VscSettings } from "react-icons/vsc";
+// import Filter from './Filter';
 
 interface TransactionsProps { }
 
@@ -167,10 +167,10 @@ const Transactions: FC<TransactionsProps> = () => {
                     <span> Delete</span>
                   </div>
                 }
-                <div className={` px-2 py-1 flex items-center gap-2 cursor-pointer rounded-sm hover:bg-gray-300`}>
+                {/* <div className={` px-2 py-1 flex items-center gap-2 cursor-pointer rounded-sm hover:bg-gray-300`}>
                   <VscSettings className='text-xl' />
                   <span>Filter</span>
-                </div>
+                </div> */}
               </div>
             </div>
           </div>
@@ -178,9 +178,9 @@ const Transactions: FC<TransactionsProps> = () => {
             <div className='rounded-b-lg mb-2 w-full'>
               <Table transactionData={transactionData} />
             </div>
-            <div className='w-[300px] min-w-[300px]'>
+            {/* <div className='w-[300px] min-w-[300px]'>
               <Filter />
-            </div>
+            </div> */}
           </div>
         </>}
     </div >
