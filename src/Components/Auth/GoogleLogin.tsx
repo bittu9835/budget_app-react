@@ -1,17 +1,8 @@
 import React, { FC } from 'react';
 import { GoogleOAuthProvider, GoogleLogin, CredentialResponse } from '@react-oauth/google';
-import { decodeToken } from 'react-jwt';
 import { toast } from 'react-toastify';
 import { useNavigate } from 'react-router-dom';
 import http from '../../Services/http/http';
-
-interface GoogleUser {
-    email: string;
-    name: string;
-    picture: string;
-    jti: string;
-    // Add other fields as needed
-}
 
 interface GoogleLoginButtonProps {
 
@@ -24,11 +15,7 @@ const GoogleLoginButton: FC<GoogleLoginButtonProps> = () => {
     const handleSuccess = async (response: CredentialResponse) => {
         const result = response.credential;
         if (result) {
-            const userObject = decodeToken(result) as GoogleUser; // Decoding the JWT
-            console.log('Google User Details:', userObject);
-
             try {
-                console.log('result', result);
                 const backendResponse = await http({
                     url: `/google/google_login`,
                     method: 'post',
