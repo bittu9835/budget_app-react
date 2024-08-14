@@ -97,7 +97,7 @@ const SignUp: FC<SignUpProps> = () => {
                                     <div className=' w-full h-[2.25rem] mt-7 rounded-md shadow-md mb-2'>
                                         <button type='submit' className='bg-green-600 text-white rounded-md w-full h-full font-extrabold'>SignUp</button>
                                     </div>
-                                    <GoogleLoginButton />
+                                    <GoogleLoginButton setIsLoading={setIsLoading} />
                                 </>}
                         </Form>
                     </Formik>
