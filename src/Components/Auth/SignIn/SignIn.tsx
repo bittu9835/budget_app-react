@@ -43,7 +43,7 @@ const SignIn: FC<SignInProps> = () => {
                 data: values
             });
             if (response?.data?.code === 'SUCCESS_200') {
-                sessionStorage.setItem('token', response.data.data.token);
+                sessionStorage.setItem('token', response.data.data.jwtToken);
                 sessionStorage.setItem('userDetails', JSON.stringify(response.data.data.userDetail))
                 toast.success(response?.data?.message);
                 setTimeout(() => {
@@ -114,7 +114,7 @@ const SignIn: FC<SignInProps> = () => {
                                         <div className=' w-full h-[2.25rem] mt-7 rounded-md shadow-md mb-2'>
                                             <button type='submit' className='bg-green-600 hover:bg-green-500 active:bg-green-600 text-white rounded-md w-full h-full font-extrabold transition ease-in-out duration-150'>Login</button>
                                         </div>
-                                        <GoogleLoginButton setIsLoading={setIsLoading} />
+                                        <GoogleLoginButton />
                                     </>
                                 }
 

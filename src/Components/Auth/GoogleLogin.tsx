@@ -3,6 +3,7 @@ import { GoogleOAuthProvider, GoogleLogin, CredentialResponse } from '@react-oau
 import { decodeToken } from 'react-jwt';
 import { toast } from 'react-toastify';
 import { useNavigate } from 'react-router-dom';
+import http from '../../Services/http/http';
 
 interface GoogleUser {
     email: string;
@@ -13,29 +14,50 @@ interface GoogleUser {
 }
 
 interface GoogleLoginButtonProps {
-    setIsLoading: React.Dispatch<React.SetStateAction<boolean>>
+
 }
 
-const GoogleLoginButton: FC<GoogleLoginButtonProps> = ({ setIsLoading }) => {
+const GoogleLoginButton: FC<GoogleLoginButtonProps> = () => {
     const clientId = '62900804960-n7pcro85gqfibr4m6tbv88mhq4ok32p0.apps.googleusercontent.com'; // Replace with your Google Client ID
-    const navigate = useNavigate()
-    const handleSuccess = (response: CredentialResponse) => {
-        if (response.credential) {
-            const userObject = decodeToken(response.credential) as GoogleUser; // Decoding the JWT
+    const navigate = useNavigate();
+
+    const handleSuccess = async (response: CredentialResponse) => {
+        const result = response.credential;
+        if (result) {
+            const userObject = decodeToken(result) as GoogleUser; // Decoding the JWT
             console.log('Google User Details:', userObject);
-            // Handle the login response (e.g., save user details to state or send to backend)
-            sessionStorage.setItem('token', userObject.jti);
-            sessionStorage.setItem('userDetails', JSON.stringify({ name: userObject.name, email: userObject.email }))
-            toast.success('User Loged In');
-            navigate('home/dashBoard');
-            setIsLoading(false)
+
+            try {
+                console.log('result', result);
+                const backendResponse = await http({
+                    url: `/google/google_login`,
+                    method: 'post',
+                    data: JSON.stringify({ token: result }),
+                });
+
+                if (backendResponse?.data?.code === 'SUCCESS_200') {
+                    sessionStorage.setItem('token', backendResponse.data.data.jwtToken);
+                    sessionStorage.setItem('userDetails', JSON.stringify(backendResponse.data.data.user));
+                    toast.success(backendResponse?.data?.message);
+                    setTimeout(() => {
+                        navigate('home/dashBoard');
+                    }, 1000);
+                } else {
+                    toast.error(backendResponse?.data?.message);
+                }
+            } catch (error: any) {
+                console.error('Error during login:', error);
+                toast.warn(error?.response?.data?.message || 'Google login failed.');
+            }
         } else {
             console.error('No credential returned from Google');
+            toast.error('Google Login Failed');
         }
     };
 
     const handleError = () => {
         console.error('Google Login Failed');
+        toast.error('Google Login Failed');
     };
 
     return (
