@@ -19,7 +19,7 @@ const GoogleLoginButton: FC<GoogleLoginButtonProps> = () => {
                 const backendResponse = await http({
                     url: `/google/google_login`,
                     method: 'post',
-                    data: JSON.stringify({ token: result }),
+                    data: { token: result },
                 });
 
                 if (backendResponse?.data?.code === 'SUCCESS_200') {
