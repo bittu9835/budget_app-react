@@ -9,7 +9,7 @@ interface GoogleLoginButtonProps {
 }
 
 const GoogleLoginButton: FC<GoogleLoginButtonProps> = () => {
-    const clientId = '62900804960-n7pcro85gqfibr4m6tbv88mhq4ok32p0.apps.googleusercontent.com'; // Replace with your Google Client ID
+    const clientId = process.env.REACT_APP_GOOGLE_CLIENT_ID || '';
     const navigate = useNavigate();
 
     const handleSuccess = async (response: CredentialResponse) => {

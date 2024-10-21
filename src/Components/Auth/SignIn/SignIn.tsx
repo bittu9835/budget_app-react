@@ -38,7 +38,7 @@ const SignIn: FC<SignInProps> = () => {
         setIsLoading(true)
         try {
             const response: any = await http({
-                url: `/auth/login`,
+                url: "/auth/login",
                 method: 'post',
                 data: values
             });
