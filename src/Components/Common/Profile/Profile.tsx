@@ -13,7 +13,7 @@ const Profile: FC<ProfileProps> = () => {
 
 
     const logout = () => {
-        sessionStorage.clear()
+        localStorage.clear()
         setProfileToggle(false)
         nevigate('/')
     }

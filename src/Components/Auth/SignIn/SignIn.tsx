@@ -43,8 +43,8 @@ const SignIn: FC<SignInProps> = () => {
                 data: values
             });
             if (response?.data?.code === 'SUCCESS_200') {
-                sessionStorage.setItem('token', response.data.data.jwtToken);
-                sessionStorage.setItem('userDetails', JSON.stringify(response.data.data.userDetail))
+                localStorage.setItem('token', response.data.data.jwtToken);
+                localStorage.setItem('userDetails', JSON.stringify(response.data.data.userDetail))
                 toast.success(response?.data?.message);
                 setTimeout(() => {
                     navigate('home/dashBoard');

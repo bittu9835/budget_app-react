@@ -9,7 +9,7 @@ type optionsType = {
     params?: {}
 }
 const assignToken = (options: optionsType) => {
-    let tokenObj = { token: sessionStorage.getItem('token') };
+    let tokenObj = { token: localStorage.getItem('token') };
     options.headers ? Object.assign(options.headers, tokenObj) : Object.assign(options, { headers: tokenObj });
     return options;
 }

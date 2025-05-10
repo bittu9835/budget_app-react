@@ -23,8 +23,8 @@ const GoogleLoginButton: FC<GoogleLoginButtonProps> = () => {
                 });
 
                 if (backendResponse?.data?.code === 'SUCCESS_200') {
-                    sessionStorage.setItem('token', backendResponse.data.data.jwtToken);
-                    sessionStorage.setItem('userDetails', JSON.stringify(backendResponse.data.data.user));
+                    localStorage.setItem('token', backendResponse.data.data.jwtToken);
+                    localStorage.setItem('userDetails', JSON.stringify(backendResponse.data.data.user));
                     toast.success(backendResponse?.data?.message);
                     setTimeout(() => {
                         navigate('home/dashBoard');

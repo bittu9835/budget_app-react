@@ -12,7 +12,7 @@ interface HomeProps { }
 const Home: FC<HomeProps> = () => {
     const navigate = useNavigate();
     const { setProfileToggle,openFotm,setOpenForm, theme} = useContext(DataContext)
-    let login = sessionStorage.getItem('token');
+    let login = localStorage.getItem('token');
     useEffect(() => {
         if (!login) {
             navigate('/')

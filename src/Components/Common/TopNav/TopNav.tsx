@@ -9,7 +9,7 @@ import { FaPlus } from 'react-icons/fa';
 
 interface TopNavProps { }
 const TopNav: FC<TopNavProps> = () => {
-    const userDetails = JSON.parse(sessionStorage.getItem('userDetails') || '{}');
+    const userDetails = JSON.parse(localStorage.getItem('userDetails') || '{}');
     const { pathname } = useLocation();
     const pageTitle = pathname?.split('/')?.[2]?.charAt(0)?.toUpperCase() + pathname?.split('/')?.[2]?.slice(1)
     const navigate = useNavigate()

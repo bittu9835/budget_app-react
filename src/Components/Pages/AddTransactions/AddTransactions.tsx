@@ -74,6 +74,7 @@ const AddTransactions: FC<AddTransactionsProps> = ({ openFotm, setOpenForm }) =>
     });
 
     const handleSubmit = async (values: any, { resetForm }: any) => {
+        console.log(values,'values');
         if (transactionForEdit !== null) {
             setIsButtonLoading(true)
             if (values.paymentMethod === 'Cash') {
