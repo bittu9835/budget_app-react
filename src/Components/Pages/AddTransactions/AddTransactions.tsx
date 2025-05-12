@@ -38,7 +38,6 @@ const AddTransactions: FC<AddTransactionsProps> = ({ openFotm, setOpenForm }) =>
     const [cardDetail, setCardDetail] = useState<AccountDetails[] | null>(null)
     // const [isLoading, setIsLoading] = useState(true)
     const navigate = useNavigate()
-
     const paymentMethods = ['Cash', 'Account', 'Card'];
 
     const handleNavigateAccount = () => {
