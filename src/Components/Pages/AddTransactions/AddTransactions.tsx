@@ -40,6 +40,7 @@ const AddTransactions: FC<AddTransactionsProps> = ({ openFotm, setOpenForm }) =>
     const navigate = useNavigate()
     const paymentMethods = ['Cash', 'Account', 'Card'];
 
+
     const handleNavigateAccount = () => {
         setOpenForm(false)
         settransactionForEdit(null)

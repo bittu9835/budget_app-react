@@ -61,9 +61,8 @@ const SignUp: FC<SignUpProps> = () => {
     return (
         <div className='w-screen h-screen relative'>
             <p className='absolute top-2 right-4 z-10  text-white'>Already have Account ? <span onClick={() => navigate('/')} className='text-violet-800 font-bold cursor-pointer ml-1'> SignIn</span> </p>
-            <div className='w-full h-full relative md:bg-transparent bg-black'>
+            <div className='w-full h-full relative md:bg-transparent bg-gradient-to-r from-purple-500 to-blue-500'>
                 <img className='md:block hidden w-full h-full' src={bg} alt="" />
-                <img className='block md:hidden w-full h-1/2 animate-pulse' src={bg2} alt="" />
                 <div className='md:w-[40%] w-full absolute top-20 right-0 px-10 md:px-4 md:mr-2'>
                     <Formik
                         initialValues={initialValues}
@@ -95,7 +94,7 @@ const SignUp: FC<SignUpProps> = () => {
                                 :
                                 <>
                                     <div className=' w-full h-[2.25rem] mt-7 rounded-md shadow-md mb-2'>
-                                        <button type='submit' className='bg-green-600 text-white rounded-md w-full h-full font-extrabold'>SignUp</button>
+                                        <button type='submit' className='bg-gradient-to-r from-green-500  to-green-700 text-white rounded-md w-full h-full font-extrabold transition ease-in-out duration-150'>SignUp</button>
                                     </div>
                                     <GoogleLoginButton />
                                 </>}
