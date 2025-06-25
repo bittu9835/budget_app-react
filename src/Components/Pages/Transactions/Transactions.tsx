@@ -9,13 +9,14 @@ import http from '../../../Services/http/http';
 import { toast } from 'react-toastify';
 import emptyImg from '../../../Assets/empty.jpg'
 import { useParams } from 'react-router-dom';
+import { db } from '../../../db';
 // import { VscSettings } from "react-icons/vsc";
 // import Filter from './Filter';
 
 interface TransactionsProps { }
 
 const Transactions: FC<TransactionsProps> = () => {
-  const { setOpenForm, setRender, render, settransactionForEdit, selectedTransaction, setSelectedTransaction, filterData } = useContext(DataContext)
+  const { setOpenForm, setRender, render, settransactionForEdit, selectedTransaction, setSelectedTransaction, filterData,dbStatus } = useContext(DataContext)
   const [isLoading, setIsLoading] = useState(true)
   const [isLoadingButton, setIsLoadingButton] = useState(false)
   const [searchValue, setSearchValue] = useState<string>('')
@@ -34,97 +35,140 @@ const Transactions: FC<TransactionsProps> = () => {
   }, []);
 
 
+  // const deleteTransaction = async () => {
+  //   if (selectedTransaction?.length > 0) {
+  //     setIsLoadingButton(true)
+  //     try {
+  //       const response: any = await http({
+  //         url: `/transaction/deleteTransaction`,
+  //         method: 'delete',
+  //         data: selectedTransaction
+  //       });
+  //       if (response?.data?.code === 'SUCCESS_200') {
+  //         setRender(!render)
+  //         setSelectedTransaction([])
+  //         toast.success(response?.data?.message);
+  //         setIsLoadingButton(false)
+  //       } else {
+  //         toast.error(response?.data?.message);
+  //       }
+  //     } catch (error: any) {
+  //       setIsLoadingButton(false)
+  //       if (error.response && error.response.data && error.response.data.message) {
+  //         toast.error(error?.response?.data?.message);
+  //       } else {
+  //         toast.error('Error fetching Transactions.');
+  //       }
+  //     }
+  //   }
+  // }
+
   const deleteTransaction = async () => {
+    // await db.transactions.clear();
+    console.log(selectedTransaction, 'selectedTransaction')
     if (selectedTransaction?.length > 0) {
-      setIsLoadingButton(true)
       try {
-        const response: any = await http({
-          url: `/transaction/deleteTransaction`,
-          method: 'delete',
-          data: selectedTransaction
-        });
-        if (response?.data?.code === 'SUCCESS_200') {
-          setRender(!render)
-          setSelectedTransaction([])
-          toast.success(response?.data?.message);
-          setIsLoadingButton(false)
-        } else {
-          toast.error(response?.data?.message);
+        for (const transaction of selectedTransaction) {
+          // Instead of deleting, mark as deleted and unsynced
+          await db.transactions.update(transaction.id, {
+            data: { ...transaction.data, deleted: true, synced: false }
+          });
         }
+        toast.success('Transaction deleted successfully');
+        setRender(!render)
+        setSelectedTransaction([])
       } catch (error: any) {
-        setIsLoadingButton(false)
-        if (error.response && error.response.data && error.response.data.message) {
-          toast.error(error?.response?.data?.message);
-        } else {
-          toast.error('Error fetching Transactions.');
-        }
+        toast.error('Error deleting Transaction.');
       }
     }
   }
 
+  // const editTransaction = async () => {
+  //   if (selectedTransaction?.length === 1) {
+  //     try {
+  //       const response: any = await http({
+  //         url: `/transaction/getTransactionsForEdit`,
+  //         method: 'get',
+  //         data: selectedTransaction[0]
+  //       });
+  //       if (response?.data?.code === 'SUCCESS_200') {
+  //         settransactionForEdit(response?.data?.data)
+  //         setOpenForm(true)
+  //       } else {
+  //         toast.error(response?.data?.message);
+  //       }
+  //     } catch (error: any) {
+  //       if (error.response && error.response.data && error.response.data.message) {
+  //         toast.error(error?.response?.data?.message);
+  //       } else {
+  //         toast.error('Error fetching Transactions.');
+  //       }
+  //     }
+  //   }
+  // }
+
   const editTransaction = async () => {
     if (selectedTransaction?.length === 1) {
-      try {
-        const response: any = await http({
-          url: `/transaction/getTransactionsForEdit`,
-          method: 'get',
-          data: selectedTransaction[0]
-        });
-        if (response?.data?.code === 'SUCCESS_200') {
-          settransactionForEdit(response?.data?.data)
-          setOpenForm(true)
-        } else {
-          toast.error(response?.data?.message);
-        }
-      } catch (error: any) {
-        if (error.response && error.response.data && error.response.data.message) {
-          toast.error(error?.response?.data?.message);
-        } else {
-          toast.error('Error fetching Transactions.');
-        }
+      const transaction = await db.transactions.get(selectedTransaction[0].id);
+      if (transaction) {
+        settransactionForEdit(transaction.data)
+        setOpenForm(true)
       }
     }
   }
 
   const fetchTransactions = async () => {
-    let data: any = {
-      search: searchValue
-    }
-    if (filterData) {
-      data.filterData = filterData
-    }
-    if (filter !== undefined) {
-      data.filterData = filter
-    }
-    try {
-      const response: any = await http({
-        url: `/transaction/getTransaction`,
-        method: 'get',
-        data
-      });
-      if (response?.data?.code === 'SUCCESS_200') {
-        setTransactionData(response?.data?.data)
-        setTimeout(() => {
-          setIsLoading(false)
-        }, 500);
-      } else {
-        toast.error(response?.data?.message);
-      }
-    } catch (error: any) {
-      if (error.response && error.response.data && error.response.data.message) {
-        toast.error(error?.response?.data?.message);
-      } else {
-        toast.error('Error fetching Transactions.');
-      }
-    }
+    const allTransactions = await db.transactions.toArray();
+    console.log(allTransactions, 'allTransactions')
+    const transactions = allTransactions.filter(txn => txn.data?.deleted !== true);
+    console.log(transactions, 'transactions')
+    setTransactionData(transactions.map((transaction: any) => ({ ...transaction.data, id: transaction.data._id })));
+    setIsLoading(false)
   }
 
+  // const fetchDBTransactions = async () => {
+  //   let data: any = {
+  //     search: searchValue
+  //   }
+  //   if (filterData) {
+  //     data.filterData = filterData
+  //   }
+  //   if (filter !== undefined) {
+  //     data.filterData = filter
+  //   }
+  //   try {
+  //     const response: any = await http({
+  //       url: `/transaction/getTransaction`,
+  //       method: 'get',
+  //       data
+  //     });
+  //     console.log(response, 'response')
+  //     if (response?.data?.code === 'SUCCESS_200') {
+  //       setTransactionData(response?.data?.data.map((transaction: any) => ({ ...transaction, id: transaction._id })))
+  //       console.log(transactionData, 'transactionData')
+  //       setTimeout(() => {
+  //         setIsLoading(false)
+  //       }, 500);
+  //     } else {
+  //       toast.error(response?.data?.message);
+  //     }
+  //   } catch (error: any) {
+  //     if (error.response && error.response.data && error.response.data.message) {
+  //       toast.error(error?.response?.data?.message);
+  //     } else {
+  //       toast.error('Error fetching Transactions.');
+  //     }
+  //   }
+  // }
+
   useEffect(() => {
-    fetchTransactions()
+    // if (dbStatus && searchValue) {
+    //   fetchDBTransactions()
+    // } else {
+      fetchTransactions()
+    // }
     // eslint-disable-next-line 
   }, [render, searchValue])
-
-
 
   return (
     <div className="w-full h-full relative bg-gray-50 overflow-auto scrollbar-none px-2">

@@ -1,14 +1,21 @@
-import React, { useState, useEffect } from 'react';
-import { FaUser, FaDatabase, FaCog } from 'react-icons/fa';
+import React, { useState, useEffect, useContext } from 'react';
+import { FaUser, FaDatabase, FaCog, FaSync } from 'react-icons/fa';
 import http from '../../../Services/http/http';
 import { ImConnection } from 'react-icons/im';
 import { MdSignalWifiStatusbarConnectedNoInternet } from 'react-icons/md';
+import { DataContext } from '../../../Context/DataProvider';
+import { db } from '../../../db';
+import { toast } from 'react-toastify';
 
 function Settings() {
   const [activeSection, setActiveSection] = useState('profile');
-  const [dbStatus, setDbStatus] = useState<boolean | null>(null);
   const [loading, setLoading] = useState(false);
+  const [syncing, setSyncing] = useState(false);
+  const [syncProgress, setSyncProgress] = useState(0);
+  const [unsyncedCount, setUnsyncedCount] = useState(0);
   const userDetails = JSON.parse(localStorage.getItem('userDetails') || '{}');
+  const { dbStatus, setDbStatus, setRender } = useContext(DataContext);
+
   const checkDatabaseConnection = async () => {
     setLoading(true);
     try {
@@ -21,6 +28,9 @@ function Settings() {
       });
       if (response?.data?.code === 'SUCCESS_200') {
         setDbStatus(true);
+        setTimeout(() => {
+          setLoading(false);
+        }, 2000);
       } else {
         setDbStatus(false);
       }
@@ -32,14 +42,90 @@ function Settings() {
     }
   };
 
+  const getUnsyncedTransactions = async () => {
+    const transactions = await db.transactions.toArray();
+    const unsynced = transactions.filter(t => !t.data.synced);
+    // console.log(unsynced, 'unsynced', transactions);
+    setUnsyncedCount(unsynced.length);
+    return unsynced;
+  };
+
+  const syncTransactions = async () => {
+    if (!dbStatus) {
+      toast.error('Please check your database connection');
+      return;
+    }
+
+    setSyncing(true);
+    const unsyncedTransactions = await getUnsyncedTransactions();
+    let syncedCount = 0;
+    for (const transaction of unsyncedTransactions) {
+      try {
+        if (transaction.data.deleted) {
+          // Handle deleted transaction
+          console.log(transaction.data, 'deleteTransaction');
+          const response: any = await http({
+            url: `/transaction/deleteTransaction`,
+            method: 'delete',
+            data: [transaction.data.id] // Backend expects an array of _id
+          });
+
+          if (response?.data?.code === 'SUCCESS_200') {
+            // Remove from IndexedDB after successful sync
+            await db.transactions.delete(transaction.id);
+            syncedCount++;
+            setSyncProgress((syncedCount / unsyncedTransactions.length) * 100);
+          }
+        } else if (transaction.data.edited) {
+          console.log(transaction.data, 'editTransactions');
+          // Handle new/updated transaction
+          const response: any = await http({
+            url: `/transaction/editTransactions`,
+            method: 'put',
+            data: transaction.data
+          });
+        } else {
+          // Handle new/updated transaction
+          const response: any = await http({
+            url: `/transaction/addTransaction`,
+            method: 'post',
+            data: transaction.data
+          });
+          if (response?.data?.code === 'SUCCESS_200') {
+            // Update sync status in IndexedDB
+            
+            await db.transactions.update(transaction.id, {
+              data: { ...transaction.data, synced: true }
+            });
+           
+            syncedCount++;
+            setSyncProgress((syncedCount / unsyncedTransactions.length) * 100);
+          }
+        }
+      } catch (error: any) {
+        toast.error(`Failed to sync transaction: ${error.message}`);
+      }
+    }
+
+    if (syncedCount > 0) {
+      toast.success(`Successfully synced ${syncedCount} transactions`);
+      setRender(prev => !prev);
+    }
+    setSyncing(false);
+    setSyncProgress(0);
+    getUnsyncedTransactions();
+  };
+
   useEffect(() => {
     checkDatabaseConnection();
+    getUnsyncedTransactions();
     // eslint-disable-next-line
   }, []);
 
   const settingsSections = [
     { id: 'profile', name: 'Profile Settings', icon: <FaUser className="w-5 h-5" /> },
     { id: 'database', name: 'Database Status', icon: <FaDatabase className="w-5 h-5" /> },
+    { id: 'sync', name: 'Sync Data', icon: <FaSync className="w-5 h-5" /> },
     { id: 'general', name: 'General Settings', icon: <FaCog className="w-5 h-5" /> },
   ];
 
@@ -100,6 +186,40 @@ function Settings() {
             </div>
           </div>
         );
+      case 'sync':
+        return (
+          <div className="space-y-4">
+            <h3 className="text-lg font-semibold">Sync Data</h3>
+            <div className="space-y-4">
+              <div className="flex items-center justify-between">
+                <span className="font-medium">Unsynced Transactions:</span>
+                <span className="text-blue-600 font-semibold">{unsyncedCount}</span>
+              </div>
+
+              {syncing && (
+                <div className="w-full bg-gray-200 rounded-full h-2.5">
+                  <div
+                    className="bg-blue-600 h-2.5 rounded-full transition-all duration-300"
+                    style={{ width: `${syncProgress}%` }}
+                  ></div>
+                </div>
+              )}
+
+              <div className='flex justify-center mt-4'>
+                <button
+                  onClick={syncTransactions}
+                  disabled={syncing || !dbStatus || unsyncedCount === 0}
+                  className={`px-4 py-2 text-sm font-medium text-white rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 ${syncing || !dbStatus || unsyncedCount === 0
+                      ? 'bg-gray-400 cursor-not-allowed'
+                      : 'bg-blue-500 hover:bg-blue-600'
+                    }`}
+                >
+                  {syncing ? 'Syncing...' : 'Sync Now'}
+                </button>
+              </div>
+            </div>
+          </div>
+        );
       case 'general':
         return (
           <div className="space-y-4">
@@ -142,8 +262,8 @@ function Settings() {
                     key={section.id}
                     onClick={() => setActiveSection(section.id)}
                     className={`w-full flex items-center space-x-3 px-3 py-2 rounded-md ${activeSection === section.id
-                        ? 'bg-blue-50 text-blue-600'
-                        : 'text-gray-600 hover:bg-gray-50'
+                      ? 'bg-blue-50 text-blue-600'
+                      : 'text-gray-600 hover:bg-gray-50'
                       }`}
                   >
                     {section.icon}

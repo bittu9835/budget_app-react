@@ -1,6 +1,20 @@
-import Dexie from 'dexie';
+// dexie-db.ts
+import Dexie, { Table } from 'dexie';
 
-export const db = new Dexie("OfflineFormDB");
-db.version(1).stores({
-  forms: "++id, formId, data, timestamp"
-});
+export interface Transaction {
+  id: string;
+  data: any;  
+} 
+
+export class OfflineDB extends Dexie {
+  transactions!: Table<Transaction, string>;
+
+  constructor() {
+    super("OfflineAppDB");
+    this.version(1).stores({
+      transactions: "id, data"
+    });
+  }
+}
+
+export const db = new OfflineDB();

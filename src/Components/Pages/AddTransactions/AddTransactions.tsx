@@ -8,6 +8,7 @@ import { toast } from 'react-toastify';
 import { DataContext } from '../../../Context/DataProvider';
 import { useNavigate } from 'react-router-dom';
 import AddTransaction2 from './AddTransaction2';
+import { db } from '../../../db';
 // import Loader from '../../Common/Loader/Loader';
 
 interface AddTransactionsProps {
@@ -30,12 +31,13 @@ interface AccountDetails {
 }
 
 const AddTransactions: FC<AddTransactionsProps> = ({ openFotm, setOpenForm }) => {
-    const { render, setRender, transactionForEdit, settransactionForEdit, setSelectedTransaction }: any = useContext(DataContext);
+    const { render, setRender, transactionForEdit, settransactionForEdit, setSelectedTransaction, dbStatus }: any = useContext(DataContext);
     const [isButtonLoading, setIsButtonLoading] = useState(false)
     const [categoryIncome, setCategoryIncome] = useState<any>()
     const [categoryExpence, setCategoryExpence] = useState<any>()
     const [accountDetail, setAccountDetail] = useState<AccountDetails[] | null>(null)
     const [cardDetail, setCardDetail] = useState<AccountDetails[] | null>(null)
+
     // const [isLoading, setIsLoading] = useState(true)
     const navigate = useNavigate()
     const paymentMethods = ['Cash', 'Account', 'Card'];
@@ -73,9 +75,17 @@ const AddTransactions: FC<AddTransactionsProps> = ({ openFotm, setOpenForm }) =>
         newCategory: Yup.string()
     });
 
+    const generateUniqueId = () => {
+        return crypto.randomUUID ? crypto.randomUUID() : 'id-' + Date.now() + '-' + Math.random().toString(36).substr(2, 9);
+    };
+
     const handleSubmit = async (values: any, { resetForm }: any) => {
-        console.log(values,'values');
         if (transactionForEdit !== null) {
+            if (!dbStatus) {
+                toast.error('Please check your database connection');
+                return;
+            }
+
             setIsButtonLoading(true)
             if (values.paymentMethod === 'Cash') {
                 values['from'] = 'Cash';
@@ -83,29 +93,41 @@ const AddTransactions: FC<AddTransactionsProps> = ({ openFotm, setOpenForm }) =>
             if (values.category === 'addNewCategory') {
                 values['category'] = values.newCategory;
             }
-            values['_id'] = transactionForEdit?._id
-
-            try {
-                const response: any = await http({
-                    url: `/transaction/editTransactions`,
-                    method: 'put',
-                    data: values
-                });
-                if (response?.data?.code === 'SUCCESS_200') {
-                    toast.success(response?.data?.message);
-                    settransactionForEdit(null)
-                    setSelectedTransaction([])
-                    setIsButtonLoading(false)
-                    setRender(!render)
-                    setOpenForm(false)
-                    resetForm();
-                } else {
-                    toast.error(response?.data?.message);
-                }
-            } catch (error: any | unknown) {
-                toast.error(error?.message);
-                setIsButtonLoading(false)
-            }
+            values['_id'] = transactionForEdit?.id
+            values['synced'] = false
+            values['deleted'] = false
+            values['edited'] = true
+            await db.transactions.update(transactionForEdit?.id, {
+                data: values
+            });
+            toast.success('Transaction updated successfully');
+            settransactionForEdit(null)
+            setSelectedTransaction([])
+            setIsButtonLoading(false)
+            setRender(!render)
+            setOpenForm(false)
+            resetForm();
+            // try {
+            //     const response: any = await http({
+            //         url: `/transaction/editTransactions`,
+            //         method: 'put',
+            //         data: values
+            //     });
+            //     if (response?.data?.code === 'SUCCESS_200') {
+            //         toast.success(response?.data?.message);
+            //         settransactionForEdit(null)
+            //         setSelectedTransaction([])
+            //         setIsButtonLoading(false)
+            //         setRender(!render)
+            //         setOpenForm(false)
+            //         resetForm();
+            //     } else {
+            //         toast.error(response?.data?.message);
+            //     }
+            // } catch (error: any | unknown) {
+            //     toast.error(error?.message);
+            //     setIsButtonLoading(false)
+            // }
         } else {
             setIsButtonLoading(true)
             if (values.paymentMethod === 'Cash') {
@@ -114,25 +136,36 @@ const AddTransactions: FC<AddTransactionsProps> = ({ openFotm, setOpenForm }) =>
             if (values.category === 'addNewCategory') {
                 values['category'] = values.newCategory;
             }
-            try {
-                const response: any = await http({
-                    url: `/transaction/addTransaction`,
-                    method: 'post',
-                    data: values
-                });
-                if (response?.data?.code === 'SUCCESS_200') {
-                    toast.success(response?.data?.message);
-                    setIsButtonLoading(false)
-                    setRender(!render)
-                    setOpenForm(false)
-                    resetForm();
-                } else {
-                    toast.error(response?.data?.message);
-                }
-            } catch (error: any | unknown) {
-                toast.error(error?.message);
-                setIsButtonLoading(false)
-            }
+            values['synced'] = false
+            values['_id'] = generateUniqueId()
+            await db.transactions.add({
+                id: values['_id'],
+                data: values
+            });
+            toast.success('Transaction added successfully');
+            setIsButtonLoading(false)
+            setRender(!render)
+            setOpenForm(false)
+            resetForm();
+            // try {
+                // const response: any = await http({
+                //     url: `/transaction/addTransaction`,
+                //     method: 'post',
+                //     data: values
+                // });
+            //     if (response?.data?.code === 'SUCCESS_200') {
+            //         toast.success(response?.data?.message);
+            //         setIsButtonLoading(false)
+            //         setRender(!render)
+            //         setOpenForm(false)
+            //         resetForm();
+            //     } else {
+            //         toast.error(response?.data?.message);
+            //     }
+            // } catch (error: any | unknown) {
+            //     toast.error(error?.message);
+            //     setIsButtonLoading(false)
+            // }
         }
     };
 

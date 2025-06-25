@@ -15,21 +15,20 @@ const Table: FC<TableProps> = ({ transactionData }) => {
     // const [hideChecBox, setHideChecBox] = useState(false)
 
     const handleCheckboxChange = (item: any) => {
-        if (selectedTransaction.find((selected: any): any => item._id === selected._id)) {
-            setSelectedTransaction(selectedTransaction.filter((selected: any) => selected._id !== item._id));
+        if (selectedTransaction.find((selected: any): any => item.id === selected.id)) {
+            setSelectedTransaction(selectedTransaction.filter((selected: any) => selected.id !== item.id));
         } else {
-            setSelectedTransaction([...selectedTransaction, { _id: item._id }]);
+            setSelectedTransaction([...selectedTransaction, { id: item.id }]);
         }
     };
     const handleParentChange = (e: any) => {
         if (e.target.checked) {
-            const arraOfIds = transactionData.map((transaction: any) => { return ({ _id: transaction._id }) })
+            const arraOfIds = transactionData.map((transaction: any) => { return ({ id: transaction.id }) })
             setSelectedTransaction(arraOfIds)
         } else {
             setSelectedTransaction([])
         }
     }
-
     return (
         <div className="w-full h-full overflow-y-auto shadow-md">
             <div className="shadow-md md:block hidden">
@@ -65,18 +64,18 @@ const Table: FC<TableProps> = ({ transactionData }) => {
                         </tr>
                     </thead>
                     <tbody>
-                        {transactionData?.map((item: any) =>
-                            <tr onClick={() => handleCheckboxChange(item)} key={item._id} className="bg-white border-b cursor-default hover:bg-gray-50 hover:text-gray-800">
+                        {transactionData?.map((item: any, index: number) =>
+                            <tr onClick={() => handleCheckboxChange(item)} key={item.id} className="bg-white border-b cursor-default hover:bg-gray-50 hover:text-gray-800">
                                 <td className="w-4 p-4">
                                     <div className="flex items-center">
                                         <input
-                                            value={item?._id}
-                                            id={`checkbox-table-search-${item._id}`}
+                                            value={item?.id}
+                                            id={`checkbox-table-search-${item.id}`}
                                             type="checkbox"
-                                            checked={selectedTransaction.find((selected: any): any => item._id === selected._id) ? true : false}
+                                            checked={selectedTransaction.find((selected: any): any => item.id === selected.id) ? true : false}
                                             onChange={() => handleCheckboxChange(item)}
                                             className="w-4 h-4 text-blue-600 bg-gray-100 border-gray-300 rounded focus:ring-blue-500  focus:ring-2 " />
-                                        <label htmlFor={`checkbox-table-search-${item._id}`} className="sr-only">checkbox</label>
+                                        <label htmlFor={`checkbox-table-search-${item.id}`} className="sr-only">checkbox</label>
                                     </div>
                                 </td>
                                 <th title={item?.category} className="px-4 truncate py-4">
@@ -118,15 +117,15 @@ const Table: FC<TableProps> = ({ transactionData }) => {
                     <div
                         //  onClick={() => setHideChecBox(true)}
                         onDoubleClick={() => handleCheckboxChange(item)}
-                        key={item._id} className='flex justify-between border-b p-2'>
+                        key={item.id} className='flex justify-between border-b p-2'>
                         <div className='flex items-center gap-2'>
                             <span className="w-4">
                                 <div className="flex items-center">
                                     <input
-                                        value={item?._id}
-                                        id={`checkbox-table-search-${item._id}`}
+                                        value={item?.id}
+                                        id={`checkbox-table-search-${item.id}`}
                                         type="checkbox"
-                                        checked={selectedTransaction.find((selected: any): any => item._id === selected._id) ? true : false}
+                                        checked={selectedTransaction.find((selected: any): any => item.id === selected.id) ? true : false}
                                         onChange={() => handleCheckboxChange(item)}
                                         className="w-4 h-4 text-blue-600 bg-gray-100 border-gray-300 rounded focus:ring-blue-500  focus:ring-2 " />
                                     <label htmlFor="checkbox-table-search-1" className="sr-only">checkbox</label>

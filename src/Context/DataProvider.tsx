@@ -18,6 +18,8 @@ type DataContextValue = {
     setAccountForEdit: React.Dispatch<React.SetStateAction<any | null>>
     filterData: any
     setfilterData: React.Dispatch<React.SetStateAction<any>>
+    dbStatus: boolean
+    setDbStatus: React.Dispatch<React.SetStateAction<boolean>>
 };
 
 export const DataContext = createContext<DataContextValue>({} as DataContextValue);
@@ -34,6 +36,8 @@ const DataProvider = ({ children }: DataProviderProps) => {
     const [transactionForEdit, settransactionForEdit] = useState<any | null>(null)
     const [accountForEdit, setAccountForEdit] = useState<any | null>(null)
     const [selectedTransaction, setSelectedTransaction] = useState<any[]>([])
+    const [dbStatus, setDbStatus] = useState<boolean>(false);
+
 
     const value: DataContextValue = {
         render, setRender,
@@ -43,7 +47,8 @@ const DataProvider = ({ children }: DataProviderProps) => {
         transactionForEdit, settransactionForEdit,
         selectedTransaction, setSelectedTransaction,
         accountForEdit, setAccountForEdit,
-        filterData, setfilterData
+        filterData, setfilterData,
+        dbStatus, setDbStatus
     };
     return (
         <DataContext.Provider value={value}>
