@@ -5,11 +5,13 @@ import BottonNav from '../Components/Common/BottomNav/BottonNav';
 import SideNav from '../Components/Common/SideNav/SideNav';
 import AddTransactions from '../Components/Pages/AddTransactions/AddTransactions';
 import { DataContext } from '../Context/DataProvider';
+import useSync from '../Hooks/useSync';
 
 
 interface HomeProps { }
 
 const Home: FC<HomeProps> = () => {
+    useSync();
     const navigate = useNavigate();
     const { setProfileToggle,openFotm,setOpenForm, theme} = useContext(DataContext)
     let login = localStorage.getItem('token');

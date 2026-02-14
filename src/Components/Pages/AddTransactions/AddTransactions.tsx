@@ -31,7 +31,7 @@ interface AccountDetails {
 }
 
 const AddTransactions: FC<AddTransactionsProps> = ({ openFotm, setOpenForm }) => {
-    const { render, setRender, transactionForEdit, settransactionForEdit, setSelectedTransaction, dbStatus }: any = useContext(DataContext);
+    const { render, setRender, transactionForEdit, settransactionForEdit, setSelectedTransaction }: any = useContext(DataContext);
     const [isButtonLoading, setIsButtonLoading] = useState(false)
     const [categoryIncome, setCategoryIncome] = useState<any>()
     const [categoryExpence, setCategoryExpence] = useState<any>()
@@ -81,10 +81,11 @@ const AddTransactions: FC<AddTransactionsProps> = ({ openFotm, setOpenForm }) =>
 
     const handleSubmit = async (values: any, { resetForm }: any) => {
         if (transactionForEdit !== null) {
-            if (!dbStatus) {
-                toast.error('Please check your database connection');
-                return;
-            }
+            // Offline support: Allow editing even if offline
+            // if (!dbStatus) {
+            //     toast.error('Please check your database connection');
+            //     return;
+            // }
 
             setIsButtonLoading(true)
             if (values.paymentMethod === 'Cash') {
@@ -107,27 +108,6 @@ const AddTransactions: FC<AddTransactionsProps> = ({ openFotm, setOpenForm }) =>
             setRender(!render)
             setOpenForm(false)
             resetForm();
-            // try {
-            //     const response: any = await http({
-            //         url: `/transaction/editTransactions`,
-            //         method: 'put',
-            //         data: values
-            //     });
-            //     if (response?.data?.code === 'SUCCESS_200') {
-            //         toast.success(response?.data?.message);
-            //         settransactionForEdit(null)
-            //         setSelectedTransaction([])
-            //         setIsButtonLoading(false)
-            //         setRender(!render)
-            //         setOpenForm(false)
-            //         resetForm();
-            //     } else {
-            //         toast.error(response?.data?.message);
-            //     }
-            // } catch (error: any | unknown) {
-            //     toast.error(error?.message);
-            //     setIsButtonLoading(false)
-            // }
         } else {
             setIsButtonLoading(true)
             if (values.paymentMethod === 'Cash') {
@@ -147,103 +127,100 @@ const AddTransactions: FC<AddTransactionsProps> = ({ openFotm, setOpenForm }) =>
             setRender(!render)
             setOpenForm(false)
             resetForm();
-            // try {
-                // const response: any = await http({
-                //     url: `/transaction/addTransaction`,
-                //     method: 'post',
-                //     data: values
-                // });
-            //     if (response?.data?.code === 'SUCCESS_200') {
-            //         toast.success(response?.data?.message);
-            //         setIsButtonLoading(false)
-            //         setRender(!render)
-            //         setOpenForm(false)
-            //         resetForm();
-            //     } else {
-            //         toast.error(response?.data?.message);
-            //     }
-            // } catch (error: any | unknown) {
-            //     toast.error(error?.message);
-            //     setIsButtonLoading(false)
-            // }
         }
     };
 
 
     const FeatchIncomeCategory = async () => {
         try {
-            const response: any = await http({
-                url: `/category/getIncomeCategory`,
-                method: 'get',
-            });
-            if (response?.data?.code === 'SUCCESS_200') {
-                setCategoryIncome(response?.data?.data)
-            } else {
-                toast.error(response?.data?.message);
+            const categories = await db.categories.toArray();
+            const income = categories.filter(c => c.data.__type === 'income').map(c => c.data);
+            if (income.length > 0) {
+                 setCategoryIncome(income);
+            }
+
+            // Only fetch if DB is empty or explicitly needed. Assuming useSync handles updates.
+            // But if DB is empty, try API (maybe useSync hasn't finished yet or failed)
+            if (income.length === 0) {
+                const response: any = await http({
+                    url: `/category/getIncomeCategory`,
+                    method: 'get',
+                });
+                if (response?.data?.code === 'SUCCESS_200') {
+                    setCategoryIncome(response?.data?.data)
+                }
             }
         } catch (error: any | unknown) {
-            toast.error(error?.message);
-            setIsButtonLoading(false)
+             // suppress error if offline
         }
     }
     const FeatchExpenceCategory = async () => {
         try {
-            const response: any = await http({
-                url: `/category/getExpenceCategory`,
-                method: 'get',
-            });
-            if (response?.data?.code === 'SUCCESS_200') {
-                setCategoryExpence(response?.data?.data)
-            } else {
-                toast.error(response?.data?.message);
+            const categories = await db.categories.toArray();
+            const expense = categories.filter(c => c.data.__type === 'expense').map(c => c.data);
+            if (expense.length > 0) {
+                 setCategoryExpence(expense);
+            }
+
+            if (expense.length === 0) {
+                const response: any = await http({
+                    url: `/category/getExpenceCategory`,
+                    method: 'get',
+                });
+                if (response?.data?.code === 'SUCCESS_200') {
+                    setCategoryExpence(response?.data?.data)
+                }
             }
         } catch (error: any | unknown) {
-            toast.error(error?.message);
-            setIsButtonLoading(false)
+            // suppress error
         }
     }
     const FeatchAccountDetails = async () => {
         try {
-            const response: any = await http({
-                url: `/account/gatAccount`,
-                method: 'get',
-            });
-            if (response?.data?.code === 'SUCCESS_200') {
-                setAccountDetail(response?.data?.data)
-                setTimeout(() => {
-                    // setIsLoading(false)
-                }, 500)
-            } else {
-                toast.error(response?.data?.message);
+            const accounts = await db.accounts.toArray();
+            const accs = accounts.filter(a => a.data.__type === 'account').map(a => a.data);
+            if (accs.length > 0) {
+                setAccountDetail(accs);
+            }
+
+            if (accs.length === 0) {
+                const response: any = await http({
+                    url: `/account/gatAccount`,
+                    method: 'get',
+                });
+                if (response?.data?.code === 'SUCCESS_200') {
+                    setAccountDetail(response?.data?.data)
+                }
             }
         } catch (error: any | unknown) {
-            toast.error(error?.message);
-            // setIsLoading(false)
+             // suppress error
         }
     }
     const FeatchCardDetails = async () => {
         try {
-            const response: any = await http({
-                url: `/account/gatCard`,
-                method: 'get',
-            });
-            if (response?.data?.code === 'SUCCESS_200') {
-                setCardDetail(response?.data?.data)
-                setTimeout(() => {
-                    // setIsLoading(false)
-                }, 500)
-            } else {
-                toast.error(response?.data?.message);
+            const accounts = await db.accounts.toArray();
+            const cards = accounts.filter(a => a.data.__type === 'card').map(a => a.data);
+            if (cards.length > 0) {
+                setCardDetail(cards);
+            }
+
+            if (cards.length === 0) {
+                const response: any = await http({
+                    url: `/account/gatCard`,
+                    method: 'get',
+                });
+                if (response?.data?.code === 'SUCCESS_200') {
+                    setCardDetail(response?.data?.data)
+                }
             }
         } catch (error: any | unknown) {
-            toast.error(error?.message);
-            // setIsLoading(false)
+             // suppress error
         }
     }
     useEffect(() => {
         FeatchIncomeCategory()
         FeatchExpenceCategory()
-    }, [])
+    }, [render])
 
     useEffect(() => {
         FeatchCardDetails()
