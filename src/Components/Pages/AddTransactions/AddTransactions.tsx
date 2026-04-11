@@ -3,13 +3,18 @@ import { ErrorMessage, Field, Form, Formik } from 'formik';
 import * as Yup from 'yup';
 import { IoClose } from 'react-icons/io5';
 import { LuIndianRupee } from 'react-icons/lu';
-import http from '../../../Services/http/http';
+import { MdSwapVert } from 'react-icons/md';
 import { toast } from 'react-toastify';
 import { DataContext } from '../../../Context/DataProvider';
 import { useNavigate } from 'react-router-dom';
 import AddTransaction2 from './AddTransaction2';
-import { db } from '../../../db';
-// import Loader from '../../Common/Loader/Loader';
+import {
+    addTransaction as addTransactionService,
+    editTransaction as editTransactionService,
+    getAllCategoriesFromDB,
+    syncCategoriesFromServer,
+    getAllAccountsFromDB,
+} from '../../../Services/transactionService';
 
 interface AddTransactionsProps {
     openFotm: boolean;
@@ -31,17 +36,15 @@ interface AccountDetails {
 }
 
 const AddTransactions: FC<AddTransactionsProps> = ({ openFotm, setOpenForm }) => {
-    const { render, setRender, transactionForEdit, settransactionForEdit, setSelectedTransaction, dbStatus }: any = useContext(DataContext);
+    const { render, setRender, transactionForEdit, settransactionForEdit, setSelectedTransaction }: any = useContext(DataContext);
     const [isButtonLoading, setIsButtonLoading] = useState(false)
-    const [categoryIncome, setCategoryIncome] = useState<any>()
-    const [categoryExpence, setCategoryExpence] = useState<any>()
+    const [categoryIncome, setCategoryIncome] = useState<string[]>([])
+    const [categoryExpence, setCategoryExpence] = useState<string[]>([])
     const [accountDetail, setAccountDetail] = useState<AccountDetails[] | null>(null)
     const [cardDetail, setCardDetail] = useState<AccountDetails[] | null>(null)
 
-    // const [isLoading, setIsLoading] = useState(true)
     const navigate = useNavigate()
     const paymentMethods = ['Cash', 'Account', 'Card'];
-
 
     const handleNavigateAccount = () => {
         setOpenForm(false)
@@ -61,7 +64,7 @@ const AddTransactions: FC<AddTransactionsProps> = ({ openFotm, setOpenForm }) =>
     };
 
     const validationSchema = Yup.object().shape({
-        action: Yup.string().required(),
+        action: Yup.string().required('Select Income or Expense'),
         amount: Yup.number().required('Enter Amount,'),
         description: Yup.string().required('Add Description,').max(100, 'Description is Too Long,'),
         paymentMethod: Yup.string().required('Select Payment Method'),
@@ -75,297 +78,245 @@ const AddTransactions: FC<AddTransactionsProps> = ({ openFotm, setOpenForm }) =>
         newCategory: Yup.string()
     });
 
-    const generateUniqueId = () => {
-        return crypto.randomUUID ? crypto.randomUUID() : 'id-' + Date.now() + '-' + Math.random().toString(36).substr(2, 9);
-    };
-
     const handleSubmit = async (values: any, { resetForm }: any) => {
-        if (transactionForEdit !== null) {
-            if (!dbStatus) {
-                toast.error('Please check your database connection');
-                return;
+        setIsButtonLoading(true);
+        try {
+            if (transactionForEdit !== null) {
+                const editId = transactionForEdit?.id || transactionForEdit?._id;
+                await editTransactionService(editId, values);
+                toast.success('Transaction updated successfully');
+                settransactionForEdit(null);
+                setSelectedTransaction([]);
+            } else {
+                await addTransactionService(values);
+                toast.success('Transaction added successfully');
             }
-
-            setIsButtonLoading(true)
-            if (values.paymentMethod === 'Cash') {
-                values['from'] = 'Cash';
-            }
-            if (values.category === 'addNewCategory') {
-                values['category'] = values.newCategory;
-            }
-            values['_id'] = transactionForEdit?.id
-            values['synced'] = false
-            values['deleted'] = false
-            values['edited'] = true
-            await db.transactions.update(transactionForEdit?.id, {
-                data: values
-            });
-            toast.success('Transaction updated successfully');
-            settransactionForEdit(null)
-            setSelectedTransaction([])
-            setIsButtonLoading(false)
-            setRender(!render)
-            setOpenForm(false)
+            setIsButtonLoading(false);
+            setRender(!render);
+            setOpenForm(false);
             resetForm();
-            // try {
-            //     const response: any = await http({
-            //         url: `/transaction/editTransactions`,
-            //         method: 'put',
-            //         data: values
-            //     });
-            //     if (response?.data?.code === 'SUCCESS_200') {
-            //         toast.success(response?.data?.message);
-            //         settransactionForEdit(null)
-            //         setSelectedTransaction([])
-            //         setIsButtonLoading(false)
-            //         setRender(!render)
-            //         setOpenForm(false)
-            //         resetForm();
-            //     } else {
-            //         toast.error(response?.data?.message);
-            //     }
-            // } catch (error: any | unknown) {
-            //     toast.error(error?.message);
-            //     setIsButtonLoading(false)
-            // }
-        } else {
-            setIsButtonLoading(true)
-            if (values.paymentMethod === 'Cash') {
-                values['from'] = 'Cash';
-            }
-            if (values.category === 'addNewCategory') {
-                values['category'] = values.newCategory;
-            }
-            values['synced'] = false
-            values['_id'] = generateUniqueId()
-            await db.transactions.add({
-                id: values['_id'],
-                data: values
-            });
-            toast.success('Transaction added successfully');
-            setIsButtonLoading(false)
-            setRender(!render)
-            setOpenForm(false)
-            resetForm();
-            // try {
-                // const response: any = await http({
-                //     url: `/transaction/addTransaction`,
-                //     method: 'post',
-                //     data: values
-                // });
-            //     if (response?.data?.code === 'SUCCESS_200') {
-            //         toast.success(response?.data?.message);
-            //         setIsButtonLoading(false)
-            //         setRender(!render)
-            //         setOpenForm(false)
-            //         resetForm();
-            //     } else {
-            //         toast.error(response?.data?.message);
-            //     }
-            // } catch (error: any | unknown) {
-            //     toast.error(error?.message);
-            //     setIsButtonLoading(false)
-            // }
+        } catch (error: any) {
+            console.error('Transaction submit failed:', error);
+            setIsButtonLoading(false);
         }
     };
 
+    const loadCategories = async () => {
+        try {
+            await syncCategoriesFromServer();
+        } catch {
+            // Offline — will read from IndexedDB below
+        }
+        const [income, expence] = await Promise.all([
+            getAllCategoriesFromDB('income'),
+            getAllCategoriesFromDB('expence'),
+        ]);
+        setCategoryIncome(income);
+        setCategoryExpence(expence);
+    };
 
-    const FeatchIncomeCategory = async () => {
+    const loadAccountsAndCards = async () => {
         try {
-            const response: any = await http({
-                url: `/category/getIncomeCategory`,
-                method: 'get',
-            });
-            if (response?.data?.code === 'SUCCESS_200') {
-                setCategoryIncome(response?.data?.data)
-            } else {
-                toast.error(response?.data?.message);
-            }
-        } catch (error: any | unknown) {
-            toast.error(error?.message);
-            setIsButtonLoading(false)
+            const [accounts, cards] = await Promise.all([
+                getAllAccountsFromDB('bank'),
+                getAllAccountsFromDB('card'),
+            ]);
+            setAccountDetail(accounts as any);
+            setCardDetail(cards as any);
+        } catch (error) {
+            console.error('Failed to load accounts/cards:', error);
         }
-    }
-    const FeatchExpenceCategory = async () => {
-        try {
-            const response: any = await http({
-                url: `/category/getExpenceCategory`,
-                method: 'get',
-            });
-            if (response?.data?.code === 'SUCCESS_200') {
-                setCategoryExpence(response?.data?.data)
-            } else {
-                toast.error(response?.data?.message);
-            }
-        } catch (error: any | unknown) {
-            toast.error(error?.message);
-            setIsButtonLoading(false)
-        }
-    }
-    const FeatchAccountDetails = async () => {
-        try {
-            const response: any = await http({
-                url: `/account/gatAccount`,
-                method: 'get',
-            });
-            if (response?.data?.code === 'SUCCESS_200') {
-                setAccountDetail(response?.data?.data)
-                setTimeout(() => {
-                    // setIsLoading(false)
-                }, 500)
-            } else {
-                toast.error(response?.data?.message);
-            }
-        } catch (error: any | unknown) {
-            toast.error(error?.message);
-            // setIsLoading(false)
-        }
-    }
-    const FeatchCardDetails = async () => {
-        try {
-            const response: any = await http({
-                url: `/account/gatCard`,
-                method: 'get',
-            });
-            if (response?.data?.code === 'SUCCESS_200') {
-                setCardDetail(response?.data?.data)
-                setTimeout(() => {
-                    // setIsLoading(false)
-                }, 500)
-            } else {
-                toast.error(response?.data?.message);
-            }
-        } catch (error: any | unknown) {
-            toast.error(error?.message);
-            // setIsLoading(false)
-        }
-    }
-    useEffect(() => {
-        FeatchIncomeCategory()
-        FeatchExpenceCategory()
-    }, [])
+    };
 
     useEffect(() => {
-        FeatchCardDetails()
-        FeatchAccountDetails()
-    }, [render])
+        loadCategories();
+        // eslint-disable-next-line
+    }, []);
+
+    useEffect(() => {
+        loadAccountsAndCards();
+        // eslint-disable-next-line
+    }, [render]);
+
+    if (!openFotm) return null;
 
     return (
-        <div className={`w-full h-full ${openFotm ? 'translate-y-0' : 'translate-y-full'} fixed z-40 top-0 bg-black bg-opacity-70  transition-all duration-300 flex items-center justify-center`}>
+        <div
+            className='fixed inset-0 z-50 flex items-end sm:items-center justify-center'
+            style={{ background: 'rgba(0,0,0,0.6)', backdropFilter: 'blur(4px)' }}
+        >
             <Formik initialValues={initialValues} onSubmit={handleSubmit} validationSchema={validationSchema}>
-                {({ values, setFieldValue }) => (
-                    <Form className={` sm:w-[33rem] w-full overflow-y-auto scrollbar-none h-full sm:h-auto bg-skin-bg-form-bg rounded-sm p-6`}>
-                        <div className='flex items-center justify-between mb-5'>
-                            <p className='text-lg'>{transactionForEdit !== null ? 'Edit' : 'New'} Transaction</p>
-                            <p onClick={() => {
-                                setOpenForm(false)
-                                settransactionForEdit(null)
-                            }} className='p-2 text-lg flex items-center justify-center hover:bg-gray-200 rounded-full cursor-pointer'><IoClose /></p>
-                        </div>
-                        <div className='h-3'>
-                            <span className='text-xs text-red-500'><ErrorMessage name='action' /></span>
-                            <span className='text-xs text-red-500'><ErrorMessage name='amount' /></span>
-                            <span className='text-xs text-red-500'><ErrorMessage name='description' /></span>
-                            <span className='text-xs text-red-500'><ErrorMessage name='paymentMethod' /></span>
-                            <span className='text-xs text-red-500'><ErrorMessage name='from' /></span>
-                            <span className='text-xs text-red-500'><ErrorMessage name='category' /></span>
-                            <span className='text-xs text-red-500'><ErrorMessage name='newCategory' /></span>
-                        </div>
-                        <div className='px-5 w-full flex text-sm text-gray-800 sm:mt-2 mt-10 flex-col gap-10 '>
-                            <div className='w-full flex gap-10 justify-around'>
-                                <div className='w-1/2 flex gap-2'>
-                                    <Field
-                                        type="radio"
-                                        id='income'
-                                        name='action'
-                                        value='income' />
-                                    <label htmlFor="income">Income</label>
-                                </div>
-                                <div className='w-1/2 flex gap-2 '>
-                                    <Field
-                                        type="radio"
-                                        id='expence'
-                                        name='action'
-                                        value='expence' />
-                                    <label htmlFor="expence">Expence</label>
-                                </div>
-                            </div>
-                            <div className='w-full flex sm:flex-row flex-col  items-center gap-10'>
-                                <div className='w-full sm:w-1/2'>
-                                    <label htmlFor="date">Choose a Date (MM/DD/YYYY)</label>
-                                    <Field
-                                        name="date"
-                                        id="date"
-                                        type='date'
-                                        className='w-full border-b border-gray-700 font-semibold  bg-transparent outline-none'
-                                    />
-                                </div>
+                {({ values, setFieldValue, errors, touched }) => (
+                    <Form
+                        className='w-full sm:max-w-lg sm:rounded-3xl rounded-t-3xl p-6 pb-8 relative shadow-2xl overflow-y-auto max-h-[95dvh] scrollbar-none'
+                        style={{ background: 'var(--color-form-bg)' }}
+                    >
+                        {/* Drag handle (mobile) */}
+                        <div className='sm:hidden w-10 h-1 rounded-full bg-gray-400 mx-auto mb-5 opacity-40' />
 
-                                {values.category === 'addNewCategory' ?
-                                    <div className='w-full sm:w-1/2'>
-                                        <label htmlFor="newCategory">Enter Category Name</label>
-                                        <Field
-                                            autoFocus={true}
-                                            id='newCategory'
-                                            name='newCategory'
-                                            className={`w-full border-b border-gray-700 font-semibold  bg-transparent focus:outline-none`}
-                                            type='text'
+                        {/* Header */}
+                        <div className='flex items-center gap-3 mb-6'>
+                            <div
+                                className='w-10 h-10 rounded-2xl flex items-center justify-center text-white flex-shrink-0'
+                                style={{ background: 'linear-gradient(135deg,#5200bb,#7c3aed)' }}
+                            >
+                                <MdSwapVert className='text-xl' />
+                            </div>
+                            <div className='flex-1'>
+                                <h2 className='font-extrabold text-base' style={{ color: 'var(--color-form-text)' }}>
+                                    {transactionForEdit !== null ? 'Edit Transaction' : 'New Transaction'}
+                                </h2>
+                                <p className='text-xs opacity-40' style={{ color: 'var(--color-form-text)' }}>
+                                    {transactionForEdit !== null ? 'Update the transaction details' : 'Fill in the details below'}
+                                </p>
+                            </div>
+                            <button
+                                type='button'
+                                onClick={() => { setOpenForm(false); settransactionForEdit(null); }}
+                                className='w-8 h-8 rounded-full flex items-center justify-center hover:bg-gray-200 hover:text-gray-800 transition-all'
+                                style={{ color: 'var(--color-form-text)' }}
+                            >
+                                <IoClose className='text-lg' />
+                            </button>
+                        </div>
+
+                        <div className='flex flex-col gap-4'>
+
+                            {/* Income / Expense toggle */}
+                            <div className='flex flex-col gap-1'>
+                                <label className='text-[11px] font-black uppercase tracking-widest opacity-50'
+                                    style={{ color: 'var(--color-form-label-text)' }}>
+                                    Type *
+                                </label>
+                                <div className='flex gap-3'>
+                                    {['income', 'expence'].map((type) => (
+                                        <button
+                                            key={type}
+                                            type='button'
+                                            onClick={() => setFieldValue('action', type)}
+                                            className={`flex-1 py-3 rounded-xl text-sm font-bold border-2 transition-all capitalize
+                                                ${values.action === type
+                                                    ? type === 'income'
+                                                        ? 'border-green-500 text-green-600 bg-green-50'
+                                                        : 'border-red-400 text-red-500 bg-red-50'
+                                                    : 'border-transparent'
+                                                }`}
+                                            style={values.action !== type ? { background: 'var(--color-bg-outlet)', color: 'var(--color-form-text)' } : {}}
                                         >
-                                        </Field>
+                                            {type === 'expence' ? 'Expense' : 'Income'}
+                                        </button>
+                                    ))}
+                                </div>
+                                <ErrorMessage name='action' render={msg =>
+                                    <p className='text-red-500 text-[11px] mt-0.5 pl-1'>{msg}</p>
+                                } />
+                            </div>
+
+                            {/* Amount + Date row */}
+                            <div className='flex gap-3'>
+                                <div className='flex flex-col gap-1 flex-1'>
+                                    <label className='text-[11px] font-black uppercase tracking-widest opacity-50'
+                                        style={{ color: 'var(--color-form-label-text)' }}>
+                                        Amount *
+                                    </label>
+                                    <div className='relative'>
+                                        <span className={`absolute left-3 top-1/2 -translate-y-1/2 text-sm
+                                            ${values.action === 'income' ? 'text-green-500' : values.action === 'expence' ? 'text-red-500' : 'opacity-40'}`}
+                                            style={values.action === '' ? { color: 'var(--color-form-text)' } : {}}>
+                                            <LuIndianRupee />
+                                        </span>
+                                        <Field
+                                            name='amount'
+                                            id='amount'
+                                            type='number'
+                                            placeholder='0'
+                                            className={`w-full rounded-xl pl-8 pr-4 py-3 text-sm font-semibold outline-none border-2 transition-all appearance-none
+                                                ${touched.amount && errors.amount ? 'border-red-400' : 'border-transparent focus:border-[#5200bb]'}
+                                                ${values.action === 'income' ? 'text-green-600' : values.action === 'expence' ? 'text-red-500' : ''}`}
+                                            style={{ background: 'var(--color-bg-outlet)', color: values.action === '' ? 'var(--color-form-text)' : undefined }}
+                                        />
                                     </div>
-                                    :
-                                    <div className='w-full sm:w-1/2'>
-                                        <label htmlFor="category">Select Category</label>
-                                        <Field
-                                            id='category'
-                                            name='category'
-                                            disabled={values.action === ''}
-                                            className={`w-full border-b border-gray-700 font-semibold  bg-transparent focus:outline-none`}
-                                            as='select'
-                                        >
-                                            <option value=''></option>
-                                            {values.action === 'income' ?
-                                                categoryIncome?.map((item: any) => (
-                                                    <option key={item._id} value={item.category}>
-                                                        {item.category}
-                                                    </option>
-                                                ))
-                                                :
-                                                values.action === 'expence' ?
-                                                    categoryExpence?.map((item: any) => (
-                                                        <option key={item._id} value={item.category}>
-                                                            {item.category}
-                                                        </option>
-                                                    ))
-                                                    :
-                                                    ''
-                                            }
-                                            <option value='addNewCategory'>Add Category</option>
-                                        </Field>
-                                    </div>}
+                                    <ErrorMessage name='amount' render={msg =>
+                                        <p className='text-red-500 text-[11px] mt-0.5 pl-1'>{msg}</p>
+                                    } />
+                                </div>
 
-                            </div>
-                            <div className='w-full flex sm:flex-row flex-col  items-center gap-10'>
-                                <div title='Enter Amount' className='w-full sm:w-1/2 relative'>
-                                    <label htmlFor="amount">Enter Amount</label>
+                                <div className='flex flex-col gap-1 flex-1'>
+                                    <label className='text-[11px] font-black uppercase tracking-widest opacity-50'
+                                        style={{ color: 'var(--color-form-label-text)' }}>
+                                        Date
+                                    </label>
                                     <Field
-                                        className={`pl-5 text-sm ${values.action === 'income' ? 'text-green-500' : values.action === 'expence' ? 'text-red-500' : ''} outline-none bg-transparent border-b border-gray-700 font-semibold  w-full appearance-none`}
-                                        type='number'
-                                        name='amount'
-                                        id='amount'
+                                        name='date'
+                                        id='date'
+                                        type='date'
+                                        className={`w-full rounded-xl px-4 py-3 text-sm font-semibold outline-none border-2 border-transparent focus:border-[#5200bb] transition-all`}
+                                        style={{ background: 'var(--color-bg-outlet)', color: 'var(--color-form-text)' }}
                                     />
-                                    <span className={`absolute left-0 ${values.action === 'income' ? 'text-green-500' : values.action === 'expence' ? 'text-red-500' : ''}`}><LuIndianRupee /></span>
                                 </div>
-                                <div title='Enter Description' className='w-full sm:w-1/2'>
-                                    <label htmlFor="description">Add Description</label>
+                            </div>
+
+                            {/* Category */}
+                            <div className='flex flex-col gap-1'>
+                                <label className='text-[11px] font-black uppercase tracking-widest opacity-50'
+                                    style={{ color: 'var(--color-form-label-text)' }}>
+                                    Category *
+                                </label>
+                                {values.category === 'addNewCategory' ? (
                                     <Field
-                                        className='w-full border-b border-gray-700 font-semibold  appearance-none outline-none bg-transparent'
+                                        autoFocus
+                                        id='newCategory'
+                                        name='newCategory'
                                         type='text'
-                                        name='description'
-                                        id='description'
+                                        placeholder='Enter new category name'
+                                        className='w-full rounded-xl px-4 py-3 text-sm font-semibold outline-none border-2 border-transparent focus:border-[#5200bb] transition-all'
+                                        style={{ background: 'var(--color-bg-outlet)', color: 'var(--color-form-text)' }}
                                     />
-                                </div>
+                                ) : (
+                                    <Field
+                                        id='category'
+                                        name='category'
+                                        as='select'
+                                        disabled={values.action === ''}
+                                        className={`w-full rounded-xl px-4 py-3 text-sm font-semibold outline-none border-2 transition-all
+                                            ${touched.category && errors.category ? 'border-red-400' : 'border-transparent focus:border-[#5200bb]'}`}
+                                        style={{ background: 'var(--color-bg-outlet)', color: 'var(--color-form-text)' }}
+                                    >
+                                        <option value=''>Select category…</option>
+                                        {values.action === 'income'
+                                            ? categoryIncome.map((cat) => <option key={cat} value={cat}>{cat}</option>)
+                                            : values.action === 'expence'
+                                                ? categoryExpence.map((cat) => <option key={cat} value={cat}>{cat}</option>)
+                                                : null}
+                                        <option value='addNewCategory'>+ Add New Category</option>
+                                    </Field>
+                                )}
+                                <ErrorMessage name='category' render={msg =>
+                                    <p className='text-red-500 text-[11px] mt-0.5 pl-1'>{msg}</p>
+                                } />
                             </div>
+
+                            {/* Description */}
+                            <div className='flex flex-col gap-1'>
+                                <label className='text-[11px] font-black uppercase tracking-widest opacity-50'
+                                    style={{ color: 'var(--color-form-label-text)' }}>
+                                    Description *
+                                </label>
+                                <Field
+                                    name='description'
+                                    id='description'
+                                    type='text'
+                                    placeholder='What was this for?'
+                                    className={`w-full rounded-xl px-4 py-3 text-sm font-semibold outline-none border-2 transition-all
+                                        ${touched.description && errors.description ? 'border-red-400' : 'border-transparent focus:border-[#5200bb]'}`}
+                                    style={{ background: 'var(--color-bg-outlet)', color: 'var(--color-form-text)' }}
+                                />
+                                <ErrorMessage name='description' render={msg =>
+                                    <p className='text-red-500 text-[11px] mt-0.5 pl-1'>{msg}</p>
+                                } />
+                            </div>
+
+                            {/* Payment method + account/card */}
                             <AddTransaction2
                                 paymentMethods={paymentMethods}
                                 valuespaymentMethod={values.paymentMethod}
@@ -377,6 +328,8 @@ const AddTransactions: FC<AddTransactionsProps> = ({ openFotm, setOpenForm }) =>
                                 transactionForEdit={transactionForEdit}
                                 settransactionForEdit={settransactionForEdit}
                                 setOpenForm={setOpenForm}
+                                touched={touched}
+                                errors={errors}
                             />
                         </div>
                     </Form>

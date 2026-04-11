@@ -7,6 +7,7 @@ import * as Yup from 'yup';
 import { useNavigate } from 'react-router-dom';
 import http from '../../../Services/http/http';
 import { toast } from 'react-toastify';
+import { isMpinSet } from '../../../Services/mpinUtils';
 import { motion, useAnimation } from 'framer-motion';
 import GoogleLoginButton from '../GoogleLogin';
 
@@ -47,9 +48,9 @@ const SignIn: FC<SignInProps> = () => {
                 localStorage.setItem('userDetails', JSON.stringify(response.data.data.userDetail))
                 toast.success(response?.data?.message);
                 setTimeout(() => {
-                    navigate('home/dashBoard');
-                    setIsLoading(false)
-                }, 1000);
+                    navigate(isMpinSet() ? '/mpin' : '/setup-mpin');
+                    setIsLoading(false);
+                }, 800);
             } else {
                 toast.error(response?.data?.message);
             }

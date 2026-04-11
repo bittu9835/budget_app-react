@@ -1,5 +1,6 @@
-import { Field } from 'formik';
+import { Field, ErrorMessage } from 'formik';
 import type { FC } from 'react';
+
 interface AccountDetails {
     accountCardNumber: number
     balance?: number
@@ -15,16 +16,18 @@ interface AccountDetails {
 }
 
 interface AddTransaction2Props {
-    paymentMethods: any,
+    paymentMethods: any
     valuespaymentMethod: string
     accountDetail: AccountDetails[] | null
     cardDetail: AccountDetails[] | null
     handleNavigateAccount: any
     isButtonLoading: boolean
     valuesaction: string
-    transactionForEdit: AccountDetails[] | null
-    settransactionForEdit: React.Dispatch<React.SetStateAction<AccountDetails[] | null>>
+    transactionForEdit: any
+    settransactionForEdit: React.Dispatch<React.SetStateAction<any>>
     setOpenForm: React.Dispatch<React.SetStateAction<boolean>>
+    touched: any
+    errors: any
 }
 
 const AddTransaction2: FC<AddTransaction2Props> = ({
@@ -38,138 +41,150 @@ const AddTransaction2: FC<AddTransaction2Props> = ({
     transactionForEdit,
     settransactionForEdit,
     setOpenForm,
+    touched,
+    errors,
 }) => {
+    const showAccountSelect = valuespaymentMethod === 'Account' && accountDetail && accountDetail.length > 0;
+    const showCardSelect = valuespaymentMethod === 'Card' && cardDetail && cardDetail.length > 0;
+    const showEmptyAccount = valuespaymentMethod === 'Account' && accountDetail?.length === 0;
+    const showEmptyCard = valuespaymentMethod === 'Card' && cardDetail?.length === 0;
+
     return (
         <>
-            <div className='w-full flex sm:flex-row flex-col  items-center gap-10'>
-                <div className='w-full sm:w-1/2'>
-                    <label htmlFor="paymentMethod">Select Payment Mode</label>
+            {/* Payment Method */}
+            <div className='flex flex-col gap-1'>
+                <label className='text-[11px] font-black uppercase tracking-widest opacity-50'
+                    style={{ color: 'var(--color-form-label-text)' }}>
+                    Payment Mode *
+                </label>
+                <div className='flex gap-2'>
+                    {paymentMethods.map((method: string) => (
+                        <Field key={method} name='paymentMethod'>
+                            {({ field, form }: any) => (
+                                <button
+                                    type='button'
+                                    onClick={() => form.setFieldValue('paymentMethod', method)}
+                                    className={`flex-1 py-3 rounded-xl text-sm font-bold border-2 transition-all
+                                        ${field.value === method
+                                            ? 'border-[#5200bb] text-[#5200bb]'
+                                            : 'border-transparent'}`}
+                                    style={field.value !== method
+                                        ? { background: 'var(--color-bg-outlet)', color: 'var(--color-form-text)' }
+                                        : { background: '#f3e8ff' }}
+                                >
+                                    {method}
+                                </button>
+                            )}
+                        </Field>
+                    ))}
+                </div>
+                <ErrorMessage name='paymentMethod' render={msg =>
+                    <p className='text-red-500 text-[11px] mt-0.5 pl-1'>{msg}</p>
+                } />
+            </div>
+
+            {/* Account selector */}
+            {showEmptyAccount && (
+                <p className='text-sm text-center'>
+                    No accounts found.{' '}
+                    <span onClick={handleNavigateAccount} className='text-[#5200bb] font-bold cursor-pointer underline'>
+                        Add Account
+                    </span>
+                </p>
+            )}
+            {showAccountSelect && (
+                <div className='flex flex-col gap-1'>
+                    <label className='text-[11px] font-black uppercase tracking-widest opacity-50'
+                        style={{ color: 'var(--color-form-label-text)' }}>
+                        Select Account *
+                    </label>
                     <Field
-                        id='paymentMethod'
-                        name='paymentMethod'
-                        className={`w-full border-b border-gray-700 font-semibold  bg-transparent focus:outline-none`}
+                        id='from'
+                        name='from'
                         as='select'
+                        className={`w-full rounded-xl px-4 py-3 text-sm font-semibold outline-none border-2 transition-all
+                            ${touched.from && errors.from ? 'border-red-400' : 'border-transparent focus:border-[#5200bb]'}`}
+                        style={{ background: 'var(--color-bg-outlet)', color: 'var(--color-form-text)' }}
                     >
-                        {paymentMethods.map((item: any) => (
-                            <option key={item} value={item}>
-                                {item}
+                        <option value=''>Choose account…</option>
+                        {accountDetail?.map((item) => (
+                            <option key={item._id} value={item.accountCardNumber}>
+                                **{item.accountCardNumber}
                             </option>
                         ))}
                     </Field>
+                    <ErrorMessage name='from' render={msg =>
+                        <p className='text-red-500 text-[11px] mt-0.5 pl-1'>{msg}</p>
+                    } />
                 </div>
-                {valuespaymentMethod === 'Account' ?
-                    accountDetail?.length === 0
-                        ?
-                        <span onClick={handleNavigateAccount} className='text-blue-700 cursor-pointer text-lg font-serif'>Click To Add {valuespaymentMethod}</span>
-                        :
-                        <div className='w-full sm:w-1/2'>
-                            <label htmlFor="from">Select {valuespaymentMethod}</label>
-                            <Field
-                                id='from'
-                                name='from'
-                                className={`w-full border-b border-gray-700 font-semibold  bg-transparent focus:outline-none`}
-                                as='select'
+            )}
 
-                            >
-                                <option value=''></option>
-                                {accountDetail?.map((item: any) => (
-                                    <option key={item._id} value={item?.accountCardNumber}>
-                                        **{item?.accountCardNumber}
-                                    </option>
-                                ))}
-                            </Field>
-                        </div> : ''}
-                {valuespaymentMethod === 'Card' ?
-                    cardDetail?.length === 0
-                        ?
-                        <span onClick={handleNavigateAccount} className='text-blue-700 cursor-pointer text-lg font-serif'>Click To Add {valuespaymentMethod}</span>
-                        :
-                        <div className='w-full sm:w-1/2'>
-                            <label htmlFor="from">Select {valuespaymentMethod}</label>
-                            <Field
-                                id='from'
-                                name='from'
-                                className={`w-full border-b border-gray-700 font-semibold  bg-transparent focus:outline-none`}
-                                as='select'
+            {/* Card selector */}
+            {showEmptyCard && (
+                <p className='text-sm text-center'>
+                    No cards found.{' '}
+                    <span onClick={handleNavigateAccount} className='text-[#5200bb] font-bold cursor-pointer underline'>
+                        Add Card
+                    </span>
+                </p>
+            )}
+            {showCardSelect && (
+                <div className='flex flex-col gap-1'>
+                    <label className='text-[11px] font-black uppercase tracking-widest opacity-50'
+                        style={{ color: 'var(--color-form-label-text)' }}>
+                        Select Card *
+                    </label>
+                    <Field
+                        id='from'
+                        name='from'
+                        as='select'
+                        className={`w-full rounded-xl px-4 py-3 text-sm font-semibold outline-none border-2 transition-all
+                            ${touched.from && errors.from ? 'border-red-400' : 'border-transparent focus:border-[#5200bb]'}`}
+                        style={{ background: 'var(--color-bg-outlet)', color: 'var(--color-form-text)' }}
+                    >
+                        <option value=''>Choose card…</option>
+                        {cardDetail?.map((item) => (
+                            <option key={item._id} value={item.accountCardNumber}>
+                                **{item.accountCardNumber}
+                            </option>
+                        ))}
+                    </Field>
+                    <ErrorMessage name='from' render={msg =>
+                        <p className='text-red-500 text-[11px] mt-0.5 pl-1'>{msg}</p>
+                    } />
+                </div>
+            )}
 
-                            >
-                                <option value=''></option>
-                                {cardDetail?.map((item: any) => (
-                                    <option key={item._id} value={item?.accountCardNumber}>
-                                        **{item?.accountCardNumber}
-                                    </option>
-                                ))}
-                            </Field>
-                        </div> : ''}
+            {/* Action buttons */}
+            <div className='flex gap-3 mt-2'>
+                <button
+                    type='button'
+                    onClick={() => { setOpenForm(false); settransactionForEdit(null); }}
+                    className='flex-1 py-3 rounded-xl font-bold text-sm border-2 transition-all hover:opacity-80'
+                    style={{ borderColor: 'var(--color-border)', color: 'var(--color-form-text)', background: 'transparent' }}
+                >
+                    Cancel
+                </button>
+                {isButtonLoading ? (
+                    <div
+                        className='flex-1 py-3 rounded-xl flex items-center justify-center'
+                        style={{ background: 'linear-gradient(135deg,#5200bb,#7c3aed)' }}
+                    >
+                        <div className='w-5 h-5 border-2 border-t-white border-transparent rounded-full animate-spin' />
+                    </div>
+                ) : (
+                    <button
+                        type='submit'
+                        disabled={valuesaction !== 'income' && valuesaction !== 'expence'}
+                        className='flex-1 py-3 rounded-xl font-bold text-sm text-white transition-all hover:scale-[1.02] disabled:opacity-50 disabled:cursor-not-allowed'
+                        style={{ background: 'linear-gradient(135deg,#5200bb,#7c3aed)' }}
+                    >
+                        {transactionForEdit !== null ? 'Update Transaction' : 'Add Transaction'}
+                    </button>
+                )}
             </div>
-
-            {valuespaymentMethod === 'Account' ?
-                accountDetail?.length === 0
-                    ?
-                    ''
-                    :
-                    <div className='2 flex gap-5 font-medium justify-end mt-5'>
-                        {isButtonLoading ?
-                            <div className='py-[2px] px-5 flex items-center justify-center  border-[#5200bb] border  rounded-sm'>
-                                <div className="w-4 h-4  border-t-2  border-r-0 border-b-0 border-red-500 border-solid rounded-full animate-spin"></div>
-                            </div>
-                            :
-                            <button
-                                type='submit'
-                                disabled={valuesaction === 'income' || valuesaction === 'expence' ? false : true}
-                                className={`${valuesaction === 'income' || valuesaction === 'expence' ? 'bg-[#5200bb]' : 'bg-gray-800'} py-[2px] px-4   text-white  rounded-sm`}>
-                                {transactionForEdit !== null ? 'Update' : 'Add'}
-                            </button>
-                        }
-                        <div onClick={() => {
-                            setOpenForm(false)
-                            settransactionForEdit(null)
-                        }} className='py-[2px] px-2  cursor-pointer hover:bg-[#4e2682] border-[#5200bb] border text-black hover:text-white rounded-sm'>Cancle</div>
-                    </div> : ''}
-            {valuespaymentMethod === 'Card' ?
-                cardDetail?.length === 0
-                    ?
-                    ''
-                    :
-                    <div className='2 flex gap-5 font-medium justify-end mt-5'>
-                        {isButtonLoading ?
-                            <div className='py-[2px] px-5 flex items-center justify-center  border-[#5200bb] border  rounded-sm'>
-                                <div className="w-4 h-4  border-t-2  border-r-0 border-b-0 border-red-500 border-solid rounded-full animate-spin"></div>
-                            </div>
-                            :
-                            <button
-                                type='submit'
-                                disabled={valuesaction === 'income' || valuesaction === 'expence' ? false : true}
-                                className={`${valuesaction === 'income' || valuesaction === 'expence' ? 'bg-[#5200bb]' : 'bg-gray-800'} py-[2px] px-4   text-white  rounded-sm`}>
-                                {transactionForEdit !== null ? 'Update' : 'Add'}
-                            </button>
-                        }
-                        <div onClick={() => {
-                            setOpenForm(false)
-                            settransactionForEdit(null)
-                        }} className='py-[2px] px-2  cursor-pointer hover:bg-[#4e2682] border-[#5200bb] border text-black hover:text-white rounded-sm'>Cancle</div>
-                    </div> : ''}
-            {valuespaymentMethod === 'Cash' ?
-                <div className='2 flex gap-5 font-medium justify-end mt-5'>
-                    {isButtonLoading ?
-                        <div className='py-[2px] px-5 flex items-center justify-center  border-[#5200bb] border  rounded-sm'>
-                            <div className="w-4 h-4  border-t-2  border-r-0 border-b-0 border-red-500 border-solid rounded-full animate-spin"></div>
-                        </div>
-                        :
-                        <button
-                            type='submit'
-                            disabled={valuesaction === 'income' || valuesaction === 'expence' ? false : true}
-                            className={`${valuesaction === 'income' || valuesaction === 'expence' ? 'bg-[#5200bb]' : 'bg-gray-800'} py-[2px] px-4   text-white  rounded-sm`}>
-                            {transactionForEdit !== null ? 'Update' : 'Add'}
-                        </button>
-                    }
-                    <div onClick={() => {
-                        setOpenForm(false)
-                        settransactionForEdit(null)
-                    }} className='py-[2px] px-2  cursor-pointer hover:bg-[#4e2682] border-[#5200bb] border text-black hover:text-white rounded-sm'>Cancle</div>
-                </div> : ''}
         </>
     );
-}
+};
 
 export default AddTransaction2;

@@ -3,8 +3,8 @@ import { ErrorMessage, Field, Form, Formik } from 'formik';
 import * as Yup from 'yup';
 import { IoClose } from 'react-icons/io5';
 import { toast } from 'react-toastify';
-import http from '../../../Services/http/http';
 import { DataContext } from '../../../Context/DataProvider';
+import { addAccount, editAccount } from '../../../Services/transactionService';
 
 
 interface BankAccountFormProps {
@@ -16,7 +16,7 @@ interface BankAccountFormProps {
 }
 
 const BankAccountForm: FC<BankAccountFormProps> = ({ isLoadingButton, type, openBankForm, setOpenBankForm, setIsLoadingButton }) => {
-    const { setRender, accountForEdit, setAccountForEdit,render }: any = useContext(DataContext);
+    const { setRender, accountForEdit, setAccountForEdit, render }: any = useContext(DataContext);
 
     const handleCancle = () => {
         setAccountForEdit(null);
@@ -33,7 +33,6 @@ const BankAccountForm: FC<BankAccountFormProps> = ({ isLoadingButton, type, open
         name: accountForEdit?.name ?? '',
     };
 
-
     const validationSchema = Yup.object().shape({
         accountCardNumber: Yup.string().matches(/^[0-9]{4}$/, 'Number Must Bee 4 Digits,').required('Enter No,'),
         bankCardName: Yup.string().required('Enter Bank Name,').max(50, 'Bank Name is Too Long,'),
@@ -45,56 +44,32 @@ const BankAccountForm: FC<BankAccountFormProps> = ({ isLoadingButton, type, open
     });
 
     const handleSubmit = async (values: any, { resetForm }: any) => {
-        if (accountForEdit === null) {
-            setIsLoadingButton(true)
-            values['type'] = type
-            try {
-                const response: any = await http({
-                    url: `/account/createAccount`,
-                    method: 'post',
-                    data: values
-                });
-                if (response?.data?.code === 'SUCCESS_200') {
-                    setRender(!render)
-                    toast.success(response?.data?.message);
-                    setIsLoadingButton(false)
-                    setOpenBankForm(false);
-                    resetForm();
-                } else {
-                    toast.error(response?.data?.message);
-                }
-            } catch (error: any | unknown) {
-                // toast.error(error?.message);
-                toast.warn(error?.response?.data?.message)
-                setIsLoadingButton(false)
-            }
-        } else {
-            setIsLoadingButton(true)
-            values['type'] = type
-            values['_id'] = accountForEdit?._id
-            try {
-                const response: any = await http({
-                    url: `/account/editAccountCard`,
-                    method: 'put',
-                    data: values
-                });
-                if (response?.data?.code === 'SUCCESS_200') {
-                    setRender(!render)
-                    toast.success(response?.data?.message);
-                    setIsLoadingButton(false)
-                    setOpenBankForm(false);
-                    resetForm();
-                } else {
-                    toast.error(response?.data?.message);
-                }
-            } catch (error: any | unknown) {
-                // toast.error(error?.message);
-                toast.warn(error?.response?.data?.message)
-                setIsLoadingButton(false)
-            }
-        }
+        setIsLoadingButton(true);
+        values['type'] = type;
 
-    }
+        try {
+            if (accountForEdit === null) {
+                // Add — dual write (IndexedDB first, then API)
+                await addAccount(values);
+                toast.success('Account added successfully');
+            } else {
+                // Edit — dual write
+                values['_id'] = accountForEdit?._id;
+                await editAccount(values);
+                toast.success('Account updated successfully');
+            }
+
+            setRender(!render);
+            setIsLoadingButton(false);
+            setOpenBankForm(false);
+            resetForm();
+            setAccountForEdit(null);
+        } catch (error: any) {
+            console.error('Account form submit failed:', error);
+            setIsLoadingButton(false);
+        }
+    };
+
     return (
         <div className={`w-full h-full ${openBankForm ? 'block' : 'hidden'} absolute z-40 top-0 bg-black bg-opacity-90  transition-all duration-300 flex items-center justify-center`}>
             <Formik initialValues={initialValues} onSubmit={handleSubmit} validationSchema={validationSchema}>
