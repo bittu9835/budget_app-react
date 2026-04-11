@@ -12,6 +12,8 @@ import Transactions from '../Pages/Transactions/Transactions';
 import Calculator from '../Pages/Calculator/Calculator';
 import Investment from '../Pages/Investment/Investment';
 import Settings from '../Pages/Settings/Settings';
+import Khatabook from '../Pages/Khatabook/Khatabook';
+import CustomerDetail from '../Pages/Khatabook/CustomerDetail';
 import { isMpinSet, isMpinVerified } from '../../Services/mpinUtils';
 
 // ─── Guards ───────────────────────────────────────────────────────────────────
@@ -49,6 +51,8 @@ const Router: FC = () => {
                 <Route path='calculator'            element={<Calculator />} />
                 <Route path='investment'            element={<Investment />} />
                 <Route path='settings'              element={<Settings />} />
+                <Route path='khatabook'             element={<Khatabook />} />
+                <Route path='khatabook/:customerId' element={<CustomerDetail />} />
             </Route>
         </Routes>
     );

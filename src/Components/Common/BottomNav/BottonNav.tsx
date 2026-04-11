@@ -1,28 +1,48 @@
 import type { FC } from 'react';
-import { RxDashboard } from 'react-icons/rx'
-import { CiBank } from 'react-icons/ci'
-import { AiOutlineFileDone } from 'react-icons/ai'
-import { IoSettingsOutline } from 'react-icons/io5'
+import { RxDashboard } from 'react-icons/rx';
+import { CiBank } from 'react-icons/ci';
+import { AiOutlineFileDone } from 'react-icons/ai';
+import { IoSettingsOutline } from 'react-icons/io5';
+import { MdOutlineMenuBook } from 'react-icons/md';
 import { NavLink } from 'react-router-dom';
-import { SlCalculator } from 'react-icons/sl';
+
 interface BottonNavProps { }
+
+const navItems = [
+    { to: 'Card&Accounts', icon: CiBank,              label: 'Accounts' },
+    { to: 'khatabook',     icon: MdOutlineMenuBook,   label: 'Khatabook' },
+    { to: 'dashBoard',     icon: RxDashboard,         label: 'Dashboard' },
+    { to: 'settings',      icon: IoSettingsOutline,   label: 'Settings' },
+    { to: 'transactions',  icon: AiOutlineFileDone,   label: 'Ledger' },
+];
 
 const BottonNav: FC<BottonNavProps> = () => {
     return (
-        <div className='w-full h-full bg-skin-bg-sideNav flex items-center justify-between px-5'>
-            <NavLink to='Card&Accounts' className={({ isActive, }) => `${isActive ? 'text-skin-active-nav-text' : 'text-skin-sideNav-text'} cursor-pointer text-3xl `}><CiBank />
-            </NavLink>
-            <NavLink to='calculator' className={({ isActive, }) => `${isActive ? 'text-skin-active-nav-text' : 'text-skin-sideNav-text'} cursor-pointer text-3xl `}><SlCalculator className='text-2xl'/>
-            </NavLink >
-            <div className='text-4xl invisible'><RxDashboard /></div>
-            <NavLink to='dashBoard' className={({ isActive, }) => `${isActive ? 'text-skin-active-nav-text' : 'text-skin-text'} cursor-pointer text-4xl w-12 h-12 bg-skin-bg-outlet rounded-md flex justify-center items-center absolute -top-4 left-1/2 transform -translate-x-1/2 `}><RxDashboard />
-            </NavLink>
-            <NavLink to='settings' className={({ isActive, }) => `${isActive ? 'text-skin-active-nav-text' : 'text-skin-sideNav-text'} cursor-pointer text-3xl `}><IoSettingsOutline />
-            </NavLink>
-            <NavLink to='transactions' className={({ isActive, }) => `${isActive ? 'text-skin-active-nav-text' : 'text-skin-sideNav-text'} cursor-pointer text-3xl `}><AiOutlineFileDone />
-            </NavLink>
+        <div className='w-full h-full bg-skin-bg-sideNav flex items-center justify-around px-1'>
+            {navItems.map(({ to, icon: Icon, label }) => (
+                <NavLink
+                    key={to}
+                    to={to}
+                    className={({ isActive }) =>
+                        `flex flex-col items-center justify-center gap-[2px] flex-1 h-full transition-all duration-200 ${
+                            isActive
+                                ? 'text-skin-active-nav-text'
+                                : 'text-skin-sideNav-text opacity-70'
+                        }`
+                    }
+                >
+                    {({ isActive }) => (
+                        <>
+                            <span className={`text-2xl transition-transform duration-200 ${isActive ? 'scale-110' : ''}`}>
+                                <Icon />
+                            </span>
+                            <span className='text-[9px] font-semibold tracking-wide'>{label}</span>
+                        </>
+                    )}
+                </NavLink>
+            ))}
         </div>
     );
-}
+};
 
 export default BottonNav;

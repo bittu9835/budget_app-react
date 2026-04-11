@@ -6,6 +6,7 @@ import { AiOutlineFileDone } from 'react-icons/ai'
 import { NavLink } from 'react-router-dom';
 import { SlCalculator } from 'react-icons/sl';
 import { TbChartHistogram } from 'react-icons/tb';
+import { MdOutlineMenuBook } from 'react-icons/md';
 
 interface SideNavProps { }
 const SideNav: FC<SideNavProps> = () => {
@@ -29,6 +30,9 @@ const SideNav: FC<SideNavProps> = () => {
                     </NavLink>
                     <NavLink to='calculator' className={({ isActive, }) => `${isActive ? 'text-skin-active-nav-text' : 'text-skin-sideNav-text'}`}>
                         <span className='flex items-center gap-3'><SlCalculator className='text-2xl' /> Calculator</span>
+                    </NavLink>
+                    <NavLink to='khatabook' className={({ isActive, }) => `${isActive ? 'text-skin-active-nav-text' : 'text-skin-sideNav-text'}`}>
+                        <span className='flex items-center gap-3'><MdOutlineMenuBook className='text-2xl' /> Khatabook</span>
                     </NavLink>
                 </div>
             </div>

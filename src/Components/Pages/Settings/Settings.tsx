@@ -1,5 +1,8 @@
 import React, { useState, useContext } from 'react';
-import { FaUser, FaCog, FaShieldAlt } from 'react-icons/fa';
+import { useNavigate } from 'react-router-dom';
+import { FaUser, FaCog, FaShieldAlt, FaCalculator } from 'react-icons/fa';
+import { MdOutlineMenuBook } from 'react-icons/md';
+import { IoArrowForward } from 'react-icons/io5';
 import { motion, AnimatePresence } from 'framer-motion';
 import { toast } from 'react-toastify';
 import { DataContext } from '../../../Context/DataProvider';
@@ -210,11 +213,13 @@ function Settings() {
     const [activeSection, setActiveSection] = useState('profile');
     const userDetails = JSON.parse(localStorage.getItem('userDetails') || '{}');
     const { theme, setTheme } = useContext(DataContext);
+    const navigate = useNavigate();
 
     const settingsSections = [
         { id: 'profile',  name: 'Profile',  icon: <FaUser className="w-4 h-4" /> },
         { id: 'general',  name: 'General',  icon: <FaCog className="w-4 h-4" /> },
         { id: 'security', name: 'Security', icon: <FaShieldAlt className="w-4 h-4" /> },
+        { id: 'tools',    name: 'Tools',    icon: <FaCalculator className="w-4 h-4" /> },
     ];
 
     const renderSectionContent = () => {
@@ -267,6 +272,47 @@ function Settings() {
 
             case 'security':
                 return <MpinSection />;
+
+            case 'tools':
+                return (
+                    <div className="space-y-4">
+                        <h3 className="text-lg font-semibold">Tools</h3>
+                        <p className="text-xs text-gray-500">Quick access to built-in tools.</p>
+
+                        {[
+                            {
+                                icon: <FaCalculator className="text-lg" />,
+                                color: 'linear-gradient(135deg,#5200bb,#7c3aed)',
+                                title: 'Calculator',
+                                sub: 'Keyboard-supported calculator with history',
+                                path: '/home/calculator',
+                            },
+                            {
+                                icon: <MdOutlineMenuBook className="text-lg" />,
+                                color: 'linear-gradient(135deg,#0f766e,#14b8a6)',
+                                title: 'Khatabook',
+                                sub: 'Credit / debit ledger for your customers',
+                                path: '/home/khatabook',
+                            },
+                        ].map(tool => (
+                            <button
+                                key={tool.title}
+                                onClick={() => navigate(tool.path)}
+                                className="w-full flex items-center gap-4 p-4 rounded-xl border border-gray-200 hover:border-gray-300 hover:shadow-md transition-all group"
+                            >
+                                <div className="w-10 h-10 rounded-xl flex items-center justify-center text-white flex-shrink-0"
+                                    style={{ background: tool.color }}>
+                                    {tool.icon}
+                                </div>
+                                <div className="flex-1 text-left">
+                                    <p className="text-sm font-semibold text-gray-800">{tool.title}</p>
+                                    <p className="text-xs text-gray-500 mt-0.5">{tool.sub}</p>
+                                </div>
+                                <IoArrowForward className="text-gray-400 group-hover:text-gray-600 group-hover:translate-x-1 transition-all" />
+                            </button>
+                        ))}
+                    </div>
+                );
 
             default:
                 return null;

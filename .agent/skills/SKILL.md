@@ -7,7 +7,7 @@ description: React + TypeScript + TailwindCSS PWA frontend for the Expense Track
 
 ## Overview
 
-This is a **React PWA (Progressive Web App)** built with **React 18**, **TypeScript**, **TailwindCSS**, **Formik + Yup**, **Chart.js**, and **Dexie (IndexedDB)**. It provides an expense tracking UI with dashboards, transaction management, bank account/card management, MPIN security, and offline-first support.
+This is a **React PWA (Progressive Web App)** built with **React 18**, **TypeScript**, **TailwindCSS**, **Formik + Yup**, **Chart.js**, and **Dexie (IndexedDB)**. It provides an expense tracking UI with dashboards, transaction management, bank account/card management, Khatabook ledger, MPIN security, a functional calculator, and offline-first support.
 
 **Created with:** Create React App (PWA TypeScript template)  
 **Port:** 3000 (default)  
@@ -23,7 +23,8 @@ budget_app-react/
 ├── src/
 │   ├── App.tsx                    # Root app — Router + Toast container
 │   ├── index.tsx                  # Entry point — React root, HashRouter, DataProvider, SW registration
-│   ├── db.ts                      # Dexie (IndexedDB) database setup — transactions, accounts, categories tables
+│   ├── db.ts                      # Dexie (IndexedDB) v4 — transactions, accounts, categories,
+│   │                              #   khatabookCustomers, khatabookTransactions tables
 │   ├── App.css                    # Global styles
 │   ├── index.css                  # Tailwind imports + CSS custom properties (theming)
 │   ├── service-worker.ts          # CRA PWA service worker
@@ -37,20 +38,24 @@ budget_app-react/
 │   │   ├── http/
 │   │   │   └── http.tsx           # Axios HTTP client wrapper
 │   │   ├── transactionService.ts  # Dual-write service (IndexedDB + API), sync logic
-│   │   └── mpinUtils.ts           # MPIN hashing, verification, session helpers
+│   │   ├── khatabookService.ts    # Khatabook dual-write service (customers + ledger entries)
+│   │   └── mpinUtils.ts           # MPIN SHA-256 hashing, verification, session helpers
 │   ├── hooks/
 │   │   └── useNetworkStatus.ts    # Polling-based online/offline detection + sync trigger
 │   ├── Components/
 │   │   ├── Auth/
-│   │   │   ├── SignIn/SignIn.tsx   # Login page (Formik + Yup validation)
-│   │   │   ├── SignUp/SignUp.tsx   # Registration page
-│   │   │   └── GoogleLogin.tsx    # Google OAuth button
+│   │   │   ├── SignIn/SignIn.tsx       # Login page (Formik + Yup)
+│   │   │   ├── SignUp/SignUp.tsx       # Registration page
+│   │   │   ├── MpinLogin/MpinLogin.tsx # MPIN verify screen
+│   │   │   ├── SetMpin/SetMpin.tsx     # MPIN setup screen
+│   │   │   ├── PinPad/PinPad.tsx       # Reusable 4-dot pin pad component
+│   │   │   └── GoogleLogin.tsx         # Google OAuth button
 │   │   ├── Router/
 │   │   │   └── Router.tsx         # Route definitions + SetMpinGuard + MpinGuard
 │   │   ├── Common/                # Reusable UI components
-│   │   │   ├── BottomNav/         # Mobile bottom navigation
-│   │   │   ├── TopNav/            # Top navigation bar
-│   │   │   ├── SideNav/           # Desktop side navigation
+│   │   │   ├── BottomNav/BottonNav.tsx  # Mobile flat 5-icon nav with labels (no floating button)
+│   │   │   ├── TopNav/TopNav.tsx        # Top navigation bar
+│   │   │   ├── SideNav/SideNav.tsx      # Desktop side navigation (6 items incl. Khatabook)
 │   │   │   ├── Profile/           # User profile dropdown
 │   │   │   ├── Charts/            # Chart.js wrappers (Bar, Area, Pie, Doughnut)
 │   │   │   ├── Table/             # Transaction data table
@@ -60,18 +65,20 @@ budget_app-react/
 │   │   │   ├── OfflineBanner/     # Network status banner (offline/syncing indicator)
 │   │   │   └── Themes/            # Theme configuration (CSS variables)
 │   │   └── Pages/
-│   │       ├── Dashboard/         # Main dashboard with charts & summary cards (reads IndexedDB)
-│   │       ├── Transactions/      # Transaction list with search, filter, edit, bulk delete
-│   │       │   └── Filter.tsx     # Comprehensive filter panel (date, action, category, payment)
-│   │       ├── AddTransactions/   # Add/Edit transaction modal form
-│   │       │   ├── AddTransactions.tsx  # Step 1 — category, amount, description
-│   │       │   └── AddTransaction2.tsx  # Step 2 — payment method, account/card selection
-│   │       ├── BankAccounts/      # Bank account & credit card management
-│   │       │   ├── BankAccounts.tsx     # Account/card list display
-│   │       │   └── BankAccountForm.tsx  # Add/Edit modal form
-│   │       ├── Calculator/        # Calculator feature
+│   │       ├── Dashboard/         # Charts & summary cards (reads IndexedDB only)
+│   │       ├── Transactions/      # Transaction list + Filter.tsx
+│   │       ├── AddTransactions/   # Add/Edit modal — AddTransactions.tsx + AddTransaction2.tsx
+│   │       ├── BankAccounts/      # Account/card management — BankAccounts.tsx + BankAccountForm.tsx
+│   │       ├── Khatabook/         # Credit/debit ledger module
+│   │       │   ├── Khatabook.tsx        # Customer list with gradient summary cards
+│   │       │   ├── CustomerDetail.tsx   # Per-customer ledger history with gradient hero header
+│   │       │   ├── CustomerForm.tsx     # Add/edit customer modal (bottom-sheet on mobile)
+│   │       │   └── LedgerForm.tsx       # Credit/debit entry modal (color-coded by type)
+│   │       ├── Calculator/
+│   │       │   └── Calculator.tsx  # Fully functional calculator with history panel
 │   │       ├── Investment/        # Investment tracking (placeholder)
-│   │       └── Settings/          # Profile, General (dark mode), Security (MPIN)
+│   │       └── Settings/
+│   │           └── Settings.tsx   # Profile, General (dark mode), Security (MPIN), Tools section
 ├── tailwind.config.js             # Tailwind with custom skin/theme tokens
 ├── .env                           # API URL + Google Client ID
 ├── package.json
@@ -86,218 +93,174 @@ budget_app-react/
 |------|-----------|----------------|-------|
 | `/` | SignIn | No | |
 | `/signUp` | SignUp | No | |
-| `/setup-mpin` | SetMpin | Yes (login required, MPIN not yet set) | SetMpinGuard |
-| `/mpin` | MpinLogin | Yes (login required, MPIN set, not verified) | MpinGuard |
+| `/setup-mpin` | SetMpin | Yes (login + MPIN not set) | SetMpinGuard |
+| `/mpin` | MpinLogin | Yes (login + MPIN set, not verified) | MpinGuard |
 | `/home` | Home (layout) | Yes | localStorage token check |
 | `/home/dashBoard` | Dashboard | Yes | |
 | `/home/transactions` | Transactions | Yes | |
-| `/home/transactions/:filter` | Transactions (filtered by action) | Yes | filter param: income/expence |
+| `/home/transactions/:filter` | Transactions (filtered by action) | Yes | filter: income/expence |
 | `/home/Card&Accounts` | BankAccounts | Yes | |
 | `/home/calculator` | Calculator | Yes | |
 | `/home/investment` | Investment | Yes | |
 | `/home/settings` | Settings | Yes | |
+| `/home/khatabook` | Khatabook | Yes | Customer list |
+| `/home/khatabook/:customerId` | CustomerDetail | Yes | Per-customer ledger |
 | `*` | PageNoteFound | No | |
 
 ### Route Guards
-
-- **SetMpinGuard**: If logged in but MPIN is not configured → redirect to `/setup-mpin`
-- **MpinGuard**: If logged in, MPIN is set, but not yet verified this session → redirect to `/mpin`
-- These guards wrap all `/home/*` routes for MPIN enforcement
+- **SetMpinGuard** (`/setup-mpin`): login required, MPIN not yet configured
+- **MpinGuard** (`/mpin`): login required, MPIN set, not verified this session
 
 ---
 
-## State Management
+## Navigation
 
-Uses **React Context** (`DataProvider.tsx`) with the following global state:
+### SideNav (desktop — `w-[15rem]`, hidden on mobile)
+NavLinks: Dashboard | Cards & Accounts | Transactions | Investments | Calculator | Khatabook  
+Active state: `text-skin-active-nav-text` (orange). Inactive: `text-skin-sideNav-text`.
+
+### BottomNav (mobile only — `h-[7vh]`, flat 5-icon layout with labels)
+Icons: Accounts | Khatabook | Dashboard | Settings | Ledger  
+- **No floating/absolute-positioned button** — all 5 use `flex-1` equal spacing
+- Each item shows icon + label, scales on active state
+- Calculator removed from mobile nav (still accessible via SideNav on desktop and Settings → Tools)
+
+---
+
+## State Management (DataProvider.tsx)
 
 | State | Purpose |
 |-------|---------|
 | `render` / `setRender` | Boolean toggle to trigger re-fetches |
 | `profileToggle` | Show/hide profile dropdown |
 | `theme` / `setTheme` | Current theme CSS class name |
-| `openFotm` / `setOpenForm` | Show/hide the Add Transaction modal (note: typo in name) |
+| `openFotm` / `setOpenForm` | Add Transaction modal visibility (typo in name) |
 | `transactionForEdit` | Transaction being edited (null = new) |
-| `selectedTransaction` | Array of selected transactions for bulk edit/delete |
+| `selectedTransaction` | Array of selected rows for bulk ops |
 | `accountForEdit` | Bank account/card being edited |
 | `filterData` | Current transaction filter value |
-| `dbStatus` | Database connection status |
+| `dbStatus` | Database connection/sync status |
 
 ---
 
 ## Offline-First Architecture
 
-The app is built around an **IndexedDB-first** data layer using **Dexie.js**.
+### Database (`db.ts`) — Dexie v4
+Five IndexedDB tables:
+| Table | Contents |
+|-------|----------|
+| `transactions` | All expense/income transactions |
+| `accounts` | Bank accounts and cards |
+| `categories` | Income/expense categories |
+| `khatabookCustomers` | Khatabook customer records |
+| `khatabookTransactions` | Khatabook ledger entries |
 
-### Database (`db.ts`)
-- Three Dexie tables: `transactions`, `accounts`, `categories`
-- Schema versioned (v1 → v2 → v3)
-- Each record shape: `{ id: string (MongoDB _id), data: object }`
+Each record: `{ id: string (MongoDB _id), data: any }`
 
-### Dual-Write Pattern (`transactionService.ts`)
-1. **Write to IndexedDB immediately** — instant UI feedback, works offline
-2. **Attempt API call** — non-blocking, silently fails if offline
-3. **Mark `synced: true`** — only after API succeeds
+### Dual-Write Pattern
+1. **IndexedDB write first** — instant UI, works offline
+2. **API call (non-blocking)** — fire-and-forget, silently fails offline
+3. **`synced: true`** — set only after API confirms
 
-### Sync Strategy (`transactionService.ts`)
-- `syncFromServer()`: Pulls all transactions, accounts, categories from API; merges intelligently (local unsynced items are NOT overwritten)
-- `pushUnsyncedToServer()`: Pushes all records with `synced: false` to the API
-- **Conflict resolution**: Local unsynced data takes precedence over server data
-
-### Network Status (`useNetworkStatus.ts`)
-- Polls backend `/ping` every 5 seconds
-- Detects online ↔ offline transitions
-- Auto-triggers `syncFromServer()` + `pushUnsyncedToServer()` when reconnecting
-- Returns: `{ isOnline, isSyncing, lastSyncTime, triggerSync }`
-- Toast notifications on status changes
-
-### Offline Banner (`OfflineBanner.tsx`)
-- Amber/orange gradient banner when offline
-- Blue/cyan gradient with spinner when syncing
-- Automatically hides when online and sync is complete
+### Sync Strategy
+- `syncFromServer()` / `syncKhatabookFromServer()` — pull from API, merge (local unsynced NOT overwritten)
+- `pushUnsyncedToServer()` / `pushUnsyncedKhatabookToServer()` — push all `synced: false` records
+- Auto-triggered by `useNetworkStatus` on reconnect
 
 ---
 
 ## Services
 
 ### `transactionService.ts`
-Core data access layer. All pages use this instead of calling API directly.
+All transaction, account, and category CRUD + sync. Full dual-write. Used by Dashboard, Transactions, AddTransactions, BankAccounts.
 
-**Interfaces:**
-- `TransactionData` — full transaction shape
-- `TransactionFilters` — date range, action, category, paymentMethod, search
-- `DashboardStats` — summary totals, chart data arrays
-
-**Functions:**
+### `khatabookService.ts`
 | Function | Description |
 |----------|-------------|
-| `getAllTransactions(filters?)` | Reads IndexedDB, applies filters locally |
-| `addTransaction(values)` | IndexedDB write + API (non-blocking) |
-| `editTransaction(id, values)` | IndexedDB update + API |
-| `deleteTransactions(items)` | Soft delete in IndexedDB + API |
-| `syncFromServer()` | Pull server data → merge into IndexedDB |
-| `pushUnsyncedToServer()` | Push unsynced IndexedDB records → API |
-| `addAccount(values)` | Create account in IndexedDB + API |
-| `editAccount(id, values)` | Update account in IndexedDB + API |
-| `deleteAccount(id)` | Remove account from IndexedDB + API |
-| `getAllAccountsFromDB()` | Read all accounts from IndexedDB |
-| `getAllCategoriesFromDB()` | Read all categories from IndexedDB |
-| `syncCategoriesFromServer()` | Pull categories from API → IndexedDB |
+| `addCustomer(values)` | IndexedDB + POST `/khatabook/create` |
+| `getCustomers()` | Read IndexedDB, exclude deleted |
+| `editCustomer(id, values)` | IndexedDB + PUT `/khatabook/edit` |
+| `deleteCustomer(id)` | Soft-delete customer + all their entries |
+| `addLedgerEntry(customerId, type, amount, note, date)` | IndexedDB + POST `/khatabook/addEntry` |
+| `getLedgerEntries(customerId)` | Filter IndexedDB by customerId, sort desc |
+| `deleteLedgerEntry(id)` | Soft-delete entry |
+| `getCustomerSummary(customerId)` | `{totalCredit, totalDebit, netBalance}` from IndexedDB |
+| `getDashboardTotals()` | Total "you will get" + "you will give" across all customers |
+| `syncKhatabookFromServer()` | Pull customers + entries from API → merge IndexedDB |
+| `pushUnsyncedKhatabookToServer()` | Push unsynced records → API |
 
 ### `mpinUtils.ts`
-Client-side MPIN security. Never sends PIN to server.
-
-| Function | Description |
-|----------|-------------|
-| `saveMpin(pin)` | SHA-256 hash with email salt, store in localStorage |
-| `verifyMpin(pin)` | Hash candidate PIN, compare to stored hash |
-| `isMpinSet()` | Check if MPIN hash exists in localStorage |
-| `isMpinVerified()` | Check if current session has verified the MPIN |
-| `clearMpin()` | Remove all MPIN data from localStorage |
+SHA-256 PIN hashing with email salt. Client-side only, never sent to server.
+`saveMpin` | `verifyMpin` | `isMpinSet` | `isMpinVerified` | `clearMpin`
 
 ### `http.tsx`
-- Wraps Axios with automatic token injection
-- Reads `token` from `localStorage`, sets as custom `token` header
-- GET requests: data passed as `params`; others: as request body
+Axios wrapper. Auto-injects `token` header from localStorage. GET → `params`, others → `data`.
 
 ---
 
 ## Pages Detail
 
-### Dashboard
-- Reads ALL transactions from IndexedDB via `transactionService`
-- Computes all stats client-side (no API calls for charts)
-- 4 summary cards: Total Balance, Income, Expense, Transaction Count
-- Bar chart: Monthly income vs expense (last 12 months)
-- Area chart: Monthly balance trend
-- Doughnut chart: Income by category
-- Pie chart: Expense by category
-- Integrated FilterBar (compact mode)
+### Calculator (`Calculator.tsx`)
+**Fully functional calculator with:**
+- `safeEval()` — custom expression evaluator using `Function()` (no `eval`) with strict character whitelist
+- Running expression display + large result display with dynamic font-size (shrinks for long numbers)
+- Operator support: `÷ × − +` (display chars mapped to JS operators internally)
+- Function keys: `AC` (all clear), `±` (negate), `%` (divide by 100), backspace
+- **History panel**: last 20 calculations, click to restore result, clear history button
+- **Keyboard support**: digits, `+`, `-` → `−`, `*` → `×`, `/` → `÷`, `Enter`/`=`, `Escape` → AC, `Backspace`
+- Visual press feedback (scale-90 animation on tap)
+- Dark gradient UI (`#1a1a2e → #0f3460`), operator buttons: purple gradient, `=`: green gradient
+- "KEYBOARD SUPPORTED" hint text at bottom
+- Accessible from: SideNav → Calculator, BottomNav (desktop only), Settings → Tools
 
-### Transactions
-- Table display with search (client-side, on IndexedDB data)
-- Multi-select checkboxes for bulk operations
-- Bulk delete with confirmation
-- Single-select opens edit modal
-- URL param `:filter` applies action filter (income/expence)
-- Integrated FilterBar (full mode)
+### Khatabook (`Khatabook.tsx`)
+- Gradient summary cards (green = You Will Get, red = You Will Give) with decorative arrow icons
+- Customer list as rounded cards with gradient avatar badges (green/red/gray by net balance)
+- Labels: "YOU'LL GET" (green) / "YOU'LL GIVE" (red) / "SETTLED" (gray)
+- Client-side search by name or phone
+- Hover-reveal Edit + Delete buttons per row
+- FAB "Add Customer" button (purple gradient, `fixed bottom-20 md:bottom-6 right-5`)
+- Sort: by absolute net balance descending
 
-### Filter (`Filter.tsx`)
-Shared between Dashboard and Transactions:
-- **Date range**: All Time, This Month, Last Month, Last 3/6 Months, This Year, Custom
-- **Action**: All / Income / Expense toggles
-- **Category**: Dropdown populated from transaction data
-- **Payment method**: All / Cash / Account / Card
-- Clear filters button
-- Compact mode (Dashboard) vs full mode (Transactions)
+### CustomerDetail (`CustomerDetail.tsx`)
+- Gradient hero header (green/red/gray based on net balance) with decorative circles
+- Shows: customer name, phone, address, total credit, total debit, net balance
+- Credit/Debit action buttons (green/red gradients, scale on hover)
+- Ledger entry list: left-colored border cards (green=credit, red=debit), hover-reveal delete
+- Entries sorted newest first
 
-### AddTransactions (2-step form)
-**Step 1 (`AddTransactions.tsx`):**
-- Action radio: income / expence
-- Date picker
-- Amount input (color-coded rupee icon: green=income, red=expense)
-- Category dropdown + inline "Add Category" creation
-- Description textarea
+### CustomerForm / LedgerForm (modals)
+- **Bottom-sheet on mobile** (`items-end`), **centered on desktop** (`sm:items-center`)
+- `backdrop-filter: blur(4px)` frosted glass overlay
+- Rounded `rounded-xl` input fields with colored focus borders
+- LedgerForm: large `₹` amount input color-coded by type (green/red), gradient top accent bar
+- CustomerForm: purple gradient submit button
 
-**Step 2 (`AddTransaction2.tsx`):**
-- Payment method selector: Cash / Account / Card
-- Conditional account/card dropdown (only shown for Account/Card)
-- Link to BankAccounts page to add new accounts
-- Submit and Cancel buttons with loading state
-
-### BankAccounts
-- Two sections: Bank Accounts and Cards
-- Card-style display:
-  - Bank accounts: brown gradient
-  - Cards: black gradient with chip image + Visa logo
-- Edit/Delete on hover
-- Loads from IndexedDB cache first, then refreshes from API
-- No-data empty states with add prompts
-
-### BankAccountForm
-- Modal for add/edit of accounts and cards
-- Conditional fields:
-  - **Bank**: IFSC code, branch location
-  - **Card**: Expiry date, service provider
-  - **Both**: Name, number (last 4 digits), account holder name
-- Validation: 4-digit numbers, IFSC format
-- Dual write: IndexedDB + API
-
-### Settings
-Three sections:
-1. **Profile**: Display-only name and email from localStorage
-2. **General**: Dark mode toggle (applies theme CSS class)
-3. **Security** (MPIN management):
-   - Setup flow: Enter 4-digit PIN → Confirm PIN
-   - Change flow: Verify current → Enter new → Confirm new
-   - Remove MPIN option
-   - PinPad component with visual dot feedback
-   - Auto-submits after 4 digits entered
-   - Uses `mpinUtils` functions exclusively
+### Settings (`Settings.tsx`)
+Four sections: Profile | General | Security | **Tools**
+- **Tools section**: cards linking to Calculator (`/home/calculator`) and Khatabook (`/home/khatabook`) with icons, descriptions, and animated arrow on hover. Uses `useNavigate`.
+- **General**: Dark mode toggle
+- **Security**: Full MPIN setup/change/remove with PinPad component
 
 ---
 
 ## Theming System
 
-- CSS custom properties with Tailwind `skin-*` utility classes
-- Theme applied via CSS class on root layout div (e.g., `dark-theme`, `light-theme`)
-- Dark mode toggled from Settings page
+CSS custom properties with Tailwind `skin-*` classes. Theme applied via CSS class on root layout div.
 
 ### CSS Variables Required per Theme
 ```css
 /* Text */
---color-text, --color-logo, --color-text-dashboard,
---color-sideNav-text, --color-active-nav-text,
---color-topNav-text, --color-topNav-secondery-text,
---color-profile-text, --color-profile-text-hover,
---color-profile-secondery-text, --color-table-head-text,
---color-table-hover, --color-button-text,
+--color-text, --color-logo, --color-text-dashboard, --color-sideNav-text,
+--color-active-nav-text, --color-topNav-text, --color-topNav-secondery-text,
+--color-profile-text, --color-profile-text-hover, --color-profile-secondery-text,
+--color-table-head-text, --color-table-hover, --color-button-text,
 --color-form-text, --color-form-label-text
 
 /* Background */
---color-bg-color, --color-bg-outlet, --color-bg-dashboard,
---color-bg-sideNav, --color-bg-topNav, --color-bg-profile,
---color-table-head-bg, --color-table-hover, --color-table,
---color-button-bg, --color-button-hover, --color-button-muted,
+--color-bg-color, --color-bg-outlet, --color-bg-dashboard, --color-bg-sideNav,
+--color-bg-topNav, --color-bg-profile, --color-table-head-bg, --color-table-hover,
+--color-table, --color-button-bg, --color-button-hover, --color-button-muted,
 --color-form-bg, --color-loader-bg
 
 /* Border */
@@ -309,55 +272,36 @@ Three sections:
 
 ## Authentication Flow
 
-1. **SignIn:** Email/password via Formik → POST `/api/auth/login` → JWT in `localStorage.token` + user in `localStorage.userDetails`
-2. **SignUp:** Name/email/password → POST `/api/user/addUser` → redirect to sign in
-3. **Google Login:** Google OAuth response → POST `/api/google/google_login` → JWT + user stored
-4. **MPIN Setup:** After first login, user is prompted to set 4-digit MPIN (enforced by SetMpinGuard)
-5. **MPIN Verify:** Returning session verifies PIN before accessing home routes (MpinGuard)
-6. **Route Protection:** `Home.tsx` checks `localStorage.token` → redirects to `/` if missing
+1. **SignIn** → POST `/api/auth/login` → JWT in `localStorage.token` + user in `localStorage.userDetails`
+2. **SignUp** → POST `/api/user/addUser` → redirect to sign in
+3. **Google Login** → POST `/api/google/google_login` → JWT + user stored
+4. **MPIN Setup** → SetMpinGuard redirects to `/setup-mpin` after first login
+5. **MPIN Verify** → MpinGuard redirects to `/mpin` on each session until verified
+6. **Route Protection** → `Home.tsx` checks `localStorage.token`
 
 ---
 
-## 🚨 KNOWN ISSUES & BUGS
+## 🚨 Known Issues
 
 ### Critical
-
-1. **🔴 Route protection is client-side only and easily bypassed**
-   - `Home.tsx` just checks if `localStorage.token` exists
-   - No token validation or expiry check
-   - Any string as `token` in localStorage bypasses auth
-
-2. **🔴 "Forgot Password" link is non-functional** (`SignIn.tsx` line 106) — just a `<p>` tag with no handler or route
+1. **Route protection client-side only** — any string in `localStorage.token` bypasses auth
+2. **"Forgot Password" non-functional** — `<p>` tag with no handler
 
 ### High Priority
-
-3. **🟡 `editTransaction` ID passing** — After editing, `transactionForEdit?.id` is used but the object retrieved from IndexedDB is `{id, data}` — only `transaction.data` is set as the edit target, so `id` may not be present on the payload
-
-4. **🟡 Spelling inconsistency:** `expence` vs `expense` — The entire codebase uses `expence` (matching backend), but any new code accidentally using `expense` will break filtering
-
-5. **🟡 `bg2` import in SignUp is unused** (`SignUp.tsx` line 4) — dead import
-
-6. **🟡 Multiple `useEffect` with `eslint-disable-next-line`** — Suppressed dependencies can cause stale closures
+3. **`editTransaction` ID** — `transactionForEdit?.id` may be missing if IndexedDB record shape is `{id, data}` and only `data` is set as edit target
+4. **Spelling: `expence` vs `expense`** — canonical is `"expence"` throughout; any new code using `"expense"` breaks filtering
+5. **`bg2` unused import** in `SignUp.tsx`
+6. **Multiple `eslint-disable-next-line`** on useEffect deps — risk of stale closures
 
 ### Medium Priority
-
-7. **🟠 Excessive `any` types throughout** — State variables, API responses, function params mostly typed as `any`
-
-8. **🟠 `openFotm` typo** — Used everywhere in Context, DataProvider, Home.tsx, AddTransactions. Should be `openForm`
-
-9. **🟠 `render` state toggle anti-pattern** — `setRender(!render)` to trigger `useEffect` re-runs is fragile
-
-10. **🟠 No proper error boundary** — Component crash takes down the entire app
-
-11. **🟠 `HashRouter` instead of `BrowserRouter`** — `#` in URLs hurts SEO
-
-12. **🟠 `jsonwebtoken` in frontend dependencies** — Node.js-only library, should not be in browser bundle
-
-13. **🟠 `i` and `npm` in dependencies** — Accidentally installed (`"i": "^0.3.7"`, `"npm": "^10.2.0"`)
-
-14. **🟠 `@syncfusion/ej2-dropdowns` imported** — Heavy enterprise library, may be unused
-
-15. **🟠 MPIN is client-side only** — SHA-256 hashed locally with email salt. If localStorage is cleared, MPIN is lost with no recovery mechanism
+7. **Excessive `any` types** — most state and API response types are `any`
+8. **`openFotm` typo** — used everywhere, should be `openForm`
+9. **`render` toggle anti-pattern** — `setRender(!render)` to force re-fetch is fragile
+10. **No error boundary** — component crash takes down entire app
+11. **`HashRouter`** instead of `BrowserRouter` — `#` in URLs hurts SEO
+12. **`jsonwebtoken` in frontend deps** — Node.js library in browser bundle
+13. **`i` and `npm` accidentally installed** as dependencies
+14. **MPIN client-side only** — localStorage clear loses PIN with no recovery
 
 ---
 
@@ -373,9 +317,6 @@ npm start
 # Build for production
 npm run build
 
-# Deploy to GitHub Pages
-npm run deploy
-
 # Environment variables required in .env:
 # REACT_APP_API_URL=http://localhost:4000/api
 # REACT_APP_GOOGLE_CLIENT_ID=<google_oauth_client_id>
@@ -388,7 +329,7 @@ npm run deploy
 | Package | Version | Purpose |
 |---------|---------|---------|
 | react | 18.2.0 | UI framework |
-| react-router-dom | 6.16.0 | Client-side routing (HashRouter) |
+| react-router-dom | 6.16.0 | Routing (HashRouter) |
 | axios | 1.5.1 | HTTP client |
 | formik | 2.4.5 | Form management |
 | yup | 1.3.2 | Schema validation |
@@ -397,7 +338,7 @@ npm run deploy
 | tailwindcss | 3.3.3 | CSS framework |
 | framer-motion | 10.16.4 | Animations |
 | react-toastify | 9.1.3 | Toast notifications |
-| dexie | 4.0.11 | IndexedDB wrapper (offline storage) |
+| dexie | 4.0.11 | IndexedDB wrapper |
 | react-icons | 4.11.0 | Icon library |
 | moment | 2.29.4 | Date formatting |
 | @react-oauth/google | 0.12.1 | Google OAuth |
@@ -407,12 +348,12 @@ npm run deploy
 
 ## PWA Features
 
-- Service worker registered (`serviceWorkerRegistration.ts`)
-- Offline storage with Dexie/IndexedDB
-- Full transaction CRUD works offline
-- [x] Dual-write pattern (IndexedDB first, API non-blocking)
-- [x] Auto-sync on reconnect (via `useNetworkStatus` polling)
-- [x] Offline banner visual indicator
-- [x] Dashboard fully offline (reads IndexedDB, no API calls)
-- [ ] Background sync via service worker (not implemented — relies on polling)
-- [ ] Offline cache strategies for static assets
+- Service worker registered via `serviceWorkerRegistration.ts`
+- Offline storage with Dexie/IndexedDB (v4 — 5 tables)
+- Full transaction + Khatabook CRUD works offline
+- [x] Dual-write (IndexedDB first, API non-blocking)
+- [x] Auto-sync on reconnect (`useNetworkStatus` polling every 5s)
+- [x] Offline banner + syncing spinner
+- [x] Dashboard fully offline (reads IndexedDB, zero API calls)
+- [x] Khatabook fully offline (same dual-write pattern)
+- [ ] Service worker background sync (relies on polling, not SW Background Sync API)
