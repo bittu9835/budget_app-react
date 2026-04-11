@@ -5,7 +5,10 @@ import { toast } from 'react-toastify';
 import { IoArrowBack } from 'react-icons/io5';
 import { MdDeleteOutline } from 'react-icons/md';
 import { TbArrowBigUpFilled, TbArrowBigDownFilled } from 'react-icons/tb';
+import { FiDownload } from 'react-icons/fi';
 import moment from 'moment';
+import jsPDF from 'jspdf';
+import autoTable from 'jspdf-autotable';
 import {
     getCustomers,
     getLedgerEntries,
@@ -28,6 +31,7 @@ const CustomerDetail: FC = () => {
     const [isLoading, setIsLoading] = useState(true);
     const [ledgerForm, setLedgerForm] = useState<{ open: boolean; type: 'credit' | 'debit' }>({ open: false, type: 'credit' });
     const [deletingId, setDeletingId] = useState<string | null>(null);
+    const [downloadingPdf, setDownloadingPdf] = useState(false);
 
     const loadData = useCallback(async () => {
         if (!customerId) return;
@@ -59,6 +63,85 @@ const CustomerDetail: FC = () => {
             toast.error('Failed to delete entry');
         } finally {
             setDeletingId(null);
+        }
+    };
+
+    const handleDownloadPdf = async () => {
+        if (!customer) return;
+        setDownloadingPdf(true);
+        try {
+            const doc = new jsPDF();
+            const pageW = doc.internal.pageSize.getWidth();
+
+            // ── Header bar ──────────────────────────────────────────
+            doc.setFillColor(82, 0, 187);
+            doc.rect(0, 0, pageW, 28, 'F');
+            doc.setTextColor(255, 255, 255);
+            doc.setFontSize(16);
+            doc.setFont('helvetica', 'bold');
+            doc.text('Khatabook Statement', 14, 12);
+            doc.setFontSize(9);
+            doc.setFont('helvetica', 'normal');
+            doc.text(`Generated: ${moment().format('DD MMM YYYY, hh:mm A')}`, 14, 22);
+
+            // ── Customer info ────────────────────────────────────────
+            doc.setTextColor(30, 30, 30);
+            doc.setFontSize(13);
+            doc.setFont('helvetica', 'bold');
+            doc.text(customer.name, 14, 40);
+            doc.setFontSize(9);
+            doc.setFont('helvetica', 'normal');
+            doc.setTextColor(80, 80, 80);
+            doc.text(`Phone: ${customer.phone}`, 14, 48);
+            if (customer.address) doc.text(`Address: ${customer.address}`, 14, 55);
+
+            // ── Summary boxes ────────────────────────────────────────
+            const summaryY = customer.address ? 64 : 57;
+            const boxes = [
+                { label: 'You Will Get', value: `Rs.${summary.totalCredit.toLocaleString('en-IN')}`, color: [21, 128, 61] as [number,number,number] },
+                { label: 'You Will Give', value: `Rs.${summary.totalDebit.toLocaleString('en-IN')}`, color: [185, 28, 28] as [number,number,number] },
+                { label: 'Net Balance', value: `Rs.${Math.abs(summary.netBalance).toLocaleString('en-IN')}`, color: [82, 0, 187] as [number,number,number] },
+            ];
+            boxes.forEach((b, i) => {
+                const x = 14 + i * 62;
+                doc.setFillColor(...b.color);
+                doc.roundedRect(x, summaryY, 56, 18, 3, 3, 'F');
+                doc.setTextColor(255, 255, 255);
+                doc.setFontSize(7);
+                doc.setFont('helvetica', 'bold');
+                doc.text(b.label.toUpperCase(), x + 4, summaryY + 6);
+                doc.setFontSize(10);
+                doc.text(b.value, x + 4, summaryY + 14);
+            });
+
+            // ── Transactions table ────────────────────────────────────
+            autoTable(doc, {
+                startY: summaryY + 26,
+                head: [['Date', 'Type', 'Amount', 'Note']],
+                body: entries.map(e => [
+                    moment(e.timestamp).format('DD MMM YYYY'),
+                    e.type === 'credit' ? 'Credit' : 'Debit',
+                    `Rs.${e.amount.toLocaleString('en-IN')}`,
+                    e.note || '-',
+                ]),
+                headStyles: { fillColor: [82, 0, 187], textColor: 255, fontStyle: 'bold', fontSize: 9 },
+                bodyStyles: { fontSize: 9 },
+                alternateRowStyles: { fillColor: [248, 245, 255] },
+                columnStyles: { 2: { halign: 'right' } },
+                didParseCell: (data: any) => {
+                    if (data.section === 'body' && data.column.index === 1) {
+                        data.cell.styles.textColor = data.cell.text[0] === 'Credit' ? [21, 128, 61] : [185, 28, 28];
+                    }
+                },
+                margin: { left: 14, right: 14 },
+            });
+
+            doc.save(`${customer.name.replace(/\s+/g, '_')}_statement.pdf`);
+            toast.success('PDF downloaded');
+        } catch {
+            toast.error('Failed to generate PDF');
+        } finally {
+            setDownloadingPdf(false);
         }
     };
 
@@ -104,6 +187,14 @@ const CustomerDetail: FC = () => {
                     <button onClick={() => navigate('/home/khatabook')}
                         className='w-8 h-8 rounded-full flex items-center justify-center bg-white bg-opacity-20 hover:bg-opacity-30 transition-all'>
                         <IoArrowBack className='text-white text-lg' />
+                    </button>
+                    <button onClick={handleDownloadPdf} disabled={downloadingPdf || entries.length === 0}
+                        title='Download PDF statement'
+                        className='w-8 h-8 rounded-full flex items-center justify-center bg-white bg-opacity-20 hover:bg-opacity-30 transition-all disabled:opacity-40'>
+                        {downloadingPdf
+                            ? <span className='w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin' />
+                            : <FiDownload className='text-white text-base' />
+                        }
                     </button>
                     <div className='w-11 h-11 rounded-full flex items-center justify-center text-sm font-black shadow-md bg-white bg-opacity-25'>
                         {getInitials(customer.name)}
