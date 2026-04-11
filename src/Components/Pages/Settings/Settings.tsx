@@ -1,8 +1,9 @@
 import React, { useState, useContext } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { FaUser, FaCog, FaShieldAlt, FaCalculator } from 'react-icons/fa';
+import { FaUser, FaCog, FaShieldAlt, FaCalculator, FaDatabase } from 'react-icons/fa';
 import { MdOutlineMenuBook } from 'react-icons/md';
 import { IoArrowForward } from 'react-icons/io5';
+import DataSection from './DataSection';
 import { motion, AnimatePresence } from 'framer-motion';
 import { toast } from 'react-toastify';
 import { DataContext } from '../../../Context/DataProvider';
@@ -220,6 +221,7 @@ function Settings() {
         { id: 'general',  name: 'General',  icon: <FaCog className="w-4 h-4" /> },
         { id: 'security', name: 'Security', icon: <FaShieldAlt className="w-4 h-4" /> },
         { id: 'tools',    name: 'Tools',    icon: <FaCalculator className="w-4 h-4" /> },
+        { id: 'data',     name: 'Data',     icon: <FaDatabase className="w-4 h-4" /> },
     ];
 
     const renderSectionContent = () => {
@@ -313,6 +315,9 @@ function Settings() {
                         ))}
                     </div>
                 );
+
+            case 'data':
+                return <DataSection />;
 
             default:
                 return null;

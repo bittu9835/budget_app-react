@@ -1,11 +1,9 @@
-import { type FC, useContext, useEffect } from 'react';
+import { type FC, useContext } from 'react';
 import { useLocation } from 'react-router-dom';
-import { HiOutlineRefresh } from "react-icons/hi";
 import avtar from '../../../Assets/avtar.png'
 import { DataContext } from '../../../Context/DataProvider';
 import Profile from '../Profile/Profile';
 import { FaPlus } from 'react-icons/fa';
-import http from '../../../Services/http/http';
 
 interface TopNavProps { }
 const TopNav: FC<TopNavProps> = () => {

@@ -19,6 +19,14 @@ const SignIn: FC<SignInProps> = () => {
     const cardControls = useAnimation();
     const [isLoading, setIsLoading] = useState(false)
 
+    // If user is already logged in, skip the email/password screen
+    useEffect(() => {
+        if (localStorage.getItem('token')) {
+            navigate(isMpinSet() ? '/mpin' : '/setup-mpin', { replace: true });
+        }
+        // eslint-disable-next-line
+    }, []);
+
     const initialValues = {
         email: '',
         password: ''

@@ -14,6 +14,7 @@ import {
     getAllCategoriesFromDB,
     syncCategoriesFromServer,
     getAllAccountsFromDB,
+    CategoryOption,
 } from '../../../Services/transactionService';
 
 interface AddTransactionsProps {
@@ -38,8 +39,8 @@ interface AccountDetails {
 const AddTransactions: FC<AddTransactionsProps> = ({ openFotm, setOpenForm }) => {
     const { render, setRender, transactionForEdit, settransactionForEdit, setSelectedTransaction }: any = useContext(DataContext);
     const [isButtonLoading, setIsButtonLoading] = useState(false)
-    const [categoryIncome, setCategoryIncome] = useState<string[]>([])
-    const [categoryExpence, setCategoryExpence] = useState<string[]>([])
+    const [categoryIncome, setCategoryIncome] = useState<CategoryOption[]>([])
+    const [categoryExpence, setCategoryExpence] = useState<CategoryOption[]>([])
     const [accountDetail, setAccountDetail] = useState<AccountDetails[] | null>(null)
     const [cardDetail, setCardDetail] = useState<AccountDetails[] | null>(null)
 
@@ -75,7 +76,11 @@ const AddTransactions: FC<AddTransactionsProps> = ({ openFotm, setOpenForm }) =>
         }),
         date: Yup.date(),
         category: Yup.string().required('Choose Category'),
-        newCategory: Yup.string()
+        newCategory: Yup.string().when('category', ([category]: any) =>
+            category === 'addNewCategory'
+                ? Yup.string().required('Enter a category name').min(1, 'Category name cannot be empty')
+                : Yup.string()
+        )
     });
 
     const handleSubmit = async (values: any, { resetForm }: any) => {
@@ -102,17 +107,22 @@ const AddTransactions: FC<AddTransactionsProps> = ({ openFotm, setOpenForm }) =>
     };
 
     const loadCategories = async () => {
-        try {
-            await syncCategoriesFromServer();
-        } catch {
-            // Offline — will read from IndexedDB below
+        const serverData = await syncCategoriesFromServer();
+        const serverHasData = serverData && (serverData.income.length > 0 || serverData.expence.length > 0);
+
+        if (!serverHasData) {
+            // Server returned empty or request failed — fall back to IndexedDB
+            const [income, expence] = await Promise.all([
+                getAllCategoriesFromDB('income'),
+                getAllCategoriesFromDB('expence'),
+            ]);
+            setCategoryIncome(income);
+            setCategoryExpence(expence);
+        } else {
+            const toOption = (cat: any): CategoryOption => ({ _id: cat._id, category: cat.category, action: cat.action });
+            setCategoryIncome(serverData.income.map(toOption).sort((a, b) => a.category.localeCompare(b.category)));
+            setCategoryExpence(serverData.expence.map(toOption).sort((a, b) => a.category.localeCompare(b.category)));
         }
-        const [income, expence] = await Promise.all([
-            getAllCategoriesFromDB('income'),
-            getAllCategoriesFromDB('expence'),
-        ]);
-        setCategoryIncome(income);
-        setCategoryExpence(expence);
     };
 
     const loadAccountsAndCards = async () => {
@@ -263,15 +273,21 @@ const AddTransactions: FC<AddTransactionsProps> = ({ openFotm, setOpenForm }) =>
                                     Category *
                                 </label>
                                 {values.category === 'addNewCategory' ? (
-                                    <Field
-                                        autoFocus
-                                        id='newCategory'
-                                        name='newCategory'
-                                        type='text'
-                                        placeholder='Enter new category name'
-                                        className='w-full rounded-xl px-4 py-3 text-sm font-semibold outline-none border-2 border-transparent focus:border-[#5200bb] transition-all'
-                                        style={{ background: 'var(--color-bg-outlet)', color: 'var(--color-form-text)' }}
-                                    />
+                                    <>
+                                        <Field
+                                            autoFocus
+                                            id='newCategory'
+                                            name='newCategory'
+                                            type='text'
+                                            placeholder='Enter new category name'
+                                            className={`w-full rounded-xl px-4 py-3 text-sm font-semibold outline-none border-2 transition-all
+                                                ${touched.newCategory && errors.newCategory ? 'border-red-400' : 'border-transparent focus:border-[#5200bb]'}`}
+                                            style={{ background: 'var(--color-bg-outlet)', color: 'var(--color-form-text)' }}
+                                        />
+                                        <ErrorMessage name='newCategory' render={msg =>
+                                            <p className='text-red-500 text-[11px] mt-0.5 pl-1'>{msg}</p>
+                                        } />
+                                    </>
                                 ) : (
                                     <Field
                                         id='category'
@@ -284,9 +300,9 @@ const AddTransactions: FC<AddTransactionsProps> = ({ openFotm, setOpenForm }) =>
                                     >
                                         <option value=''>Select category…</option>
                                         {values.action === 'income'
-                                            ? categoryIncome.map((cat) => <option key={cat} value={cat}>{cat}</option>)
+                                            ? categoryIncome.map((cat) => <option key={cat._id} value={cat.category}>{cat.category}</option>)
                                             : values.action === 'expence'
-                                                ? categoryExpence.map((cat) => <option key={cat} value={cat}>{cat}</option>)
+                                                ? categoryExpence.map((cat) => <option key={cat._id} value={cat.category}>{cat.category}</option>)
                                                 : null}
                                         <option value='addNewCategory'>+ Add New Category</option>
                                     </Field>

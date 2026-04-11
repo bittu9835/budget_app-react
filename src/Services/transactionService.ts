@@ -177,29 +177,34 @@ const CHART_COLORS = {
     balance: 'rgba(75, 192, 192, 1)',
 };
 
+const toNum = (v: any): number => {
+    const n = Number(v);
+    return isFinite(n) ? n : 0;
+};
+
 export const computeDashboardStats = (transactions: TransactionData[]): DashboardStats => {
     const active = transactions.filter(t => t.deleted !== true);
 
     // Totals
     const totalIncome = active
         .filter(t => t.action === 'income')
-        .reduce((sum, t) => sum + (t.amount || 0), 0);
+        .reduce((sum, t) => sum + toNum(t.amount), 0);
 
     const totalExpense = active
         .filter(t => t.action === 'expence')
-        .reduce((sum, t) => sum + (t.amount || 0), 0);
+        .reduce((sum, t) => sum + toNum(t.amount), 0);
 
     // Expense by category
     const expenseByCat: Record<string, number> = {};
     active.filter(t => t.action === 'expence').forEach(t => {
-        expenseByCat[t.category] = (expenseByCat[t.category] || 0) + (t.amount || 0);
+        expenseByCat[t.category] = (expenseByCat[t.category] || 0) + toNum(t.amount);
     });
     const expenseByCategory = Object.entries(expenseByCat).map(([category, amount]) => ({ category, amount }));
 
     // Income by category
     const incomeByCat: Record<string, number> = {};
     active.filter(t => t.action === 'income').forEach(t => {
-        incomeByCat[t.category] = (incomeByCat[t.category] || 0) + (t.amount || 0);
+        incomeByCat[t.category] = (incomeByCat[t.category] || 0) + toNum(t.amount);
     });
     const incomeByCategory = Object.entries(incomeByCat).map(([category, amount]) => ({ category, amount }));
 
@@ -212,9 +217,9 @@ export const computeDashboardStats = (transactions: TransactionData[]): Dashboar
         const d = moment(t.date);
         const key = d.format('YYYY-MM');
         if (t.action === 'income') {
-            monthlyIncome[key] = (monthlyIncome[key] || 0) + (t.amount || 0);
+            monthlyIncome[key] = (monthlyIncome[key] || 0) + toNum(t.amount);
         } else if (t.action === 'expence') {
-            monthlyExpense[key] = (monthlyExpense[key] || 0) + (t.amount || 0);
+            monthlyExpense[key] = (monthlyExpense[key] || 0) + toNum(t.amount);
         }
     });
 
@@ -277,18 +282,13 @@ export const syncFromServer = async (): Promise<boolean> => {
 
             for (const txn of serverTransactions) {
                 const existing = await db.transactions.get(txn._id);
+                const normalized = { ...txn, amount: Number(txn.amount), synced: true };
                 if (!existing) {
                     // Add from server
-                    await db.transactions.put({
-                        id: txn._id,
-                        data: { ...txn, synced: true }
-                    });
+                    await db.transactions.put({ id: txn._id, data: normalized });
                 } else if (existing.data?.synced === true) {
                     // Update from server only if local copy is already synced
-                    await db.transactions.put({
-                        id: txn._id,
-                        data: { ...txn, synced: true }
-                    });
+                    await db.transactions.put({ id: txn._id, data: normalized });
                 }
                 // If local is unsynced, keep local version (it's newer)
             }
@@ -464,7 +464,7 @@ export const deleteAccount = async (_id: string): Promise<boolean> => {
 
 // ─── Categories: Sync from Server into IndexedDB ─────────────────────────────
 
-export const syncCategoriesFromServer = async (): Promise<boolean> => {
+export const syncCategoriesFromServer = async (): Promise<{ income: any[]; expence: any[] } | null> => {
     try {
         const [incomeRes, expenceRes]: any[] = await Promise.all([
             http({ url: '/category/getIncomeCategory', method: 'get' }),
@@ -477,21 +477,85 @@ export const syncCategoriesFromServer = async (): Promise<boolean> => {
         for (const cat of [...income, ...expence]) {
             await db.categories.put({ id: cat._id, data: cat });
         }
-        return true;
+        return { income, expence };
     } catch (error) {
         console.error('Category sync failed:', error);
-        return false;
+        return null;
     }
+};
+
+// ─── Default Categories (static seed list) ───────────────────────────────────
+
+export const DEFAULT_CATEGORIES: { category: string; action: string }[] = [
+    { category: 'Salary',           action: 'income'  },
+    { category: 'Interest',         action: 'income'  },
+    { category: 'Business',         action: 'income'  },
+    { category: 'Extra Income',     action: 'income'  },
+    { category: 'Investment',       action: 'income'  },
+    { category: 'Self Transaction', action: 'income'  },
+    { category: 'Rent',             action: 'expence' },
+    { category: 'Food',             action: 'expence' },
+    { category: 'Transport',        action: 'expence' },
+    { category: 'Shopping',         action: 'expence' },
+    { category: 'Medical',          action: 'expence' },
+    { category: 'Entertainment',    action: 'expence' },
+    { category: 'Education',        action: 'expence' },
+    { category: 'Utilities',        action: 'expence' },
+];
+
+// Seed default categories: push to MongoDB then sync back to IndexedDB
+export const seedAndSyncDefaultCategories = async (): Promise<{ inserted: number; skipped: number }> => {
+    let inserted = 0;
+    let skipped = 0;
+
+    try {
+        // Try to seed on server
+        const res: any = await http({ url: '/category/seedDefault', method: 'post' });
+        if (res?.data?.code === 'SUCCESS_200') {
+            inserted = res.data.data?.inserted?.length ?? 0;
+            skipped  = res.data.data?.skipped?.length  ?? 0;
+        }
+    } catch {
+        // Offline — fall through to local-only insert
+    }
+
+    // Sync server categories into IndexedDB (also handles offline: reads from DB)
+    await syncCategoriesFromServer();
+
+    // Additionally ensure every default category is in IndexedDB locally
+    // (covers the offline case where the server call failed)
+    const existing = await db.categories.toArray();
+    const existingKeys = new Set(existing.map(r => `${r.data?.category}|${r.data?.action}`));
+
+    for (const cat of DEFAULT_CATEGORIES) {
+        const key = `${cat.category}|${cat.action}`;
+        if (!existingKeys.has(key)) {
+            const id = 'default-' + cat.category.replace(/\s+/g, '-').toLowerCase() + '-' + cat.action;
+            await db.categories.put({ id, data: { _id: id, ...cat } });
+            inserted++;
+        }
+    }
+
+    return { inserted, skipped };
 };
 
 // ─── Categories: Read from IndexedDB ─────────────────────────────────────────
 
-export const getAllCategoriesFromDB = async (action?: string): Promise<string[]> => {
+export interface CategoryOption {
+    _id: string;
+    category: string;
+    action: string;
+}
+
+export const getAllCategoriesFromDB = async (action?: string): Promise<CategoryOption[]> => {
     const all = await db.categories.toArray();
     const filtered = action
         ? all.filter(r => r.data?.action === action)
         : all;
-    return filtered.map(r => r.data?.category).filter(Boolean).sort();
+    return filtered
+        .filter(r => r.data?.category)
+        .map(r => ({ _id: r.data._id, category: r.data.category, action: r.data.action }))
+        .sort((a, b) => a.category.localeCompare(b.category));
 };
 
 // ─── Push unsynced local data to server ──────────────────────────────────────
@@ -557,6 +621,72 @@ const pushUnsyncedToServer = async () => {
     }
 };
 
+// ─── Manual Sync: push + pull with stats ─────────────────────────────────────
+
+export interface SyncStats {
+    pushed: number;
+    failed: number;
+    pending: number; // remaining unsynced after operation
+}
+
+export const getTransactionPendingCount = async (): Promise<number> => {
+    const all = await db.transactions.toArray();
+    // Total non-deleted local records — this is what will be pushed on manual sync
+    return all.filter(r => r.data?.deleted !== true).length;
+};
+
+export const manualSyncTransactions = async (): Promise<SyncStats> => {
+    const allRecords = await db.transactions.toArray();
+
+    // Force-push ALL non-deleted records regardless of synced flag.
+    // Backend handles duplicates via E11000 → returns existing doc safely.
+    const toCreate = allRecords.filter(r => r.data?.deleted !== true && r.data?.edited !== true);
+    const toEdit   = allRecords.filter(r => r.data?.deleted !== true && r.data?.edited === true);
+    const toDelete = allRecords.filter(r => r.data?.deleted === true && r.data?.synced !== true);
+
+    let pushed = 0;
+    let failed = 0;
+
+    // Force-create all (backend returns existing doc on duplicate — no harm)
+    for (const record of toCreate) {
+        try {
+            const res: any = await http({ url: '/transaction/addTransaction', method: 'post', data: record.data });
+            if (res?.data?.code === 'SUCCESS_200') {
+                await db.transactions.update(record.id, { data: { ...record.data, synced: true } });
+                pushed++;
+            } else { failed++; }
+        } catch { failed++; }
+    }
+
+    // Force-update edited records (PUT overwrites server copy)
+    for (const record of toEdit) {
+        try {
+            const res: any = await http({ url: '/transaction/editTransactions', method: 'put', data: record.data });
+            if (res?.data?.code === 'SUCCESS_200') {
+                await db.transactions.update(record.id, { data: { ...record.data, synced: true, edited: false } });
+                pushed++;
+            } else { failed++; }
+        } catch { failed++; }
+    }
+
+    // Push pending deletes
+    for (const record of toDelete) {
+        try {
+            const res: any = await http({ url: '/transaction/deleteTransaction', method: 'delete', data: [record.id] });
+            if (res?.data?.code === 'SUCCESS_200') {
+                await db.transactions.delete(record.id);
+                pushed++;
+            } else { failed++; }
+        } catch { failed++; }
+    }
+
+    // Pull latest from server into IndexedDB
+    await syncFromServer();
+
+    const pending = await getTransactionPendingCount();
+    return { pushed, failed, pending };
+};
+
 // ─── Add Transaction (Dual Write) ────────────────────────────────────────────
 
 export const addTransaction = async (values: any): Promise<boolean> => {
@@ -571,6 +701,7 @@ export const addTransaction = async (values: any): Promise<boolean> => {
 
     const txnData: TransactionData = {
         ...values,
+        amount: Number(values.amount),
         _id: id,
         synced: false,
         deleted: false,
@@ -615,6 +746,7 @@ export const editTransaction = async (id: string, values: any): Promise<boolean>
 
     const txnData = {
         ...values,
+        amount: Number(values.amount),
         _id: id,
         synced: false,
         deleted: false,

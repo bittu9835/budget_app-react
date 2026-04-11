@@ -43,7 +43,7 @@ const Home: FC<HomeProps> = () => {
     }, [login]);
 
     return (
-        <div className={`${theme} w-screen h-screen flex flex-col transition-all duration-300 overflow-hidden relative scrollbar-thumb-slate-800`}>
+        <div className={`${theme} w-screen flex flex-col transition-all duration-300 overflow-hidden relative scrollbar-thumb-slate-800`} style={{ height: '100dvh' }}>
             {/* Offline / Syncing Banner — absolute top of the page */}
             <OfflineBanner isOnline={isOnline} isSyncing={isSyncing} />
 
