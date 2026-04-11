@@ -3,13 +3,17 @@ import { ErrorMessage, Field, Form, Formik } from 'formik';
 import * as Yup from 'yup';
 import { IoClose } from 'react-icons/io5';
 import { LuIndianRupee } from 'react-icons/lu';
-import http from '../../../Services/http/http';
 import { toast } from 'react-toastify';
 import { DataContext } from '../../../Context/DataProvider';
 import { useNavigate } from 'react-router-dom';
 import AddTransaction2 from './AddTransaction2';
-import { db } from '../../../db';
-// import Loader from '../../Common/Loader/Loader';
+import {
+    addTransaction as addTransactionService,
+    editTransaction as editTransactionService,
+    getAllCategoriesFromDB,
+    syncCategoriesFromServer,
+    getAllAccountsFromDB,
+} from '../../../Services/transactionService';
 
 interface AddTransactionsProps {
     openFotm: boolean;
@@ -31,17 +35,15 @@ interface AccountDetails {
 }
 
 const AddTransactions: FC<AddTransactionsProps> = ({ openFotm, setOpenForm }) => {
-    const { render, setRender, transactionForEdit, settransactionForEdit, setSelectedTransaction, dbStatus }: any = useContext(DataContext);
+    const { render, setRender, transactionForEdit, settransactionForEdit, setSelectedTransaction }: any = useContext(DataContext);
     const [isButtonLoading, setIsButtonLoading] = useState(false)
-    const [categoryIncome, setCategoryIncome] = useState<any>()
-    const [categoryExpence, setCategoryExpence] = useState<any>()
+    const [categoryIncome, setCategoryIncome] = useState<string[]>([])
+    const [categoryExpence, setCategoryExpence] = useState<string[]>([])
     const [accountDetail, setAccountDetail] = useState<AccountDetails[] | null>(null)
     const [cardDetail, setCardDetail] = useState<AccountDetails[] | null>(null)
 
-    // const [isLoading, setIsLoading] = useState(true)
     const navigate = useNavigate()
     const paymentMethods = ['Cash', 'Account', 'Card'];
-
 
     const handleNavigateAccount = () => {
         setOpenForm(false)
@@ -75,180 +77,67 @@ const AddTransactions: FC<AddTransactionsProps> = ({ openFotm, setOpenForm }) =>
         newCategory: Yup.string()
     });
 
-    const generateUniqueId = () => {
-        return crypto.randomUUID ? crypto.randomUUID() : 'id-' + Date.now() + '-' + Math.random().toString(36).substr(2, 9);
-    };
-
     const handleSubmit = async (values: any, { resetForm }: any) => {
-        if (transactionForEdit !== null) {
-            if (!dbStatus) {
-                toast.error('Please check your database connection');
-                return;
+        setIsButtonLoading(true);
+        try {
+            if (transactionForEdit !== null) {
+                const editId = transactionForEdit?.id || transactionForEdit?._id;
+                await editTransactionService(editId, values);
+                toast.success('Transaction updated successfully');
+                settransactionForEdit(null);
+                setSelectedTransaction([]);
+            } else {
+                await addTransactionService(values);
+                toast.success('Transaction added successfully');
             }
-
-            setIsButtonLoading(true)
-            if (values.paymentMethod === 'Cash') {
-                values['from'] = 'Cash';
-            }
-            if (values.category === 'addNewCategory') {
-                values['category'] = values.newCategory;
-            }
-            values['_id'] = transactionForEdit?.id
-            values['synced'] = false
-            values['deleted'] = false
-            values['edited'] = true
-            await db.transactions.update(transactionForEdit?.id, {
-                data: values
-            });
-            toast.success('Transaction updated successfully');
-            settransactionForEdit(null)
-            setSelectedTransaction([])
-            setIsButtonLoading(false)
-            setRender(!render)
-            setOpenForm(false)
+            setIsButtonLoading(false);
+            setRender(!render);
+            setOpenForm(false);
             resetForm();
-            // try {
-            //     const response: any = await http({
-            //         url: `/transaction/editTransactions`,
-            //         method: 'put',
-            //         data: values
-            //     });
-            //     if (response?.data?.code === 'SUCCESS_200') {
-            //         toast.success(response?.data?.message);
-            //         settransactionForEdit(null)
-            //         setSelectedTransaction([])
-            //         setIsButtonLoading(false)
-            //         setRender(!render)
-            //         setOpenForm(false)
-            //         resetForm();
-            //     } else {
-            //         toast.error(response?.data?.message);
-            //     }
-            // } catch (error: any | unknown) {
-            //     toast.error(error?.message);
-            //     setIsButtonLoading(false)
-            // }
-        } else {
-            setIsButtonLoading(true)
-            if (values.paymentMethod === 'Cash') {
-                values['from'] = 'Cash';
-            }
-            if (values.category === 'addNewCategory') {
-                values['category'] = values.newCategory;
-            }
-            values['synced'] = false
-            values['_id'] = generateUniqueId()
-            await db.transactions.add({
-                id: values['_id'],
-                data: values
-            });
-            toast.success('Transaction added successfully');
-            setIsButtonLoading(false)
-            setRender(!render)
-            setOpenForm(false)
-            resetForm();
-            // try {
-                // const response: any = await http({
-                //     url: `/transaction/addTransaction`,
-                //     method: 'post',
-                //     data: values
-                // });
-            //     if (response?.data?.code === 'SUCCESS_200') {
-            //         toast.success(response?.data?.message);
-            //         setIsButtonLoading(false)
-            //         setRender(!render)
-            //         setOpenForm(false)
-            //         resetForm();
-            //     } else {
-            //         toast.error(response?.data?.message);
-            //     }
-            // } catch (error: any | unknown) {
-            //     toast.error(error?.message);
-            //     setIsButtonLoading(false)
-            // }
+        } catch (error: any) {
+            console.error('Transaction submit failed:', error);
+            setIsButtonLoading(false);
         }
     };
 
+    // Load categories: try API (and cache), fall back to IndexedDB cache
+    const loadCategories = async () => {
+        try {
+            await syncCategoriesFromServer();
+        } catch {
+            // Offline — will read from IndexedDB below
+        }
+        const [income, expence] = await Promise.all([
+            getAllCategoriesFromDB('income'),
+            getAllCategoriesFromDB('expence'),
+        ]);
+        setCategoryIncome(income);
+        setCategoryExpence(expence);
+    };
 
-    const FeatchIncomeCategory = async () => {
+    // Load accounts/cards from IndexedDB (already cached by sync)
+    const loadAccountsAndCards = async () => {
         try {
-            const response: any = await http({
-                url: `/category/getIncomeCategory`,
-                method: 'get',
-            });
-            if (response?.data?.code === 'SUCCESS_200') {
-                setCategoryIncome(response?.data?.data)
-            } else {
-                toast.error(response?.data?.message);
-            }
-        } catch (error: any | unknown) {
-            toast.error(error?.message);
-            setIsButtonLoading(false)
+            const [accounts, cards] = await Promise.all([
+                getAllAccountsFromDB('bank'),
+                getAllAccountsFromDB('card'),
+            ]);
+            setAccountDetail(accounts as any);
+            setCardDetail(cards as any);
+        } catch (error) {
+            console.error('Failed to load accounts/cards:', error);
         }
-    }
-    const FeatchExpenceCategory = async () => {
-        try {
-            const response: any = await http({
-                url: `/category/getExpenceCategory`,
-                method: 'get',
-            });
-            if (response?.data?.code === 'SUCCESS_200') {
-                setCategoryExpence(response?.data?.data)
-            } else {
-                toast.error(response?.data?.message);
-            }
-        } catch (error: any | unknown) {
-            toast.error(error?.message);
-            setIsButtonLoading(false)
-        }
-    }
-    const FeatchAccountDetails = async () => {
-        try {
-            const response: any = await http({
-                url: `/account/gatAccount`,
-                method: 'get',
-            });
-            if (response?.data?.code === 'SUCCESS_200') {
-                setAccountDetail(response?.data?.data)
-                setTimeout(() => {
-                    // setIsLoading(false)
-                }, 500)
-            } else {
-                toast.error(response?.data?.message);
-            }
-        } catch (error: any | unknown) {
-            toast.error(error?.message);
-            // setIsLoading(false)
-        }
-    }
-    const FeatchCardDetails = async () => {
-        try {
-            const response: any = await http({
-                url: `/account/gatCard`,
-                method: 'get',
-            });
-            if (response?.data?.code === 'SUCCESS_200') {
-                setCardDetail(response?.data?.data)
-                setTimeout(() => {
-                    // setIsLoading(false)
-                }, 500)
-            } else {
-                toast.error(response?.data?.message);
-            }
-        } catch (error: any | unknown) {
-            toast.error(error?.message);
-            // setIsLoading(false)
-        }
-    }
-    useEffect(() => {
-        FeatchIncomeCategory()
-        FeatchExpenceCategory()
-    }, [])
+    };
 
     useEffect(() => {
-        FeatchCardDetails()
-        FeatchAccountDetails()
-    }, [render])
+        loadCategories();
+        // eslint-disable-next-line
+    }, []);
+
+    useEffect(() => {
+        loadAccountsAndCards();
+        // eslint-disable-next-line
+    }, [render]);
 
     return (
         <div className={`w-full h-full ${openFotm ? 'translate-y-0' : 'translate-y-full'} fixed z-40 top-0 bg-black bg-opacity-70  transition-all duration-300 flex items-center justify-center`}>
@@ -325,20 +214,16 @@ const AddTransactions: FC<AddTransactionsProps> = ({ openFotm, setOpenForm }) =>
                                         >
                                             <option value=''></option>
                                             {values.action === 'income' ?
-                                                categoryIncome?.map((item: any) => (
-                                                    <option key={item._id} value={item.category}>
-                                                        {item.category}
-                                                    </option>
+                                                categoryIncome.map((cat) => (
+                                                    <option key={cat} value={cat}>{cat}</option>
                                                 ))
                                                 :
                                                 values.action === 'expence' ?
-                                                    categoryExpence?.map((item: any) => (
-                                                        <option key={item._id} value={item.category}>
-                                                            {item.category}
-                                                        </option>
+                                                    categoryExpence.map((cat) => (
+                                                        <option key={cat} value={cat}>{cat}</option>
                                                     ))
                                                     :
-                                                    ''
+                                                    null
                                             }
                                             <option value='addNewCategory'>Add Category</option>
                                         </Field>

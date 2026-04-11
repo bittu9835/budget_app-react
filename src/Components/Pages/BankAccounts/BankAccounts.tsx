@@ -1,6 +1,5 @@
 import { useState, type FC, useContext, useEffect } from 'react';
 import { IoAdd } from 'react-icons/io5';
-import http from '../../../Services/http/http';
 import { toast } from 'react-toastify';
 import { DataContext } from '../../../Context/DataProvider';
 import Loader from '../../Common/Loader/Loader';
@@ -12,14 +11,20 @@ import cardStatement from '../../../Assets/cardStatment.png';
 import { MdOutlineModeEditOutline } from 'react-icons/md'
 import { RiDeleteBin6Line } from 'react-icons/ri'
 import BankAccountForm from './BankAccountForm';
+import {
+    getAllAccountsFromDB,
+    getOneAccountFromDB,
+    deleteAccount,
+    syncAccountsFromServer,
+} from '../../../Services/transactionService';
 
 interface BankAccountsProps { }
 
 const BankAccounts: FC<BankAccountsProps> = () => {
     const { render, setRender, setAccountForEdit }: any = useContext(DataContext);
     const [openBankForm, setOpenBankForm] = useState(false)
-    const [accountDetail, setAccountDetail] = useState<any | null>(null)
-    const [cardDetail, setCardDetail] = useState<any | null>(null)
+    const [accountDetail, setAccountDetail] = useState<any[]>([])
+    const [cardDetail, setCardDetail] = useState<any[]>([])
     const [isLoadingButton, setIsLoadingButton] = useState(false)
     const [isLoadingEdit, setIsLoadingEdit] = useState(false)
     const [isLoadingDelete, setIsLoadingDelete] = useState(false)
@@ -35,96 +40,68 @@ const BankAccounts: FC<BankAccountsProps> = () => {
         setOpenBankForm(true)
     }
 
-    const FeatchAccountDetails = async () => {
-        try {
-            const response: any = await http({
-                url: `/account/gatAccount`,
-                method: 'get',
-            });
+    const loadFromDB = async () => {
+        const accounts = await getAllAccountsFromDB('bank');
+        const cards = await getAllAccountsFromDB('card');
+        setAccountDetail(accounts);
+        setCardDetail(cards);
+        setIsLoading(false);
+    };
 
-            if (response?.data?.code === 'SUCCESS_200') {
-                setAccountDetail(response?.data?.data)
-                setIsLoading(false)
-            } else {
-                toast.error(response?.data?.message);
-            }
-        } catch (error: any | unknown) {
-            toast.error(error?.message);
-            setIsLoadingButton(false)
-        }
-    }
-    const FeatchCardDetails = async () => {
+    const fetchAndCache = async () => {
+        setIsLoading(true);
+        // Load cached data first (instant display)
+        await loadFromDB();
+        // Then sync fresh data from server in background
         try {
-            const response: any = await http({
-                url: `/account/gatCard`,
-                method: 'get',
-            });
-            if (response?.data?.code === 'SUCCESS_200') {
-                setCardDetail(response?.data?.data)
-                setIsLoading(false)
-            } else {
-                toast.error(response?.data?.message);
-            }
-        } catch (error: any | unknown) {
-            toast.error(error?.message);
-            setIsLoadingButton(false)
+            await syncAccountsFromServer();
+            // Reload from IndexedDB after sync
+            const accounts = await getAllAccountsFromDB('bank');
+            const cards = await getAllAccountsFromDB('card');
+            setAccountDetail(accounts);
+            setCardDetail(cards);
+        } catch {
+            // Offline — already showing cached data, nothing to do
         }
-    }
+    };
+
     const deleteAccountCard = async (_id: string) => {
-        setIsLoadingDelete(true)
+        setIsLoadingDelete(true);
         try {
-            const response: any = await http({
-                url: `/account/deleteAccountCard`,
-                method: 'delete',
-                data: { '_id': _id }
-            });
-            if (response?.data?.code === 'SUCCESS_200') {
-                setRender(!render)
-                setTimeout(() => {
-                    setIsLoadingDelete(false)
-                }, 500)
-                toast.success(response?.data?.message);
-            } else {
-                toast.error(response?.data?.message);
-            }
-        } catch (error: any | unknown) {
-            toast.error(error?.message);
-            setIsLoadingDelete(false)
+            await deleteAccount(_id);
+            setRender((prev: boolean) => !prev);
+            toast.success('Deleted successfully');
+        } catch (error: any) {
+            console.error('Delete failed:', error);
+        } finally {
+            setTimeout(() => setIsLoadingDelete(false), 500);
         }
-    }
+    };
 
     const editAccount = async (_id: string) => {
-        setIsLoadingEdit(true)
+        setIsLoadingEdit(true);
         try {
-            const response: any = await http({
-                url: `/account/gatOneAccountCard`,
-                method: 'get',
-                data: { '_id': _id }
-            });
-            if (response?.data?.code === 'SUCCESS_200') {
-                setAccountForEdit(response?.data?.data)
-                setType(response?.data?.data?.type)
+            const data = await getOneAccountFromDB(_id);
+            if (data) {
+                setAccountForEdit(data);
+                setType(data.type);
                 setTimeout(() => {
-                    setIsLoadingEdit(false)
-                    setOpenBankForm(true)
-                }, 500);
+                    setIsLoadingEdit(false);
+                    setOpenBankForm(true);
+                }, 300);
             } else {
-                toast.error(response?.data?.message);
+                setIsLoadingEdit(false);
             }
         } catch (error: any) {
-            setIsLoadingEdit(false)
-            if (error.response && error.response.data && error.response.data.message) {
-                toast.error(error?.response?.data?.message);
-            } else {
-                toast.error('Error fetching Transactions.');
-            }
+            console.error('Error fetching account details:', error);
+            setIsLoadingEdit(false);
         }
-    }
+    };
 
     useEffect(() => {
-        FeatchAccountDetails()
-        FeatchCardDetails()
-    },[render])
+        fetchAndCache();
+        // eslint-disable-next-line
+    }, [render]);
 
     return (
         <div className='w-full h-full relative'>

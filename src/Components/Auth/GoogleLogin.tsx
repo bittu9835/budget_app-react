@@ -3,6 +3,7 @@ import { GoogleOAuthProvider, GoogleLogin, CredentialResponse } from '@react-oau
 import { toast } from 'react-toastify';
 import { useNavigate } from 'react-router-dom';
 import http from '../../Services/http/http';
+import { isMpinSet } from '../../Services/mpinUtils';
 
 interface GoogleLoginButtonProps {
 
@@ -27,8 +28,8 @@ const GoogleLoginButton: FC<GoogleLoginButtonProps> = () => {
                     localStorage.setItem('userDetails', JSON.stringify(backendResponse.data.data.user));
                     toast.success(backendResponse?.data?.message);
                     setTimeout(() => {
-                        navigate('home/dashBoard');
-                    }, 1000);
+                        navigate(isMpinSet() ? '/mpin' : '/setup-mpin');
+                    }, 800);
                 } else {
                     toast.error(backendResponse?.data?.message);
                 }
