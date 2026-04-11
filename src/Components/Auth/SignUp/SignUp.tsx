@@ -1,7 +1,6 @@
 import { useState, type FC } from 'react';
 import bg from '../../../Assets/Login.jpg'
 import icon from '../../../Assets/favicon1.png'
-import bg2 from '../../../Assets/bitcoin-6219345_1280.jpg'
 import { ErrorMessage, Field, Form, Formik } from 'formik';
 import { FaEye, FaEyeSlash } from 'react-icons/fa';
 import * as Yup from 'yup';

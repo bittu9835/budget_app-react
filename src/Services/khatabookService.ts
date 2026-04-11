@@ -265,3 +265,93 @@ export const pushUnsyncedKhatabookToServer = async (): Promise<void> => {
         console.error('Khatabook push unsynced failed:', err);
     }
 };
+
+// ─── Manual Sync: push + pull with stats ─────────────────────────────────────
+
+export interface KhatabookSyncStats {
+    pushed: number;
+    failed: number;
+    pending: number;
+}
+
+export const getKhatabookPendingCount = async (): Promise<number> => {
+    const customers = await db.khatabookCustomers.toArray();
+    const entries   = await db.khatabookTransactions.toArray();
+    // Total non-deleted local records — what will be force-pushed on manual sync
+    return (
+        customers.filter(r => r.data?.deleted !== true).length +
+        entries.filter(r => r.data?.deleted !== true).length
+    );
+};
+
+export const manualSyncKhatabook = async (): Promise<KhatabookSyncStats> => {
+    let pushed = 0;
+    let failed = 0;
+
+    // ── Customers ──────────────────────────────────────────────────────────────
+    const allCustomers = await db.khatabookCustomers.toArray();
+    // Force-push ALL non-deleted customers regardless of synced flag
+    const unsyncedCustomers = allCustomers.filter(c => c.data?.deleted !== true);
+
+    for (const c of unsyncedCustomers) {
+        try {
+            let res: any;
+            if (c.data?.deleted) {
+                res = await http({ url: '/khatabook/delete', method: 'delete', data: { _id: c.id } });
+            } else if (c.data?.edited) {
+                res = await http({ url: '/khatabook/editCustomer', method: 'put', data: c.data });
+            } else {
+                res = await http({ url: '/khatabook/create', method: 'post', data: c.data });
+            }
+            if (res?.data?.code === 'SUCCESS_200') {
+                if (c.data?.deleted) {
+                    await db.khatabookCustomers.delete(c.id);
+                } else {
+                    await db.khatabookCustomers.update(c.id, { data: { ...c.data, synced: true, edited: false } });
+                }
+                pushed++;
+            } else { failed++; }
+        } catch (err: any) {
+            // Duplicate key — already on server, mark as synced
+            if (err?.response?.data?.code === 11000 || err?.message?.includes('11000')) {
+                await db.khatabookCustomers.update(c.id, { data: { ...c.data, synced: true } });
+                pushed++;
+            } else { failed++; }
+        }
+    }
+
+    // ── Ledger Entries ─────────────────────────────────────────────────────────
+    const allEntries = await db.khatabookTransactions.toArray();
+    // Force-push ALL non-deleted entries regardless of synced flag
+    const unsyncedEntries = allEntries.filter(e => e.data?.deleted !== true);
+
+    for (const e of unsyncedEntries) {
+        try {
+            let res: any;
+            if (e.data?.deleted) {
+                res = await http({ url: '/khatabook/deleteEntry', method: 'delete', data: { _id: e.id } });
+            } else {
+                res = await http({ url: '/khatabook/addEntry', method: 'post', data: e.data });
+            }
+            if (res?.data?.code === 'SUCCESS_200') {
+                if (e.data?.deleted) {
+                    await db.khatabookTransactions.delete(e.id);
+                } else {
+                    await db.khatabookTransactions.update(e.id, { data: { ...e.data, synced: true } });
+                }
+                pushed++;
+            } else { failed++; }
+        } catch (err: any) {
+            if (err?.response?.data?.code === 11000 || err?.message?.includes('11000')) {
+                await db.khatabookTransactions.update(e.id, { data: { ...e.data, synced: true } });
+                pushed++;
+            } else { failed++; }
+        }
+    }
+
+    // Pull latest from server
+    await syncKhatabookFromServer();
+
+    const pending = await getKhatabookPendingCount();
+    return { pushed, failed, pending };
+};
