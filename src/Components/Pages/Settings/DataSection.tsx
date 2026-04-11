@@ -17,8 +17,6 @@ import {
     type ParsedRow,
 } from '../../../Services/dataPortService';
 import {
-    seedAndSyncDefaultCategories,
-    DEFAULT_CATEGORIES,
     manualSyncTransactions,
     getTransactionPendingCount,
 } from '../../../Services/transactionService';
@@ -226,7 +224,6 @@ function KhatabookPreview({ rows, onConfirm, onCancel, loading }: KhatabookPrevi
 
 export default function DataSection() {
     const [exporting, setExporting] = useState<string | null>(null);
-    const [syncingCategories, setSyncingCategories] = useState(false);
 
     // Sync-to-server state
     const [txnPending, setTxnPending]   = useState<number | null>(null);
@@ -262,24 +259,6 @@ export default function DataSection() {
             toast.error('Export failed: ' + (e?.message || 'Unknown error'));
         } finally {
             setExporting(null);
-        }
-    };
-
-    // ── Seed default categories ──────────────────────────────────────────────
-
-    const handleSyncCategories = async () => {
-        setSyncingCategories(true);
-        try {
-            const { inserted, skipped } = await seedAndSyncDefaultCategories();
-            if (inserted > 0) {
-                toast.success(`${inserted} categories added, ${skipped} already existed`);
-            } else {
-                toast.info('All default categories already exist');
-            }
-        } catch {
-            toast.error('Failed to sync categories');
-        } finally {
-            setSyncingCategories(false);
         }
     };
 
@@ -396,63 +375,11 @@ export default function DataSection() {
 
     // ── UI ───────────────────────────────────────────────────────────────────
 
-    const incomeDefaults  = DEFAULT_CATEGORIES.filter(c => c.action === 'income');
-    const expenseDefaults = DEFAULT_CATEGORIES.filter(c => c.action === 'expence');
-
     return (
         <div className="space-y-8">
             <div>
                 <h3 className="text-lg font-semibold text-gray-800">Data & Backup</h3>
                 <p className="text-xs text-gray-500 mt-1">Export your data as Excel or PDF, or bulk import from a spreadsheet.</p>
-            </div>
-
-            {/* Sync Default Categories */}
-            <div className="border border-gray-200 rounded-xl overflow-hidden">
-                <div className="px-4 py-3 border-b border-gray-100" style={{ background: 'linear-gradient(135deg,#fefce8,#fef9c3)' }}>
-                    <p className="text-sm font-bold text-yellow-700">Default Categories</p>
-                </div>
-                <div className="p-4 space-y-4">
-                    <p className="text-xs text-gray-500">
-                        Seed the standard income and expense categories into your account. Skips any that already exist.
-                    </p>
-
-                    {/* Preview chips */}
-                    <div className="space-y-2">
-                        <div>
-                            <p className="text-[10px] font-semibold text-gray-400 uppercase tracking-widest mb-1">Income</p>
-                            <div className="flex flex-wrap gap-1.5">
-                                {incomeDefaults.map(c => (
-                                    <span key={c.category} className="px-2 py-0.5 rounded-full text-xs font-medium bg-green-50 text-green-700 border border-green-200">
-                                        {c.category}
-                                    </span>
-                                ))}
-                            </div>
-                        </div>
-                        <div>
-                            <p className="text-[10px] font-semibold text-gray-400 uppercase tracking-widest mb-1">Expense</p>
-                            <div className="flex flex-wrap gap-1.5">
-                                {expenseDefaults.map(c => (
-                                    <span key={c.category} className="px-2 py-0.5 rounded-full text-xs font-medium bg-red-50 text-red-600 border border-red-200">
-                                        {c.category}
-                                    </span>
-                                ))}
-                            </div>
-                        </div>
-                    </div>
-
-                    <button
-                        onClick={handleSyncCategories}
-                        disabled={syncingCategories}
-                        className="flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-semibold text-white transition-all disabled:opacity-50"
-                        style={{ background: 'linear-gradient(135deg,#ca8a04,#eab308)' }}
-                    >
-                        {syncingCategories
-                            ? <span className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin" />
-                            : '🔄'
-                        }
-                        {syncingCategories ? 'Syncing…' : 'Sync Default Categories'}
-                    </button>
-                </div>
             </div>
 
             {/* Sync to MongoDB */}

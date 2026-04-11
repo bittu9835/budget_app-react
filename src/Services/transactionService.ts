@@ -474,75 +474,33 @@ export const syncCategoriesFromServer = async (): Promise<{ income: any[]; expen
         const income: any[] = incomeRes?.data?.code === 'SUCCESS_200' ? incomeRes.data.data : [];
         const expence: any[] = expenceRes?.data?.code === 'SUCCESS_200' ? expenceRes.data.data : [];
 
-        for (const cat of [...income, ...expence]) {
-            await db.categories.put({ id: cat._id, data: cat });
+        // Deduplicate case-insensitively — keep the first (properly-cased) entry per name
+        const dedup = (arr: any[]): any[] => {
+            const seen = new Set<string>();
+            return arr.filter(c => {
+                const k = (c.category as string).toLowerCase().replace(/\s+/g, '_');
+                if (seen.has(k)) return false;
+                seen.add(k);
+                return true;
+            });
+        };
+        const dedupedIncome = dedup(income);
+        const dedupedExpence = dedup(expence);
+
+        for (const cat of [...dedupedIncome, ...dedupedExpence]) {
+            const key = `${cat.category}_${cat.action}`.toLowerCase().replace(/\s+/g, '_');
+            await db.categories.put({ id: key, data: { category: cat.category, action: cat.action } });
         }
-        return { income, expence };
+        return { income: dedupedIncome, expence: dedupedExpence };
     } catch (error) {
         console.error('Category sync failed:', error);
         return null;
     }
 };
 
-// ─── Default Categories (static seed list) ───────────────────────────────────
-
-export const DEFAULT_CATEGORIES: { category: string; action: string }[] = [
-    { category: 'Salary',           action: 'income'  },
-    { category: 'Interest',         action: 'income'  },
-    { category: 'Business',         action: 'income'  },
-    { category: 'Extra Income',     action: 'income'  },
-    { category: 'Investment',       action: 'income'  },
-    { category: 'Self Transaction', action: 'income'  },
-    { category: 'Rent',             action: 'expence' },
-    { category: 'Food',             action: 'expence' },
-    { category: 'Transport',        action: 'expence' },
-    { category: 'Shopping',         action: 'expence' },
-    { category: 'Medical',          action: 'expence' },
-    { category: 'Entertainment',    action: 'expence' },
-    { category: 'Education',        action: 'expence' },
-    { category: 'Utilities',        action: 'expence' },
-];
-
-// Seed default categories: push to MongoDB then sync back to IndexedDB
-export const seedAndSyncDefaultCategories = async (): Promise<{ inserted: number; skipped: number }> => {
-    let inserted = 0;
-    let skipped = 0;
-
-    try {
-        // Try to seed on server
-        const res: any = await http({ url: '/category/seedDefault', method: 'post' });
-        if (res?.data?.code === 'SUCCESS_200') {
-            inserted = res.data.data?.inserted?.length ?? 0;
-            skipped  = res.data.data?.skipped?.length  ?? 0;
-        }
-    } catch {
-        // Offline — fall through to local-only insert
-    }
-
-    // Sync server categories into IndexedDB (also handles offline: reads from DB)
-    await syncCategoriesFromServer();
-
-    // Additionally ensure every default category is in IndexedDB locally
-    // (covers the offline case where the server call failed)
-    const existing = await db.categories.toArray();
-    const existingKeys = new Set(existing.map(r => `${r.data?.category}|${r.data?.action}`));
-
-    for (const cat of DEFAULT_CATEGORIES) {
-        const key = `${cat.category}|${cat.action}`;
-        if (!existingKeys.has(key)) {
-            const id = 'default-' + cat.category.replace(/\s+/g, '-').toLowerCase() + '-' + cat.action;
-            await db.categories.put({ id, data: { _id: id, ...cat } });
-            inserted++;
-        }
-    }
-
-    return { inserted, skipped };
-};
-
 // ─── Categories: Read from IndexedDB ─────────────────────────────────────────
 
 export interface CategoryOption {
-    _id: string;
     category: string;
     action: string;
 }
@@ -554,7 +512,7 @@ export const getAllCategoriesFromDB = async (action?: string): Promise<CategoryO
         : all;
     return filtered
         .filter(r => r.data?.category)
-        .map(r => ({ _id: r.data._id, category: r.data.category, action: r.data.action }))
+        .map(r => ({ category: r.data.category, action: r.data.action }))
         .sort((a, b) => a.category.localeCompare(b.category));
 };
 

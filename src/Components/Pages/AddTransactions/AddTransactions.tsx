@@ -119,7 +119,7 @@ const AddTransactions: FC<AddTransactionsProps> = ({ openFotm, setOpenForm }) =>
             setCategoryIncome(income);
             setCategoryExpence(expence);
         } else {
-            const toOption = (cat: any): CategoryOption => ({ _id: cat._id, category: cat.category, action: cat.action });
+            const toOption = (cat: any): CategoryOption => ({ category: cat.category, action: cat.action });
             setCategoryIncome(serverData.income.map(toOption).sort((a, b) => a.category.localeCompare(b.category)));
             setCategoryExpence(serverData.expence.map(toOption).sort((a, b) => a.category.localeCompare(b.category)));
         }
@@ -300,9 +300,9 @@ const AddTransactions: FC<AddTransactionsProps> = ({ openFotm, setOpenForm }) =>
                                     >
                                         <option value=''>Select category…</option>
                                         {values.action === 'income'
-                                            ? categoryIncome.map((cat) => <option key={cat._id} value={cat.category}>{cat.category}</option>)
+                                            ? categoryIncome.map((cat) => <option key={cat.category} value={cat.category}>{cat.category}</option>)
                                             : values.action === 'expence'
-                                                ? categoryExpence.map((cat) => <option key={cat._id} value={cat.category}>{cat.category}</option>)
+                                                ? categoryExpence.map((cat) => <option key={cat.category} value={cat.category}>{cat.category}</option>)
                                                 : null}
                                         <option value='addNewCategory'>+ Add New Category</option>
                                     </Field>
