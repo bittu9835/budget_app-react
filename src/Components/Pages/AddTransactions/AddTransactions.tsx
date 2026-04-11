@@ -147,7 +147,6 @@ const AddTransactions: FC<AddTransactionsProps> = ({ openFotm, setOpenForm }) =>
         loadAccountsAndCards();
         // eslint-disable-next-line
     }, [render]);
-
     if (!openFotm) return null;
 
     return (
