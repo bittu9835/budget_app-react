@@ -13,6 +13,7 @@ export interface CustomerData {
     deleted: boolean;
     created_at?: string;
     created_by?: string;
+    countInSummary?: boolean; // local-only: whether this customer is included in the summary totals
 }
 
 export interface LedgerEntry {
@@ -45,6 +46,18 @@ const generateId = (): string =>
         ? crypto.randomUUID()
         : 'id-' + Date.now() + '-' + Math.random().toString(36).slice(2);
 
+// Decode JWT payload (no verification — trust the server-issued token)
+const getCurrentUserId = (): string => {
+    try {
+        const token = localStorage.getItem('token');
+        if (!token) return '';
+        const payload = JSON.parse(atob(token.split('.')[1]));
+        return payload.userId || '';
+    } catch {
+        return '';
+    }
+};
+
 // ─── Customer Operations ──────────────────────────────────────────────────────
 
 export const addCustomer = async (values: { name: string; phone: string; address?: string }): Promise<string> => {
@@ -72,10 +85,15 @@ export const addCustomer = async (values: { name: string; phone: string; address
 };
 
 export const getCustomers = async (): Promise<CustomerData[]> => {
+    const currentUserId = getCurrentUserId();
     const all = await db.khatabookCustomers.toArray();
     return all
         .map(r => r.data as CustomerData)
-        .filter(c => !c.deleted && c.isActive !== false);
+        .filter(c =>
+            !c.deleted &&
+            c.isActive !== false &&
+            (!c.created_by || c.created_by === currentUserId)
+        );
 };
 
 export const editCustomer = async (id: string, values: { name: string; phone: string; address?: string }): Promise<void> => {
@@ -112,6 +130,12 @@ export const deleteCustomer = async (id: string): Promise<void> => {
     } catch (err) {
         console.error('Customer delete sync failed, will retry later:', err);
     }
+};
+
+export const toggleCountInSummary = async (id: string, value: boolean): Promise<void> => {
+    const existing = await db.khatabookCustomers.get(id);
+    if (!existing) return;
+    await db.khatabookCustomers.update(id, { data: { ...existing.data, countInSummary: value } });
 };
 
 // ─── Ledger Entry Operations ──────────────────────────────────────────────────
@@ -182,6 +206,7 @@ export const getDashboardTotals = async (): Promise<DashboardTotals> => {
     let totalYouWillGive = 0;
 
     for (const customer of customers) {
+        if (customer.countInSummary === false) continue;
         const summary = await getCustomerSummary(customer._id);
         if (summary.netBalance > 0) {
             totalYouWillGet += summary.netBalance;
@@ -209,7 +234,13 @@ export const syncKhatabookFromServer = async (): Promise<void> => {
                 if (!local || local.data?.synced) {
                     await db.khatabookCustomers.put({
                         id: sc._id,
-                        data: { ...sc, synced: true, deleted: false },
+                        data: {
+                            ...sc,
+                            synced: true,
+                            deleted: false,
+                            // Preserve local-only preference — never overwrite with server value
+                            countInSummary: local?.data?.countInSummary ?? true,
+                        },
                     });
                 }
             }
