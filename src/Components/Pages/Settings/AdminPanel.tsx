@@ -5,10 +5,17 @@ import { getAllUsers, deleteUserAndData, blockUser, unblockUser, AdminUser } fro
 
 type ActionId = string | null;
 
+const DELETE_STEPS = [
+    'Clearing local cache (IndexedDB)…',
+    'Deleting records from server (MongoDB)…',
+    'Removing user account…',
+];
+
 function AdminPanel() {
     const [users, setUsers] = useState<AdminUser[]>([]);
     const [loading, setLoading] = useState(true);
     const [deletingId, setDeletingId] = useState<ActionId>(null);
+    const [deleteStep, setDeleteStep] = useState(0);         // 0 = idle, 1-3 = active step
     const [togglingId, setTogglingId] = useState<ActionId>(null);
     const [confirmDeleteId, setConfirmDeleteId] = useState<ActionId>(null);
 
@@ -40,19 +47,25 @@ function AdminPanel() {
 
     const handleDelete = async (user: AdminUser) => {
         setDeletingId(user._id);
+        setDeleteStep(1);
         setConfirmDeleteId(null);
         try {
-            const result = await deleteUserAndData(user._id);
+            // adminService drives the 3 steps internally; we mirror progress here
+            // by hooking into a thin wrapper that emits step callbacks
+            const result = await deleteUserAndData(user._id, (step: number) => setDeleteStep(step));
             setUsers(prev => prev.filter(u => u._id !== user._id));
             toast.success(
-                `Deleted ${user.name}: ${result.deletedTransactions} transactions, ` +
-                `${result.deletedAccounts} accounts, ${result.deletedCustomers} customers, ` +
-                `${result.deletedLedgerEntries} ledger entries.`
+                `✓ ${user.name} fully deleted.\n` +
+                `IndexedDB — ${result.idbTransactions} tx, ${result.idbAccounts} acc, ` +
+                `${result.idbCustomers} customers, ${result.idbLedgerEntries} ledger.\n` +
+                `MongoDB — ${result.deletedTransactions} tx, ${result.deletedAccounts} acc, ` +
+                `${result.deletedCustomers} customers, ${result.deletedLedgerEntries} ledger.`
             );
         } catch {
-            toast.error('Failed to delete user. Please try again.');
+            toast.error('Deletion failed. Check console and retry.');
         } finally {
             setDeletingId(null);
+            setDeleteStep(0);
         }
     };
 
@@ -139,7 +152,15 @@ function AdminPanel() {
                                 </div>
 
                                 {/* Action buttons */}
-                                {isConfirm ? (
+                                {/* Deletion in progress — show current step */}
+                                {deletingId === user._id ? (
+                                    <div className="flex items-center gap-2 flex-shrink-0 max-w-[160px]">
+                                        <div className="w-3.5 h-3.5 flex-shrink-0 border-2 border-red-400 border-t-transparent rounded-full animate-spin" />
+                                        <span className="text-[10px] text-red-500 font-medium leading-tight">
+                                            {deleteStep > 0 ? DELETE_STEPS[deleteStep - 1] : 'Deleting…'}
+                                        </span>
+                                    </div>
+                                ) : isConfirm ? (
                                     <div className="flex items-center gap-2 flex-shrink-0">
                                         <span className="text-xs text-gray-500">Sure?</span>
                                         <button
@@ -147,7 +168,7 @@ function AdminPanel() {
                                             disabled={isBusy}
                                             className="px-2 py-1 text-xs font-semibold text-white bg-red-500 rounded hover:bg-red-600 transition-colors disabled:opacity-50"
                                         >
-                                            {deletingId === user._id ? '...' : 'Yes, delete'}
+                                            Yes, delete
                                         </button>
                                         <button
                                             onClick={() => setConfirmDeleteId(null)}
