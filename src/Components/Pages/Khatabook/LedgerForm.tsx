@@ -28,10 +28,10 @@ const LedgerForm: FC<LedgerFormProps> = ({ customerId, type, onClose, onSuccess 
     const isCredit = type === 'credit';
 
     const gradient = isCredit
-        ? 'linear-gradient(135deg,#15803d,#22c55e)'
-        : 'linear-gradient(135deg,#b91c1c,#ef4444)';
-    const focusBorder = isCredit ? 'focus:border-green-500' : 'focus:border-red-500';
-    const amountColor = isCredit ? '#16a34a' : '#dc2626';
+        ? 'linear-gradient(135deg,#b91c1c,#ef4444)'
+        : 'linear-gradient(135deg,#15803d,#22c55e)';
+    const focusBorder = isCredit ? 'focus:border-red-500' : 'focus:border-green-500';
+    const amountColor = isCredit ? '#dc2626' : '#16a34a';
 
     const initialValues = {
         amount: '',
@@ -43,7 +43,7 @@ const LedgerForm: FC<LedgerFormProps> = ({ customerId, type, onClose, onSuccess 
         setIsLoading(true);
         try {
             await addLedgerEntry(customerId, type, Number(values.amount), values.note, values.date);
-            toast.success(`${isCredit ? 'Credit' : 'Debit'} entry added`);
+            toast.success(`${isCredit ? 'You Gave' : 'You Got'} entry added`);
             resetForm();
             onSuccess();
             onClose();
@@ -80,10 +80,10 @@ const LedgerForm: FC<LedgerFormProps> = ({ customerId, type, onClose, onSuccess 
                                 </div>
                                 <div className='flex-1'>
                                     <h2 className='font-extrabold text-base' style={{ color: 'var(--color-form-text)' }}>
-                                        {isCredit ? 'Credit Entry' : 'Debit Entry'}
+                                        {isCredit ? 'YOU GAVE' : 'YOU GOT'}
                                     </h2>
                                     <p className='text-xs opacity-40' style={{ color: 'var(--color-form-text)' }}>
-                                        {isCredit ? 'Money you will receive' : 'Money you will give'}
+                                        {isCredit ? 'Money you gave' : 'Money you received'}
                                     </p>
                                 </div>
                                 <button type='button' onClick={onClose}
@@ -162,7 +162,7 @@ const LedgerForm: FC<LedgerFormProps> = ({ customerId, type, onClose, onSuccess 
                                     <button type='submit'
                                         className='flex-1 py-3 rounded-xl font-bold text-sm text-white shadow-md transition-all hover:scale-[1.02]'
                                         style={{ background: gradient }}>
-                                        {isCredit ? 'Add Credit' : 'Add Debit'}
+                                        {isCredit ? 'YOU GAVE' : 'YOU GOT'}
                                     </button>
                                 )}
                             </div>

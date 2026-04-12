@@ -98,8 +98,8 @@ const CustomerDetail: FC = () => {
             // ── Summary boxes ────────────────────────────────────────
             const summaryY = customer.address ? 64 : 57;
             const boxes = [
-                { label: 'You Will Get', value: `Rs.${summary.totalCredit.toLocaleString('en-IN')}`, color: [21, 128, 61] as [number,number,number] },
-                { label: 'You Will Give', value: `Rs.${summary.totalDebit.toLocaleString('en-IN')}`, color: [185, 28, 28] as [number,number,number] },
+                { label: 'You Will Get', value: `Rs.${summary.totalCredit.toLocaleString('en-IN')}`, color: [185, 28, 28] as [number,number,number] },
+                { label: 'You Will Give', value: `Rs.${summary.totalDebit.toLocaleString('en-IN')}`, color: [21, 128, 61] as [number,number,number] },
                 { label: 'Net Balance', value: `Rs.${Math.abs(summary.netBalance).toLocaleString('en-IN')}`, color: [82, 0, 187] as [number,number,number] },
             ];
             boxes.forEach((b, i) => {
@@ -120,7 +120,7 @@ const CustomerDetail: FC = () => {
                 head: [['Date', 'Type', 'Amount', 'Note']],
                 body: entries.map(e => [
                     moment(e.timestamp).format('DD MMM YYYY'),
-                    e.type === 'credit' ? 'Credit' : 'Debit',
+                    e.type === 'credit' ? 'You Gave' : 'You Got',
                     `Rs.${e.amount.toLocaleString('en-IN')}`,
                     e.note || '-',
                 ]),
@@ -130,7 +130,7 @@ const CustomerDetail: FC = () => {
                 columnStyles: { 2: { halign: 'right' } },
                 didParseCell: (data: any) => {
                     if (data.section === 'body' && data.column.index === 1) {
-                        data.cell.styles.textColor = data.cell.text[0] === 'Credit' ? [21, 128, 61] : [185, 28, 28];
+                        data.cell.styles.textColor = data.cell.text[0] === 'You Gave' ? [185, 28, 28] : [21, 128, 61];
                     }
                 },
                 margin: { left: 14, right: 14 },
@@ -151,8 +151,8 @@ const CustomerDetail: FC = () => {
     const headerGradient = isSettled
         ? 'linear-gradient(135deg,#4b5563,#6b7280)'
         : isGet
-            ? 'linear-gradient(135deg,#15803d,#22c55e)'
-            : 'linear-gradient(135deg,#b91c1c,#ef4444)';
+            ? 'linear-gradient(135deg,#b91c1c,#ef4444)'
+            : 'linear-gradient(135deg,#15803d,#22c55e)';
 
     if (isLoading) {
         return (
@@ -188,14 +188,6 @@ const CustomerDetail: FC = () => {
                         className='w-8 h-8 rounded-full flex items-center justify-center bg-white bg-opacity-20 hover:bg-opacity-30 transition-all'>
                         <IoArrowBack className='text-white text-lg' />
                     </button>
-                    <button onClick={handleDownloadPdf} disabled={downloadingPdf || entries.length === 0}
-                        title='Download PDF statement'
-                        className='w-8 h-8 rounded-full flex items-center justify-center bg-white bg-opacity-20 hover:bg-opacity-30 transition-all disabled:opacity-40'>
-                        {downloadingPdf
-                            ? <span className='w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin' />
-                            : <FiDownload className='text-white text-base' />
-                        }
-                    </button>
                     <div className='w-11 h-11 rounded-full flex items-center justify-center text-sm font-black shadow-md bg-white bg-opacity-25'>
                         {getInitials(customer.name)}
                     </div>
@@ -204,6 +196,14 @@ const CustomerDetail: FC = () => {
                         <p className='text-xs opacity-70'>📞 {customer.phone}</p>
                         {customer.address && <p className='text-xs opacity-60 truncate'>📍 {customer.address}</p>}
                     </div>
+                    <button onClick={handleDownloadPdf} disabled={downloadingPdf || entries.length === 0}
+                        title='Download PDF statement'
+                        className='w-8 h-8 rounded-full flex items-center justify-center bg-white bg-opacity-20 hover:bg-opacity-30 transition-all disabled:opacity-40'>
+                        {downloadingPdf
+                            ? <span className='w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin' />
+                            : <FiDownload className='text-white text-base' />
+                        }
+                    </button>
                 </div>
 
                 {/* Balance Row */}
@@ -228,21 +228,21 @@ const CustomerDetail: FC = () => {
                 </div>
             </div>
 
-            {/* ── Credit / Debit Buttons ──────────────────────────── */}
+            {/* ── YOU GAVE / YOU GOT Buttons ───────────────────────── */}
             <div className='flex-shrink-0 flex gap-3 px-4 py-3 border-b' style={{ borderColor: 'var(--color-border)' }}>
                 <button
                     onClick={() => setLedgerForm({ open: true, type: 'credit' })}
                     className='flex-1 flex items-center justify-center gap-2 text-white py-2.5 rounded-xl font-bold text-sm shadow-md hover:scale-[1.02] transition-all duration-200'
-                    style={{ background: 'linear-gradient(135deg,#16a34a,#4ade80)' }}>
+                    style={{ background: 'linear-gradient(135deg,#dc2626,#f87171)' }}>
                     <TbArrowBigUpFilled className='text-base' />
-                    Credit
+                    YOU GAVE
                 </button>
                 <button
                     onClick={() => setLedgerForm({ open: true, type: 'debit' })}
                     className='flex-1 flex items-center justify-center gap-2 text-white py-2.5 rounded-xl font-bold text-sm shadow-md hover:scale-[1.02] transition-all duration-200'
-                    style={{ background: 'linear-gradient(135deg,#dc2626,#f87171)' }}>
+                    style={{ background: 'linear-gradient(135deg,#16a34a,#4ade80)' }}>
                     <TbArrowBigDownFilled className='text-base' />
-                    Debit
+                    YOU GOT
                 </button>
             </div>
 
@@ -264,24 +264,24 @@ const CustomerDetail: FC = () => {
                                     className='flex items-center gap-3 rounded-2xl px-4 py-3 border shadow-sm group transition-all duration-200 hover:shadow-md'
                                     style={{
                                         background: 'var(--color-form-bg)',
-                                        borderColor: isCredit ? '#bbf7d0' : '#fecaca',
+                                        borderColor: isCredit ? '#fecaca' : '#bbf7d0',
                                         borderLeftWidth: 4,
-                                        borderLeftColor: isCredit ? '#16a34a' : '#dc2626',
+                                        borderLeftColor: isCredit ? '#dc2626' : '#16a34a',
                                     }}>
 
                                     {/* Icon bubble */}
                                     <div className='w-9 h-9 rounded-full flex items-center justify-center flex-shrink-0'
-                                        style={{ background: isCredit ? '#dcfce7' : '#fee2e2' }}>
+                                        style={{ background: isCredit ? '#fee2e2' : '#dcfce7' }}>
                                         {isCredit
-                                            ? <TbArrowBigUpFilled className='text-green-600 text-sm' />
-                                            : <TbArrowBigDownFilled className='text-red-500 text-sm' />
+                                            ? <TbArrowBigUpFilled className='text-red-500 text-sm' />
+                                            : <TbArrowBigDownFilled className='text-green-600 text-sm' />
                                         }
                                     </div>
 
                                     {/* Note & Date */}
                                     <div className='flex-1 min-w-0'>
                                         <p className='text-sm font-semibold truncate' style={{ color: 'var(--color-text)' }}>
-                                            {entry.note || (isCredit ? 'Credit entry' : 'Debit entry')}
+                                            {entry.note || (isCredit ? 'You Gave' : 'You Got')}
                                         </p>
                                         <p className='text-xs opacity-40 mt-[1px]' style={{ color: 'var(--color-text)' }}>
                                             {moment(entry.timestamp).format('DD MMM YYYY, hh:mm A')}
@@ -291,7 +291,7 @@ const CustomerDetail: FC = () => {
                                     {/* Amount + Delete */}
                                     <div className='flex items-center gap-2 flex-shrink-0'>
                                         <p className='font-extrabold text-sm'
-                                            style={{ color: isCredit ? '#16a34a' : '#dc2626' }}>
+                                            style={{ color: isCredit ? '#dc2626' : '#16a34a' }}>
                                             {isCredit ? '+' : '-'}₹{entry.amount.toLocaleString('en-IN')}
                                         </p>
                                         <button

@@ -1,9 +1,10 @@
 import React, { useState, useContext } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { FaUser, FaCog, FaShieldAlt, FaCalculator, FaDatabase } from 'react-icons/fa';
+import { FaUser, FaCog, FaShieldAlt, FaCalculator, FaDatabase, FaUserShield } from 'react-icons/fa';
 import { MdOutlineMenuBook } from 'react-icons/md';
 import { IoArrowForward } from 'react-icons/io5';
 import DataSection from './DataSection';
+import AdminPanel from './AdminPanel';
 import { motion, AnimatePresence } from 'framer-motion';
 import { toast } from 'react-toastify';
 import { DataContext } from '../../../Context/DataProvider';
@@ -210,11 +211,14 @@ function MpinSection() {
 
 // ─── Main Settings ────────────────────────────────────────────────────────────
 
+const ADMIN_EMAILS = ['bk2671111@gmail.com', 'bk267111@gmail.com'];
+
 function Settings() {
     const [activeSection, setActiveSection] = useState('profile');
     const userDetails = JSON.parse(localStorage.getItem('userDetails') || '{}');
     const { theme, setTheme } = useContext(DataContext);
     const navigate = useNavigate();
+    const isAdmin = ADMIN_EMAILS.includes(userDetails.email || '');
 
     const settingsSections = [
         { id: 'profile',  name: 'Profile',  icon: <FaUser className="w-4 h-4" /> },
@@ -222,6 +226,7 @@ function Settings() {
         { id: 'security', name: 'Security', icon: <FaShieldAlt className="w-4 h-4" /> },
         { id: 'tools',    name: 'Tools',    icon: <FaCalculator className="w-4 h-4" /> },
         { id: 'data',     name: 'Data',     icon: <FaDatabase className="w-4 h-4" /> },
+        ...(isAdmin ? [{ id: 'admin', name: 'Admin', icon: <FaUserShield className="w-4 h-4" /> }] : []),
     ];
 
     const renderSectionContent = () => {
@@ -318,6 +323,9 @@ function Settings() {
 
             case 'data':
                 return <DataSection />;
+
+            case 'admin':
+                return <AdminPanel />;
 
             default:
                 return null;
